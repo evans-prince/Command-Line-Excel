@@ -6,7 +6,7 @@
 #include<stdbool.h>
 
 typedef struct cell {
-    int *val;
+    int val;
     bool dependency;
 }cell;
 

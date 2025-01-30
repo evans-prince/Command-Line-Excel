@@ -21,7 +21,7 @@ sheet *create_sheet(int rows, int cols){
     for(int i=0;i<rows;i++){
         s->grid[i]=(cell *)malloc(cols*sizeof(cell));
         for(int j=0;j<cols;j++){
-            s->grid[i][j].val=NULL;
+            s->grid[i][j].val=0;
             s->grid[i][j].dependency=false;
         }
     }
