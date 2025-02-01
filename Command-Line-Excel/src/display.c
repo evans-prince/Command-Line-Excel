@@ -27,7 +27,6 @@ void display_sheet(sheet *s){
         printf("%-*s\t",width,col_index_to_name(j));
     }
 
-    // s->grid[3][3].val=INT_MAX;
     // Print the grid
     printf("\n");
     for (int i=first_row;i<=last_row;i++){
