@@ -1,7 +1,7 @@
 #include "../include/display.h"
 #include "../include/scrolling.h"
 #include "../include/spreadsheet.h"
-#include "../include/util.h"
+#include "../include/utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,7 +9,9 @@
 
 int main(void) {
     // insert code here...
-    sheet *s = create_sheet(100,100);
+    int r,c;
+    scanf("Enter row : %d Enter col : %d ", &r , &c);
+    sheet *s = create_sheet(r,c);
     //printf("%d , %d \n" , s->bounds.first_row , s->bounds.first_col );
     display_sheet(s);
     //scroll(s, 'd');
