@@ -1,3 +1,5 @@
+#include "../include/utils.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,8 +31,10 @@ char *col_index_to_name(int col){
     return name;
 }
 
-// int main(){
-//     int col=18277;
-//     char *name=col_index_to_name(col);
-//     printf("%s\n",name);
-// }
+int max ( int a , int b ) {
+    return (a>=b) ? a : b;
+}
+
+int min ( int a , int b ) {
+    return (a>=b) ? b : a;
+}

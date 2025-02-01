@@ -1,13 +1,12 @@
 #include "../include/display.h"
-#include "../lib/utils.c"
-#include "spreadsheet.c"
+#include "../include/utils.h"
+#include "../include/spreadsheet.h"
+#include "../include/util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
 
-#define MIN(a,b) (a<b?a:b);
-#define MAX(a,b) (a<b?b:a);
 
 // Function to display the sheet
 void display_sheet(sheet *s){
@@ -16,8 +15,8 @@ void display_sheet(sheet *s){
 
     int first_row=s->bounds.first_row;
     int first_col=s->bounds.first_col;
-    int last_row=MIN(first_row+9,rows-1);
-    int last_col=MIN(first_col+9,cols-1);
+    int last_row=min(first_row+9,rows-1);
+    int last_col=min(first_col+9,cols-1);
 
     int width=10;
 
@@ -27,6 +26,16 @@ void display_sheet(sheet *s){
         printf("%-*s\t",width,col_index_to_name(j));
     }
 
+    printf("\n");
+    // Add a horizontal line separator for column headers
+    printf("\t");
+    for (int j = first_col; j <= last_col; j++) {
+        for (int k = 0; k <= width; k++) {
+            printf("-");
+        }
+        printf("-");
+    }
+    
     // Print the grid
     printf("\n");
     for (int i=first_row;i<=last_row;i++){
@@ -37,9 +46,3 @@ void display_sheet(sheet *s){
         printf("\n");
     }
 }
-
-// int main(){
-//     sheet *s=create_sheet(55,55);
-//     display_sheet(s);
-//     return 0;
-// }
