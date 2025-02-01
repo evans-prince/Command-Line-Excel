@@ -1,7 +1,6 @@
 #include "../include/display.h"
 #include "../include/utils.h"
 #include "../include/spreadsheet.h"
-#include "../include/util.h"
 
 #include <stdio.h>
 #include <stdlib.h>
