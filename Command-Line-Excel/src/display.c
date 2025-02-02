@@ -26,14 +26,6 @@ void display_sheet(sheet *s){
     }
 
     printf("\n");
-    // Add a horizontal line separator for column headers
-    printf("\t");
-    for (int j = first_col; j <= last_col; j++) {
-        for (int k = 0; k <= width; k++) {
-            printf("-");
-        }
-        printf("-");
-    }
     
     // Print the grid
     printf("\n");
