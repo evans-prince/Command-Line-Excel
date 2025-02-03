@@ -1,6 +1,10 @@
 #include "../include/display.h"
-#include "../include/utils.h"
+#include "../include/formula_parser.h"
+#include "../include/input_handler.h"
+#include "../include/recalculation.h"
+#include "../include/scrolling.h"
 #include "../include/spreadsheet.h"
+#include "../include/utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>

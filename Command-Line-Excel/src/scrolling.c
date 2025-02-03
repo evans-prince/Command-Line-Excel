@@ -1,9 +1,13 @@
+#include "../include/display.h"
+#include "../include/formula_parser.h"
+#include "../include/input_handler.h"
+#include "../include/recalculation.h"
+#include "../include/scrolling.h"
+#include "../include/spreadsheet.h"
+#include "../include/utils.h"
+
 #include<stdio.h>
 #include<stdlib.h>
-#include "../include/spreadsheet.h"
-#include "../include/display.h"
-#include "../include/scrolling.h"
-#include "../include/utils.h"
 
 void scroll ( sheet *sheet , char scroll_direction) {
     int first_row = sheet->bounds.first_row;
