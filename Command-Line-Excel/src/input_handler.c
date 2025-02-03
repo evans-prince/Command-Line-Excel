@@ -35,6 +35,7 @@ struct input* create_input(void){
     return new_input;
 }
 
+// Function to free the memory allocated to the input struct
 void free_input(struct input* in){// ALL THIS FUNCTION DO IS JUST FREE THE MEMORY ALLOCATED
     // BY THE MALLAC TO STRUCT OBJECT INPUT
     
@@ -65,6 +66,7 @@ void free_input(struct input* in){// ALL THIS FUNCTION DO IS JUST FREE THE MEMOR
     free(in);
 }
 
+// Function to find the type of input
 InputType find_input_type(char * raw_input){
     // please don't mess with raw_input
     
@@ -110,52 +112,96 @@ InputType find_input_type(char * raw_input){
     return INVALID_INPUT;
 }
 
-void parse_input(struct input* in){
+void parse_input(struct input* in){ // ! To be edited
     return;
 }
 
-bool is_scroll_command(const char * raw_input){
+// Function to check if the input is a scroll command
+bool is_scroll_command(const char * raw_input){ 
     
     if (raw_input == NULL) {
-            return false; // Handle null input safely
-        }
+        return false; // Handle null input safely
+    }
     
     if(strlen(raw_input)==1 && strchr("wasd", raw_input[0]) != NULL){
         return true;
     }
     return false;
 }
+
+// Function to check if the input is a quit command
 bool is_quit_command(const char * raw_input){
     
     if (raw_input == NULL) {
-            return false; // Handle null input safely
-        }
+        return false; // Handle null input safely
+    }
     
     if(strlen(raw_input)==1 && raw_input[0]=='q'){
         return true;
     }
     return false;
 }
-bool is_cell_value_assignment(const char * raw_input){
+
+// Function to check if the input is a direct numeric assignment of cell value
+bool is_cell_value_assignment(const char * raw_input){ 
     if (raw_input == NULL) {
-            return false; // Handle null input safely
+        return false; // Handle null input safely
+    }
+    
+    char *f=strchr(raw_input,'='); // Gets the first occurence of '='
+    if(f!=NULL){
+        char *after=f+1; // we can use this to get the value
+        char *before=strncpy((char *)malloc(sizeof(char)),raw_input,f-raw_input); // we can use this to get the cell name
+
+        if(is_expression(raw_input) && is_cell_name(before)){
+            return true;
         }
-    
-    
-    
+
+        free(before);
+
+    }
     return false;
 }
-bool is_function_call(const char * raw_input){
+
+// Function to check if the input is a function call
+bool is_function_call(const char * raw_input){ // ! To be edited
     if (raw_input == NULL) {
-            return false; // Handle null input safely
-        }
+        return false; // Handle null input safely
+    }
     
+    char *open=strchr(raw_input,'('); // Gets the first occurence of '('
+    char *close=strchr(raw_input,')'); // Gets the first occurence of ')'
+    char *range=strchr(raw_input,':'); // Gets the first occurence of ':'
+
+    if(open!=NULL && close!=NULL && range!=NULL){
+        if(!(open<range && range<close)){
+            return false;
+        }
+    }
+
+    char *func=strncpy((char *)malloc(sizeof(char)),raw_input,open-raw_input); // we can use this to get the function name
+    if (!(strcmp(func,"MAX")==0 || strcmp(func,"MIN")==0 || strcmp(func,"SUM")==0 || strcmp(func,"AVG")==0 || 
+    strcmp(func, "STDEV")==0 || strcmp(func, "SLEEP")==0)){
+        return false;
+    }
+
+    // if(f!=NULL){
+    //     char *after=f+1; // we can use this to get the value
+    //     char *before=strncpy((char *)malloc(sizeof(char)),raw_input,f-raw_input); // we can use this to get the cell name
+
+    //     if(is_expression(raw_input) && is_cell_name(before)){
+    //         return true;
+    //     }
+
+    // }
     return false;
 }
-bool is_cell_dependent_formula(const char * raw_input){
+
+// Function to check if the input is a cell dependent formula
+bool is_cell_dependent_formula(const char * raw_input){ // ! To be edited
     if (raw_input == NULL) {
-            return false; // Handle null input safely
-        }
+        return false; // Handle null input safely
+    }
     
     return false;
 }

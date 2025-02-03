@@ -35,7 +35,7 @@ struct input {
     char *cell_reference;         // Cell reference like BB321
     char *value;                  // Value to assign to a cell like A1=20
     char *formula;                // Formula involving dependencies like  B3+2
-    char *command;                // Command like scrolling w, a,q
+    char *command;                // Command like scrolling w, a, q
     char *function_name;          // Function name SUM, AVG, STDEV
     Range *range;                 // Parsed range of cells.
     char *arithmetic_expression;  // Arithmetic expression (like "2+3").
@@ -47,8 +47,7 @@ struct input* create_input(void);//initializes the input struct.
 void free_input(struct input* in); // Frees all dynamically allocated memory in the struct.
 
 void parse_input(struct input* in);// its function is : depending on input type it update our input object
-// like if its type is croll_command just update command field rest need not to
-// be cahanged.
+// Like if its type is scroll_command just update command field rest need not to be cahanged.
 InputType find_input_type(char * raw_input);
 
 

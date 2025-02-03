@@ -41,6 +41,7 @@ int min ( int a , int b ) {
     return (a>=b) ? b : a;
 }
 
+// Function to remove spaces from a string
 void remove_space(char *c){
     char *i = c, *j = c;
     while (*j != '\0') {
@@ -52,3 +53,69 @@ void remove_space(char *c){
     *i = '\0';
     return;
 }
+
+// Function to check if a string is an integer
+bool is_integer(char *s){
+    if(s==NULL){
+        return false; // Handle null input safely
+    }
+
+    char *endp;
+    strtol(s,&endp,10); // Convert the string to a long integer
+    if(endp=='\0'){
+        return true; // If the conversion is successful, the string is an integer
+    }
+    return false;
+}
+
+// Function to check if a string is an explicit assignment or a mathematical expression
+bool is_expression(char *s){
+    if(s==NULL){
+        return false; // Handle null input safely
+    }
+
+    // If the first character is not a digit, the string is not a valid expression
+    if(!isdigit(*s)){
+        return false;
+    }
+    s++;
+
+    bool flag=false; // Flag to check if an operator has been seen
+    while(*s!='\0'){
+        if(!flag && (*s=='+' || *s=='-' || *s=='*' || *s=='/')){ //If this is the first time an operator is seen
+            flag=true;
+            s++;
+        }
+        else if(isdigit(*s)){ // 
+            s++;
+        }
+        else{
+            return false;
+        }
+    }
+    return true;
+}
+
+bool is_cell_name(char *s){
+    if(s==NULL){
+        return false; // Handle null input safely
+    }
+
+    bool flag_num=false;
+    bool flag_alpha=false;
+    while(*s!='\0'){
+        if(!flag_num && isalpha(*s)){ // Checks for a continuous stream of alphabets
+            s++;
+            flag_alpha=true;
+        } 
+        else if(flag_alpha && isdigit(*s)){ // Checks for a continuous stream of digits
+            s++;
+            flag_num=true;
+        }
+        else{
+            return false;
+        }
+    }
+    return true;
+}
+
