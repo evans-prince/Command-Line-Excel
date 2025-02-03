@@ -51,3 +51,11 @@ void free_input(struct input* in){// ALL THIS FUNCTION DO IS JUST FREE THE MEMOR
     
     free(in);
 }
+
+InputType find_input_type(const char * raw_input){
+    return NOT_DECIDED;
+}
+
+void parse_input(struct input* in){
+    return;
+}

@@ -35,8 +35,14 @@ struct input {
     char *arithmetic_expression;  // Arithmetic expression (like "2+3").
 };
 
+// constructor function
 struct input* create_input(void);//initializes the input struct.
+// destructor function
 void free_input(struct input* in); // Frees all dynamically allocated memory in the struct.
 
+void parse_input(struct input* in);// its function is : depending on input type it update our input object
+// like if its type is croll_command just update command field rest need not to
+// be cahanged.
+InputType find_input_type(const char * raw_input);
 #endif
 
