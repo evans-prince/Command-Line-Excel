@@ -1,0 +1,42 @@
+#ifndef INPUT_HANDLER_H
+#define INPUT_HANDLER_H
+
+#include"display.h"
+#include"formula_parser.h"
+#include"recalculation.h"
+#include"scrolling.h"
+#include"spreadsheet.h"
+#include"utils.h"
+
+typedef enum {
+    NOT_DECIDED= -1,
+    CELL_VALUE_ASSIGNMENT = 0,
+    CELL_DEPENDENT_FORMULA = 1,
+    SCROLL_COMMAND = 2,
+    FUNCTION_CALL = 3,// function like MIN , MAX , STDEV , SUM , AVG , SLEEP
+    QUIT_COMMAND = 4,
+    INVALID_INPUT = 5
+} InputType;
+
+typedef struct {
+    char *start_cell;
+    char *end_cell;
+} Range;
+
+struct input {
+    InputType input_type;         // Type of input (e.g., cell assignment, formula, command).
+    char *raw_input;              // Original raw input string from the user.
+    char *cell_reference;         // Cell reference (e.g., "A1").
+    char *value;                  // Value to assign to a cell (e.g., "20" for A1=20).
+    char *formula;                // Formula involving dependencies (e.g., "B3+2").
+    char *command;                // Command like scrolling ("w", "a"), quit ("q"), etc.
+    char *function_name;          // Function name (e.g., "SUM", "AVG", "STDEV").
+    Range *range;                 // Parsed range of cells.
+    char *arithmetic_expression;  // Arithmetic expression (e.g., "2+3").
+};
+
+struct input* create_input();        //initializes the input struct.
+void free_input(struct input* in);  // Frees all dynamically allocated memory in the struct.
+
+#endif
+
