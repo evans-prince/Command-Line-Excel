@@ -6,8 +6,11 @@
 #include "../include/spreadsheet.h"
 #include "../include/utils.h"
 
-#include<stdio.h>
 #include<stdlib.h>
+#include<stdio.h>
+#include<stdbool.h>
+#include<string.h>
+#include <limits.h>
 
 void scroll ( sheet *sheet , char scroll_direction) {
     int first_row = sheet->bounds.first_row;

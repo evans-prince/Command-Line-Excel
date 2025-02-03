@@ -8,6 +8,12 @@
 #include"spreadsheet.h"
 #include"utils.h"
 
+#include<stdlib.h>
+#include<stdio.h>
+#include<stdbool.h>
+#include<string.h>
+#include <limits.h>
+
 typedef enum {
     NOT_DECIDED= -1,
     CELL_VALUE_ASSIGNMENT = 0,
@@ -43,6 +49,13 @@ void free_input(struct input* in); // Frees all dynamically allocated memory in 
 void parse_input(struct input* in);// its function is : depending on input type it update our input object
 // like if its type is croll_command just update command field rest need not to
 // be cahanged.
-InputType find_input_type(const char * raw_input);
+InputType find_input_type(char * raw_input);
+
+
+bool is_scroll_command(const char * raw_input);
+bool is_quit_command(const char * raw_input);
+bool is_cell_value_assignment(const char * raw_input);
+bool is_function_call(const char * raw_input);
+bool is_cell_dependent_formula(const char * raw_input);
 #endif
 

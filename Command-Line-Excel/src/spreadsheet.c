@@ -6,9 +6,11 @@
 #include "../include/spreadsheet.h"
 #include "../include/utils.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-
+#include<stdlib.h>
+#include<stdio.h>
+#include<stdbool.h>
+#include<string.h>
+#include <limits.h>
 // Function to create a new sheet
 sheet *create_sheet(int rows, int cols){
 
