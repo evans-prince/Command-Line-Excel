@@ -26,13 +26,13 @@ typedef struct {
 struct input {
     InputType input_type;         // Type of input (e.g., cell assignment, formula, command).
     char *raw_input;              // Original raw input string from the user.
-    char *cell_reference;         // Cell reference (e.g., "A1").
-    char *value;                  // Value to assign to a cell (e.g., "20" for A1=20).
-    char *formula;                // Formula involving dependencies (e.g., "B3+2").
-    char *command;                // Command like scrolling ("w", "a"), quit ("q"), etc.
-    char *function_name;          // Function name (e.g., "SUM", "AVG", "STDEV").
+    char *cell_reference;         // Cell reference like BB321
+    char *value;                  // Value to assign to a cell like A1=20
+    char *formula;                // Formula involving dependencies like  B3+2
+    char *command;                // Command like scrolling w, a,q
+    char *function_name;          // Function name SUM, AVG, STDEV
     Range *range;                 // Parsed range of cells.
-    char *arithmetic_expression;  // Arithmetic expression (e.g., "2+3").
+    char *arithmetic_expression;  // Arithmetic expression (like "2+3").
 };
 
 struct input* create_input();        //initializes the input struct.
