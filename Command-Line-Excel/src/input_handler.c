@@ -97,7 +97,7 @@ InputType find_input_type(char * raw_input){
         return CELL_VALUE_ASSIGNMENT;
     }
     if (is_function_call(raw_input)) {
-        // if it includes range then it is function_call
+        // if it includes range then it is function_call or sleep
         return FUNCTION_CALL;
     }
     if (is_cell_dependent_formula(raw_input)) {
@@ -115,17 +115,47 @@ void parse_input(struct input* in){
 }
 
 bool is_scroll_command(const char * raw_input){
+    
+    if (raw_input == NULL) {
+            return false; // Handle null input safely
+        }
+    
+    if(strlen(raw_input)==1 && strchr("wasd", raw_input[0]) != NULL){
+        return true;
+    }
     return false;
 }
 bool is_quit_command(const char * raw_input){
+    
+    if (raw_input == NULL) {
+            return false; // Handle null input safely
+        }
+    
+    if(strlen(raw_input)==1 && raw_input[0]=='q'){
+        return true;
+    }
     return false;
 }
 bool is_cell_value_assignment(const char * raw_input){
+    if (raw_input == NULL) {
+            return false; // Handle null input safely
+        }
+    
+    
+    
     return false;
 }
 bool is_function_call(const char * raw_input){
+    if (raw_input == NULL) {
+            return false; // Handle null input safely
+        }
+    
     return false;
 }
 bool is_cell_dependent_formula(const char * raw_input){
+    if (raw_input == NULL) {
+            return false; // Handle null input safely
+        }
+    
     return false;
 }
