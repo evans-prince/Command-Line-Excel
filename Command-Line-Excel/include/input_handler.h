@@ -35,8 +35,8 @@ struct input {
     char *arithmetic_expression;  // Arithmetic expression (like "2+3").
 };
 
-struct input* create_input();        //initializes the input struct.
-void free_input(struct input* in);  // Frees all dynamically allocated memory in the struct.
+struct input* create_input(void);//initializes the input struct.
+void free_input(struct input* in); // Frees all dynamically allocated memory in the struct.
 
 #endif
 
