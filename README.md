@@ -18,3 +18,14 @@ Also, dereferencing a pointer takes time which can be minimized if we use normal
 Thus, using normal variables significantly reduces the memory and time constraints of our program.
 
 • In spreadsheet_bounds- As there is only one instance of spreadsheet_bounds, normal variables are simpler and sufficient. Normal variables also avoid the overhead of dynamic allocation and pointer dereferencing.
+
+
+# THIS SECTION DISCUSS INPUT_HANDLER FILE 
+
+* As input is evaluated one input at a time we didn't did memory analysis in that deep as while defining spreadsheet.h as that object would take memory for each cell and memory management is crucial there , however here few extra bytes won't affect for all practical purposes.
+
+* Hence we have decided for the sake of modularity of code instead of direct parsing the input and calling functions when necessarily we first initialised the object input containing several fields includeing input_type ; default set to NULL and NOT_DECIDED respectively then parse it proceed. This decision convinced us that if needed we can add further functionality to it without much effort (compared to if we have parsed directoly without any input struct), debugging is also esay as well as testing and understanding of code. Once again by doing this we have realised the importance of OOPS.
+
+* For the ease of readibility we have use enumeration when defining input_type.
+
+** --------------------MORE TO BE ADDED : WIP -------------------------------- 
