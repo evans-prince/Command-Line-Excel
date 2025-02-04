@@ -143,7 +143,7 @@ bool is_quit_command(const char * raw_input){
 }
 
 // Function to check if the input is a direct numeric assignment of cell value
-bool is_cell_value_assignment(const char * raw_input){ 
+bool is_cell_value_assignment(const char * raw_input){  // A1=10, A1=10+2
     if (raw_input == NULL) {
         return false; // Handle null input safely
     }
@@ -153,18 +153,28 @@ bool is_cell_value_assignment(const char * raw_input){
         char *after=f+1; // we can use this to get the value
         char *before=strncpy((char *)malloc(sizeof(char)),raw_input,f-raw_input); // we can use this to get the cell name
 
-        if(is_expression(raw_input) && is_cell_name(before)){
+        if(is_expression(after) && is_cell_name(before)){
             return true;
         }
 
         free(before);
-
     }
     return false;
 }
 
 // Function to check if the input is a function call
-bool is_function_call(const char * raw_input){ // ! To be edited
+bool is_function_call(const char * raw_input){ // ! To be edited            
+// A2=A1+1
+    if (raw_input == NULL) {
+        return false; // Handle null input safely
+    }
+    
+    return false;
+}
+
+// Function to check if the input is a cell dependent formula
+bool is_cell_dependent_formula(const char * raw_input){ // ! To be edited
+// A2=MAX(B1:B10)
     if (raw_input == NULL) {
         return false; // Handle null input safely
     }
@@ -173,11 +183,11 @@ bool is_function_call(const char * raw_input){ // ! To be edited
     char *close=strchr(raw_input,')'); // Gets the first occurence of ')'
     char *range=strchr(raw_input,':'); // Gets the first occurence of ':'
 
-    if(open!=NULL && close!=NULL && range!=NULL){
-        if(!(open<range && range<close)){
-            return false;
-        }
-    }
+    // if(open!=NULL && close!=NULL){
+    //     if(!(open<range && range<close)){
+    //         return false;
+    //     }
+    // }
 
     char *func=strncpy((char *)malloc(sizeof(char)),raw_input,open-raw_input); // we can use this to get the function name
     if (!(strcmp(func,"MAX")==0 || strcmp(func,"MIN")==0 || strcmp(func,"SUM")==0 || strcmp(func,"AVG")==0 || 
@@ -194,14 +204,6 @@ bool is_function_call(const char * raw_input){ // ! To be edited
     //     }
 
     // }
-    return false;
-}
 
-// Function to check if the input is a cell dependent formula
-bool is_cell_dependent_formula(const char * raw_input){ // ! To be edited
-    if (raw_input == NULL) {
-        return false; // Handle null input safely
-    }
-    
     return false;
 }

@@ -82,11 +82,11 @@ bool is_expression(char *s){
 
     bool flag=false; // Flag to check if an operator has been seen
     while(*s!='\0'){
-        if(!flag && (*s=='+' || *s=='-' || *s=='*' || *s=='/')){ //If this is the first time an operator is seen
+        if(!flag && (*s=='+' || *s=='-' || *s=='*' || *s=='/')){ // If this is the first time an operator is seen
             flag=true;
             s++;
         }
-        else if(isdigit(*s)){ // 
+        else if(isdigit(*s)){ // If a digit is encountered
             s++;
         }
         else{
@@ -96,20 +96,26 @@ bool is_expression(char *s){
     return true;
 }
 
+// Function to check if a string is a valid cell name
 bool is_cell_name(char *s){
-    if(s==NULL){
-        return false; // Handle null input safely
+    if(s==NULL || strlen(s)>6){
+        return false; // Handle null input safely and check if the length of the string is greater than 6 (Maximum cell name 'ZZZ999')
     }
 
-    bool flag_num=false;
-    bool flag_alpha=false;
+    bool flag_num=false, flag_alpha=false; // Flags to check if a number or alphabet has been seen
+    int alpha_count=0, num_count=0; // Count of alphabets and numbers
     while(*s!='\0'){
+        if(alpha_count>3 || num_count>3){ // If the count of alphabets or numbers exceeds 3
+            return false;
+        }
         if(!flag_num && isalpha(*s)){ // Checks for a continuous stream of alphabets
             s++;
+            alpha_count++;
             flag_alpha=true;
         } 
         else if(flag_alpha && isdigit(*s)){ // Checks for a continuous stream of digits
             s++;
+            num_count++;
             flag_num=true;
         }
         else{
