@@ -4,7 +4,8 @@
 #include<stdio.h>
 #include<stdbool.h>
 #include<string.h>
-#include <limits.h>
+#include<limits.h>
+#include<ctype.h>
 
 // Function to convert column index to name
 char *col_index_to_name(int col){
@@ -98,17 +99,17 @@ bool is_expression(char *s){
 
 // Function to check if a string is a valid cell name
 bool is_cell_name(char *s){
-    if(s==NULL || strlen(s)>6){
+    if(s==NULL || strlen(s)>6 || strlen(s)<2){
         return false; // Handle null input safely and check if the length of the string is greater than 6 (Maximum cell name 'ZZZ999')
     }
 
-    bool flag_num=false, flag_alpha=false; // Flags to check if a number or alphabet has been seen
+    bool flag_num=false, flag_alpha=false; // Flags to check if a   number or alphabet has been seen
     int alpha_count=0, num_count=0; // Count of alphabets and numbers
     while(*s!='\0'){
         if(alpha_count>3 || num_count>3){ // If the count of alphabets or numbers exceeds 3
             return false;
         }
-        if(!flag_num && isalpha(*s)){ // Checks for a continuous stream of alphabets
+        if(!flag_num && isupper(*s)){ // Checks for a continuous stream of alphabets
             s++;
             alpha_count++;
             flag_alpha=true;
@@ -122,6 +123,5 @@ bool is_cell_name(char *s){
             return false;
         }
     }
-    return true;
+    return (alpha_count>0 && num_count>0)?true:false; // If both alphabets and numbers are present
 }
-
