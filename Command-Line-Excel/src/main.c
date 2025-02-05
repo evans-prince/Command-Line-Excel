@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     display_sheet(s);
     char *input = NULL;
     size_t len = 0;
-    char command;
+    char command[100];
     
     while (true) {
         printf("Enter the command (or 'q' to quit): ");
@@ -41,9 +41,10 @@ int main(int argc, char *argv[]) {
         }
         
         // Parse input and call function
-        if (sscanf(input, "%s" ,&command) == 1) {
-            scroll(s, command);
-            display_sheet(s);
+        if (sscanf(input, "%99s" ,&command) == 1) {
+            // scroll(s, command);
+            printf("%d\n",is_cell_value_assignment(command));
+            // display_sheet(s);
         } else {
             printf("Invalid input! Try again.\n");
         }

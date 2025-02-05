@@ -30,8 +30,6 @@ void display_sheet(sheet *s){
     for(int j=first_col;j<=last_col;j++){
         printf("%-*s\t",width,col_index_to_name(j));
     }
-
-    printf("\n");
     
     // Print the grid
     printf("\n");

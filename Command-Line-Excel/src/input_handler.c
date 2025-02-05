@@ -143,7 +143,7 @@ bool is_quit_command(const char * raw_input){
 }
 
 // Function to check if the input is a direct numeric assignment of cell value
-bool is_cell_value_assignment(const char * raw_input){  // A1=10, A1=10+2
+bool is_cell_value_assignment(const char * raw_input){  
     if (raw_input == NULL) {
         return false; // Handle null input safely
     }
@@ -151,7 +151,12 @@ bool is_cell_value_assignment(const char * raw_input){  // A1=10, A1=10+2
     char *f=strchr(raw_input,'='); // Gets the first occurence of '='
     if(f!=NULL){
         char *after=f+1; // we can use this to get the value
-        char *before=strncpy((char *)malloc(sizeof(char)),raw_input,f-raw_input); // we can use this to get the cell name
+        printf("%s\n",after);
+
+        char *before=(char *)malloc((f-raw_input+1)*sizeof(char));
+        strncpy(before,raw_input,f-raw_input); // we can use this to get the cell name
+        before[f-raw_input]='\0';
+        printf("%s\n",before);
 
         if(is_expression(after) && is_cell_name(before)){
             return true;
@@ -164,7 +169,6 @@ bool is_cell_value_assignment(const char * raw_input){  // A1=10, A1=10+2
 
 // Function to check if the input is a function call
 bool is_function_call(const char * raw_input){ // ! To be edited            
-// A2=A1+1
     if (raw_input == NULL) {
         return false; // Handle null input safely
     }
@@ -174,7 +178,6 @@ bool is_function_call(const char * raw_input){ // ! To be edited
 
 // Function to check if the input is a cell dependent formula
 bool is_cell_dependent_formula(const char * raw_input){ // ! To be edited
-// A2=MAX(B1:B10)
     if (raw_input == NULL) {
         return false; // Handle null input safely
     }

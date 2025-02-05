@@ -63,10 +63,14 @@ bool is_integer(char *s){
 
     char *endp;
     strtol(s,&endp,10); // Convert the string to a long integer
-    if(endp=='\0'){
+    if(*endp=='\0'){
         return true; // If the conversion is successful, the string is an integer
     }
     return false;
+}
+
+bool is_operator(char s){
+    return (s=='+' || s=='-' || s=='*' || s=='/')?true:false;
 }
 
 // Function to check if a string is an explicit assignment or a mathematical expression
@@ -75,24 +79,42 @@ bool is_expression(char *s){
         return false; // Handle null input safely
     }
 
-    // If the first character is not a digit, the string is not a valid expression
-    if(!isdigit(*s)){
+    // If the first character is something other than a digit or a '+' or a '-', the string is not a valid expression
+    if(!(isdigit(*s) || *s=='+' || *s=='-')){
         return false;
     }
-    s++;
-
-    bool flag=false; // Flag to check if an operator has been seen
+    if(*s=='+' || *s=='-'){
+        s++;
+    }
+    
+    bool flag_digit=false;
+    // bool flag_op=false; // Flags to check if a digit or operator has been seen
+    int op_count=0; // Count of operators
     while(*s!='\0'){
-        if(!flag && (*s=='+' || *s=='-' || *s=='*' || *s=='/')){ // If this is the first time an operator is seen
-            flag=true;
+        if(isdigit(*s)){ // If the character is a digit
+            flag_digit=true;
+            // flag_op=false;
             s++;
         }
-        else if(isdigit(*s)){ // If a digit is encountered
+        else if(flag_digit && is_operator(*s)){ // If the character is an operator and the previous character was a digit
+            op_count++;
+            if(op_count>1){ // If the count of operators exceeds 1
+                return false;
+            }
+            flag_digit=false;
+            // flag_op=true;
+            s++;
+        }
+        else if(!flag_digit && (*s=='+' || *s=='-')){ // If the character is a '+' or '-' and the previous character was an operator
+            flag_digit=true;
             s++;
         }
         else{
             return false;
         }
+    }
+    if(!flag_digit){ // If the last character was an operator
+        return false;
     }
     return true;
 }
@@ -103,18 +125,18 @@ bool is_cell_name(char *s){
         return false; // Handle null input safely and check if the length of the string is greater than 6 (Maximum cell name 'ZZZ999')
     }
 
-    bool flag_num=false, flag_alpha=false; // Flags to check if a   number or alphabet has been seen
+    bool flag_num=false, flag_alpha=false; // Flags to check if a number or alphabet has been seen
     int alpha_count=0, num_count=0; // Count of alphabets and numbers
     while(*s!='\0'){
         if(alpha_count>3 || num_count>3){ // If the count of alphabets or numbers exceeds 3
             return false;
         }
-        if(!flag_num && isupper(*s)){ // Checks for a continuous stream of alphabets
+        if(!flag_num && isupper(*s) && *s>='A'){ // Checks for a continuous stream of alphabets
             s++;
             alpha_count++;
             flag_alpha=true;
         } 
-        else if(flag_alpha && isdigit(*s)){ // Checks for a continuous stream of digits
+        else if(flag_alpha && isdigit(*s) && *s>'0'){ // Checks for a continuous stream of digits
             s++;
             num_count++;
             flag_num=true;
