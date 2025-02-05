@@ -172,7 +172,6 @@ bool is_function_call(const char * raw_input){ // ! To be edited
     if (raw_input == NULL) {
         return false; // Handle null input safely
     }
-    
     return false;
 }
 
@@ -181,32 +180,8 @@ bool is_cell_dependent_formula(const char * raw_input){ // ! To be edited
     if (raw_input == NULL) {
         return false; // Handle null input safely
     }
+   
+    char *f=strchr(raw_input,'=');//getting the first occurance of '='
     
-    char *open=strchr(raw_input,'('); // Gets the first occurence of '('
-    char *close=strchr(raw_input,')'); // Gets the first occurence of ')'
-    char *range=strchr(raw_input,':'); // Gets the first occurence of ':'
-
-    // if(open!=NULL && close!=NULL){
-    //     if(!(open<range && range<close)){
-    //         return false;
-    //     }
-    // }
-
-    char *func=strncpy((char *)malloc(sizeof(char)),raw_input,open-raw_input); // we can use this to get the function name
-    if (!(strcmp(func,"MAX")==0 || strcmp(func,"MIN")==0 || strcmp(func,"SUM")==0 || strcmp(func,"AVG")==0 || 
-    strcmp(func, "STDEV")==0 || strcmp(func, "SLEEP")==0)){
-        return false;
-    }
-
-    // if(f!=NULL){
-    //     char *after=f+1; // we can use this to get the value
-    //     char *before=strncpy((char *)malloc(sizeof(char)),raw_input,f-raw_input); // we can use this to get the cell name
-
-    //     if(is_expression(raw_input) && is_cell_name(before)){
-    //         return true;
-    //     }
-
-    // }
-
     return false;
 }

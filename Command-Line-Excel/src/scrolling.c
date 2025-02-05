@@ -23,13 +23,13 @@ void scroll ( sheet *sheet , char scroll_direction) {
             sheet->bounds.first_row = max(0,first_row-10);
             break;
         case 's':
-            sheet->bounds.first_row = min(last_row-1,first_row+10);
+            sheet->bounds.first_row = min(first_row,first_row+10);
             break;
         case 'a':
             sheet->bounds.first_col = max(0,first_col-10);
             break;
         case 'd':
-            sheet->bounds.first_col = min(last_col-1,first_col+10);
+            sheet->bounds.first_col = min(first_col,first_col+10);
             break;
     }
     return;
