@@ -148,7 +148,7 @@ bool is_cell_name(char *s){
     return (alpha_count>0 && num_count>0)?true:false; // If both alphabets and numbers are present
 }
 
-
+// Function to check if a string is a valid function name
 int is_function_name(char *s){
     if(s==NULL){
         return 0; // Handle null input safely
@@ -162,4 +162,8 @@ int is_function_name(char *s){
     else{
         return 0;
     }
+}
+
+bool is_range(char *s){ // ! To be edited
+    return false;
 }
