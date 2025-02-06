@@ -17,19 +17,30 @@ void scroll ( sheet *sheet , char scroll_direction) {
     int first_col= sheet->bounds.first_col;
     int last_row = sheet->num_rows;
     int last_col = sheet->num_cols;
+    
+    if(last_row <10 && (scroll_direction=='s' || scroll_direction=='w')){
+        return;//nothing to be done
+    }
 
+    if(last_col<10 && (scroll_direction=='a' || scroll_direction=='d')){
+        return;//nothing to be done
+    }
+    
     switch(scroll_direction){
         case 'w':
+            if (first_row > 0)
             sheet->bounds.first_row = max(0,first_row-10);
             break;
         case 's':
-            sheet->bounds.first_row = min(first_row,first_row+10);
+            if (first_row + 10 < last_row)
+                sheet->bounds.first_row =min(first_row+20,last_row-1)-10;
             break;
         case 'a':
+            if (first_col > 0)
             sheet->bounds.first_col = max(0,first_col-10);
             break;
         case 'd':
-            sheet->bounds.first_col = min(first_col,first_col+10);
+            sheet->bounds.first_col = min(first_col+20,last_col-1)-10;
             break;
     }
     return;
