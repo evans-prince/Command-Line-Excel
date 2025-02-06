@@ -87,13 +87,13 @@ bool is_expression(char *s){
         s++;
     }
     
-    bool flag_digit=false;
-    // bool flag_op=false; // Flags to check if a digit or operator has been seen
+    bool flag_digit=false; // Flag to check if a digit has been seen
+    bool flag_op=false; // Flags to check if operator has been seen
     int op_count=0; // Count of operators
     while(*s!='\0'){
         if(isdigit(*s)){ // If the character is a digit
             flag_digit=true;
-            // flag_op=false;
+            flag_op=false;
             s++;
         }
         else if(flag_digit && is_operator(*s)){ // If the character is an operator and the previous character was a digit
@@ -102,18 +102,18 @@ bool is_expression(char *s){
                 return false;
             }
             flag_digit=false;
-            // flag_op=true;
+            flag_op=true;
             s++;
         }
-        else if(!flag_digit && (*s=='+' || *s=='-')){ // If the character is a '+' or '-' and the previous character was an operator
-            flag_digit=true;
+        else if(flag_op && (*s=='+' || *s=='-')){ // If the character is a '+' or '-' and the previous character was an operator
+            flag_op=false;
             s++;
         }
         else{
             return false;
         }
     }
-    if(!flag_digit){ // If the last character was an operator
+    if(flag_op){ // If the last character was an operator
         return false;
     }
     return true;
