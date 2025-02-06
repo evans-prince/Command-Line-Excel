@@ -147,3 +147,19 @@ bool is_cell_name(char *s){
     }
     return (alpha_count>0 && num_count>0)?true:false; // If both alphabets and numbers are present
 }
+
+
+int is_function_name(char *s){
+    if(s==NULL){
+        return 0; // Handle null input safely
+    }
+    if(strcmp(s,"SUM")==0 || strcmp(s,"AVG")==0 || strcmp(s,"STDEV")==0 || strcmp(s,"MAX")==0 || strcmp(s,"MIN")==0){
+        return 1;
+    }  
+    else if(strcmp(s,"SLEEP")==0){
+        return 2;
+    }
+    else{
+        return 0;
+    }
+}

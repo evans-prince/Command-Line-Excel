@@ -150,7 +150,7 @@ bool is_cell_value_assignment(const char * raw_input){
     
     char *f=strchr(raw_input,'='); // Gets the first occurence of '='
     if(f!=NULL){
-        char *after=f+1; // we can use this to get the value
+        char *after=f+1; // We can use this to get the expression
         printf("%s\n",after);
 
         char *before=(char *)malloc((f-raw_input+1)*sizeof(char));
@@ -175,37 +175,47 @@ bool is_function_call(const char * raw_input){ // ! To be edited
     
     char *f=strchr(raw_input,'='); // Gets the first occurence of '='
     if(f!=NULL){
-        char *after=f+1; // we can use this to get the value
-        printf("%s\n",after);
 
+        // Gets the string after '=' from the input
+        char *after=f+1; // We can use this to get the expression
+        printf("AFTER = %s\n",after);
+
+        // Gets the cell name from the input
         char *before=(char *)malloc((f-raw_input+1)*sizeof(char));
-        strncpy(before,raw_input,f-raw_input); // we can use this to get the cell name
+        strncpy(before,raw_input,f-raw_input); // We can use this to get the cell name
         before[f-raw_input]='\0';
-        printf("%s\n",before);
+        printf("BEFORE = %s\n",before);
 
-        if(is_cell_name(before) && ..){
-            return true;
-        }
-
-
-        char *open=strchr(raw_input,'('); // Gets the first occurence of '('
-        char *close=strchr(raw_input,')'); // Gets the first occurence of ')'
-        char *range=strchr(raw_input,':'); // Gets the first occurence of ':'
-
-        // if(open!=NULL && close!=NULL){
-        //     if(!(open<range && range<close)){
-        //         return false;
-        //     }
-        // }
-
-        char *func=strncpy((char *)malloc(sizeof(char)),raw_input,open-raw_input); // we can use this to get the function name
-        if (!(strcmp(func,"MAX")==0 || strcmp(func,"MIN")==0 || strcmp(func,"SUM")==0 || strcmp(func,"AVG")==0 || 
-        strcmp(func, "STDEV")==0 || strcmp(func, "SLEEP")==0)){
+        char *open=strchr(after,'('); // Gets the first occurence of '('
+        if(open==NULL){ // If there is no '(' then it is not a function call
             return false;
         }
 
-        free(before);
+        // Gets the function name from the after string
+        char *func=(char *)malloc((open-after+1)*sizeof(char));
+        strncpy(func,after,open-after);
+        func[open-after]='\0';
+        printf("FUNC NAME = %s\n",func);
 
+        char *close=strrchr(after,')'); // Gets the first occurence of ')'
+        if(close==NULL){ // If there is no ')' then it is not a function call
+            return false;
+        }
+
+        // Gets the range from the after string
+        char *range=(char *)malloc((close-open)*sizeof(char));
+        strncpy(range,open+1,close-open-1);
+        range[close-open-1]='\0';
+        printf("RANGE = %s\n",range);
+
+        if(is_cell_name(before) && (is_function_name(func)==1 || is_function_name(func)==2) && (is_range(range) || is_cell_name(range))){
+            return true;
+        }
+
+        free(before);
+        free(func);
+        free(range);
+    }
     return false;
 }
 

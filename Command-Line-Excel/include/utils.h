@@ -15,5 +15,6 @@ bool is_integer(char *s);
 bool is_operator(char s);
 bool is_expression(char *s);
 bool is_cell_name(char *s);
+int is_function_name(char *s);
 
 #endif
