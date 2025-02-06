@@ -74,7 +74,7 @@ bool is_operator(char s){
 }
 
 // Function to check if a string is an explicit assignment or a mathematical expression
-bool is_expression(char *s){
+bool is_arithmetic_expression(char *s){
     if(s==NULL){
         return false; // Handle null input safely
     }
@@ -122,30 +122,30 @@ bool is_expression(char *s){
 // Function to check if a string is a valid cell name
 bool is_cell_name(char *s){
     if(s==NULL || strlen(s)>6 || strlen(s)<2){
-        return false; // Handle null input safely and check if the length of the string is greater than 6 (Maximum cell name 'ZZZ999')
-    }
+            return false; // Handle null input safely and check if the length of the string is greater than 6 (Maximum cell name 'ZZZ999')
+        }
 
-    bool flag_num=false, flag_alpha=false; // Flags to check if a number or alphabet has been seen
-    int alpha_count=0, num_count=0; // Count of alphabets and numbers
-    while(*s!='\0'){
-        if(alpha_count>3 || num_count>3){ // If the count of alphabets or numbers exceeds 3
-            return false;
+        bool flag_num=false, flag_alpha=false; // Flags to check if a number or alphabet has been seen
+        int alpha_count=0, num_count=0; // Count of alphabets and numbers
+        while(*s!='\0'){
+            if(alpha_count>3 || num_count>3){ // If the count of alphabets or numbers exceeds 3
+                return false;
+            }
+            if(!flag_num && isupper(*s) && *s>='A'){ // Checks for a continuous stream of alphabets
+                s++;
+                alpha_count++;
+                flag_alpha=true;
+            }
+            else if(flag_alpha && isdigit(*s) && *s>'0'){ // Checks for a continuous stream of digits
+                s++;
+                num_count++;
+                flag_num=true;
+            }
+            else{
+                return false;
+            }
         }
-        if(!flag_num && isupper(*s) && *s>='A'){ // Checks for a continuous stream of alphabets
-            s++;
-            alpha_count++;
-            flag_alpha=true;
-        } 
-        else if(flag_alpha && isdigit(*s) && *s>'0'){ // Checks for a continuous stream of digits
-            s++;
-            num_count++;
-            flag_num=true;
-        }
-        else{
-            return false;
-        }
-    }
-    return (alpha_count>0 && num_count>0)?true:false; // If both alphabets and numbers are present
+        return (alpha_count>0 && num_count>0)?true:false; // If both alphabets and numbers are present
 }
 
 // Function to check if a string is a valid function name
@@ -165,5 +165,38 @@ int is_function_name(char *s){
 }
 
 bool is_range(char *s){ // ! To be edited
+    return false;
+}
+
+// Function to check if string is cell dependent expression like A1=B1 or A1 = 2*-B1
+bool is_cell_expression(char *s){
+    if(s==NULL){
+        return false;
+    }
+    if(is_cell_name(s)){
+        return true;
+    }
+  
+    if(*s == '+' || *s == '-'){
+        s++;
+    }
+    
+    char *op = strpbrk(s, "+-*/");
+    if (!op || op == s) return false;
+    
+    char * value1;
+    char *value2;
+    *op = '\0';
+        value1 = s;
+    value2 = (op + 1);
+       
+
+    if(is_cell_name(value1) && is_arithmetic_expression(value2)){
+        return true;
+    }
+    
+    if(is_cell_name(value2) && is_arithmetic_expression(value1)){
+        return true;
+    }
     return false;
 }

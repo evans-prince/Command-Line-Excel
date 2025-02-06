@@ -158,7 +158,7 @@ bool is_cell_value_assignment(const char * raw_input){
         before[f-raw_input]='\0';
         printf("%s\n",before);
 
-        if(is_expression(after) && is_cell_name(before)){
+        if(is_arithmetic_expression(after) && is_cell_name(before)){
             return true;
         }
 
@@ -225,5 +225,21 @@ bool is_cell_dependent_formula(const char * raw_input){ // ! To be edited
         return false; // Handle null input safely
     }
 
+    char *f=strchr(raw_input, '=');//it gives the first occurrence of '='
+    if(f!=NULL){
+        char *after=f+1;
+       // just copying string before = from raw_input
+        char *before=(char *)malloc((f-raw_input+1)*sizeof(char));
+        strncpy(before,raw_input,f-raw_input);
+        before[f-raw_input]='\0';
+        
+        if(!is_cell_name(before)){
+            return false;
+        }
+        if(is_cell_expression(after)){
+            return true;
+        }
+        free(before);
+    }
     return false;
 }
