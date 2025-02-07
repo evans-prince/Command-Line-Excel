@@ -9,6 +9,7 @@
 
 int max ( int a , int b ) ;
 int min ( int a , int b ) ;
+void cell_name_to_index(char* str, int *rowIndex, int* colIndex);
 char *col_index_to_name(int col);
 void remove_space(char *c);
 bool is_integer(char *s);

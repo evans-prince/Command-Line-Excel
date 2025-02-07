@@ -6,7 +6,38 @@
 #include<string.h>
 #include<limits.h>
 #include<ctype.h>
+#include<math.h>
 
+// function to extract row index and col index from cell name string
+void cell_name_to_index(char* str, int *rowIndex, int* colIndex){
+    //seprating the uppercase col name and integer row name
+    char * colname=  str;
+    *rowIndex=0;
+    *colIndex=0;
+    
+    for(int i=1; i<=3;i++){
+        if(isupper(*str)){
+            str++;
+        }else{
+            break;
+        }
+    }
+    
+    char * number = str;
+    *rowIndex= atoi(number)-1;
+    
+    str--;
+    // setting col index from col name
+    int i=0;
+    while(str >= colname){
+        *colIndex+=pow(26,i) * ( *str -'A' +1);
+        i++;
+        str--;
+    }
+    
+    *colIndex-=1;
+    return;
+}
 // Function to convert column index to name
 char *col_index_to_name(int col){
     
@@ -170,16 +201,20 @@ bool is_range(char *s){ // ! To be edited
 
 // Function to check if string is cell dependent expression like A1=B1 or A1 = 2*-B1
 bool is_cell_expression(char *s){
+    
     if(s==NULL){
         return false;
-    }
-    if(is_cell_name(s)){
-        return true;
     }
     
     if(*s == '+' || *s == '-'){
         s++;
     }
+    
+    if(is_cell_name(s)){
+        return true;
+    }
+    
+    
     
     char *op = strpbrk(s, "+-*/");
     if (!op || op == s) return false;

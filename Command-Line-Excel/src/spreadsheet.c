@@ -38,10 +38,11 @@ sheet *create_sheet(int rows, int cols){
     return s;
 }
 
-// int main(){
-//     sheet *s=create_sheet(5,5);
-//     printf("Sheet created with %d rows and %d columns\n",s->num_rows,s->num_cols);
-//     printf("First row: %d\n",s->bounds.first_row);
-//     printf("First column: %d\n",s->bounds.first_col);
-//     return 0;
-// }
+void set_cell_value(sheet *s , char* cell_reference, int value){
+    
+    int rowIndex, colIndex;
+    cell_name_to_index(cell_reference, &rowIndex, &colIndex);
+    
+    s->grid[rowIndex][colIndex].val = value;
+    return;
+}

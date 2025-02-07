@@ -24,4 +24,6 @@ typedef struct sheet {
 
 sheet *create_sheet(int rows, int cols);
 
+void set_cell_value(sheet *s ,char* cell_reference, int value);
+
 #endif
