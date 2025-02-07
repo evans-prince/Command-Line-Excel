@@ -184,13 +184,10 @@ bool is_cell_expression(char *s){
     char *op = strpbrk(s, "+-*/");
     if (!op || op == s) return false;
     
-    char * value1;
+    char *value1;
     char *value2;
     *op = '\0';
     value1 = s;
-    if(*value1=='+' || *value1=='-'){
-        value1++;
-    }
     value2 = (op + 1);
     if(*value2=='+' || *value2=='-'){
         value2++;
