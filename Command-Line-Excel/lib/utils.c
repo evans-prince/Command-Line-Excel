@@ -110,44 +110,32 @@ bool is_arithmetic_expression(char *s){
         return false; // Handle null input safely
     }
     
-    // If the first character is something other than a digit or a '+' or a '-', the string is not a valid expression
-    if(!(isdigit(*s) || *s=='+' || *s=='-')){
-        return false;
-    }
     if(*s=='+' || *s=='-'){
         s++;
     }
-    
-    bool flag_digit=false; // Flag to check if a digit has been seen
-    bool flag_op=false; // Flags to check if operator has been seen
-    int op_count=0; // Count of operators
-    while(*s!='\0'){
-        if(isdigit(*s)){ // If the character is a digit
-            flag_digit=true;
-            flag_op=false;
-            s++;
-        }
-        else if(flag_digit && is_operator(*s)){ // If the character is an operator and the previous character was a digit
-            op_count++;
-            if(op_count>1){ // If the count of operators exceeds 1
-                return false;
-            }
-            flag_digit=false;
-            flag_op=true;
-            s++;
-        }
-        else if(flag_op && (*s=='+' || *s=='-')){ // If the character is a '+' or '-' and the previous character was an operator
-            flag_op=false;
-            s++;
-        }
-        else{
-            return false;
-        }
+
+    // 
+    if(is_integer(s)){
+        return true;
     }
-    if(flag_op){ // If the last character was an operator
+
+    char *op=strpbrk(s,"+-/*");
+    if(!op || op==s){
         return false;
     }
-    return true;
+
+    *op='\0';
+    char *value1=s;
+    char *value2=(op+1);
+    if(*value2=='+' || *value2=='-'){
+        value2++;
+    }
+
+    if(is_integer(value1) && is_integer(value2)){
+        return true;
+    }
+    
+    return false;
 }
 
 // Function to check if a string is a valid cell name
@@ -205,16 +193,10 @@ bool is_cell_expression(char *s){
     if(s==NULL){
         return false;
     }
-    
+
     if(*s == '+' || *s == '-'){
         s++;
     }
-    
-    if(is_cell_name(s)){
-        return true;
-    }
-    
-    
     
     char *op = strpbrk(s, "+-*/");
     if (!op || op == s) return false;
@@ -231,12 +213,12 @@ bool is_cell_expression(char *s){
     if(is_cell_name(value1) && is_integer(value2)){
         return true;
     }
-    
     if(is_cell_name(value2) && is_integer(value1)){
         return true;
     }
     if(is_cell_name(value1) && is_cell_name(value2)){
         return true;
     }
+
     return false;
 }

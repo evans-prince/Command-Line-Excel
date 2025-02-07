@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
         // Parse input and call function
         if (sscanf(input, "%s" ,&command) == 1) {
             // scroll(s, command);
-            printf("%d\n",is_cell_dependent_formula(command));
+            printf("%d\n",is_cell_value_assignment(command));
             // display_sheet(s);
         } else {
             printf("Invalid input! Try again.\n");

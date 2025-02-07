@@ -225,11 +225,11 @@ bool is_cell_dependent_formula(const char * raw_input){ // ! To be edited
         return false; // Handle null input safely
     }
 
-    char *f=strchr(raw_input, '=');//it gives the first occurrence of '='
+    char *f=strchr(raw_input, '='); // it gives the first occurrence of '='
     if(f!=NULL){
         char *after=f+1;
-       // just copying string before = from raw_input
-        char *before=(char *)malloc((f-raw_input+1)*sizeof(char));
+       
+        char *before=(char *)malloc((f-raw_input+1)*sizeof(char)); // Just copying string before '=' from raw_input
         strncpy(before,raw_input,f-raw_input);
         before[f-raw_input]='\0';
         
