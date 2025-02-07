@@ -113,6 +113,7 @@ InputType find_input_type(char * raw_input){
 }
 
 void parse_input(struct input* in){ // ! To be edited
+    in->input_type=find_input_type(in->raw_input);
     return;
 }
 
