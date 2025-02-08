@@ -151,13 +151,12 @@ bool is_cell_value_assignment(const char * raw_input){
     
     char *f=strchr(raw_input,'='); // Gets the first occurence of '='
     if(f!=NULL){
+        *f='\0';
+
         char *after=f+1; // We can use this to get the expression
         printf("%s\n",after);
 
-        char *before=(char *)malloc((f-raw_input+1)*sizeof(char));
-        strncpy(before,raw_input,f-raw_input); // we can use this to get the cell name
-        before[f-raw_input]='\0';
-        printf("%s\n",before);
+        char *before=raw_input;
 
         if(is_arithmetic_expression(after) && is_cell_name(before)){
             return true;
@@ -169,70 +168,69 @@ bool is_cell_value_assignment(const char * raw_input){
 }
 
 // Function to check if the input is a function call
-bool is_function_call(const char * raw_input){ // ! To be edited            
+bool is_function_call(const char * raw_input){         
     if (raw_input == NULL) {
         return false; // Handle null input safely
     }
     
     char *f=strchr(raw_input,'='); // Gets the first occurence of '='
     if(f!=NULL){
+        *f='\0';
 
         // Gets the string after '=' from the input
         char *after=f+1; // We can use this to get the expression
-        printf("AFTER = %s\n",after);
 
         // Gets the cell name from the input
-        char *before=(char *)malloc((f-raw_input+1)*sizeof(char));
-        strncpy(before,raw_input,f-raw_input); // We can use this to get the cell name
-        before[f-raw_input]='\0';
-        printf("BEFORE = %s\n",before);
+        char *before=raw_input;
 
         char *open=strchr(after,'('); // Gets the first occurence of '('
         if(open==NULL){ // If there is no '(' then it is not a function call
             return false;
         }
 
-        // Gets the function name from the after string
-        char *func=(char *)malloc((open-after+1)*sizeof(char));
-        strncpy(func,after,open-after);
-        func[open-after]='\0';
-        printf("FUNC NAME = %s\n",func);
+        *open='\0';
 
-        char *close=strrchr(after,')'); // Gets the first occurence of ')'
+        // Gets the function name from the after string
+        char *func=after;
+
+        char *close=strrchr(open+1,')'); // Gets the first occurence of ')'
         if(close==NULL){ // If there is no ')' then it is not a function call
             return false;
         }
-
-        // Gets the range from the after string
-        char *range=(char *)malloc((close-open)*sizeof(char));
-        strncpy(range,open+1,close-open-1);
-        range[close-open-1]='\0';
-        printf("RANGE = %s\n",range);
-
-        if(is_cell_name(before) && (is_function_name(func)==1 || is_function_name(func)==2) && (is_range(range) || is_cell_name(range))){
+        *close='\0';
+        
+        if(is_function_name(func)==2 && (is_cell_name(open+1) || is_integer(open+1))){
             return true;
         }
 
-        free(before);
-        free(func);
-        free(range);
+        // Gets the range from the after string
+        char *range=strchr(open+1,':');
+        if(range==NULL){
+            return false;
+        }
+        *range='\0';
+        char *cell1=open+1;  
+        char *cell2=range+1;
+
+        if(is_cell_name(before) && is_function_name(func)==1 && is_cell_name(cell1) && is_cell_name(cell2)){
+            return true;
+        }
     }
     return false;
 }
 
 // Function to check if the input is a cell dependent formula
-bool is_cell_dependent_formula(const char * raw_input){ // ! To be edited
+bool is_cell_dependent_formula(const char * raw_input){ 
     if (raw_input == NULL) {
         return false; // Handle null input safely
     }
 
     char *f=strchr(raw_input, '='); // it gives the first occurrence of '='
     if(f!=NULL){
+        *f='\0';
+
         char *after=f+1;
-       
-        char *before=(char *)malloc((f-raw_input+1)*sizeof(char)); // Just copying string before '=' from raw_input
-        strncpy(before,raw_input,f-raw_input);
-        before[f-raw_input]='\0';
+        char *before=raw_input;
         
         if(!is_cell_name(before)){
             return false;
@@ -240,7 +238,6 @@ bool is_cell_dependent_formula(const char * raw_input){ // ! To be edited
         if(is_cell_expression(after)){
             return true;
         }
-        free(before);
     }
     return false;
 }

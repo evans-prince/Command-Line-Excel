@@ -38,6 +38,7 @@ void cell_name_to_index(char* str, int *rowIndex, int* colIndex){
     *colIndex-=1;
     return;
 }
+
 // Function to convert column index to name
 char *col_index_to_name(int col){
     
@@ -155,7 +156,10 @@ bool is_cell_name(char *s){
             alpha_count++;
             flag_alpha=true;
         }
-        else if(flag_alpha && isdigit(*s) && *s>'0'){ // Checks for a continuous stream of digits
+        else if(flag_alpha && isdigit(*s) && *s>='0'){ // Checks for a continuous stream of digits
+            if(*s=='0' && num_count==0){ // If the first digit is 0
+                return false;
+            }
             s++;
             num_count++;
             flag_num=true;
@@ -183,13 +187,8 @@ int is_function_name(char *s){
     }
 }
 
-bool is_range(char *s){ // ! To be edited
-    return false;
-}
-
 // Function to check if string is cell dependent expression like A1=B1 or A1 = 2*-B1
 bool is_cell_expression(char *s){
-    
     if(s==NULL){
         return false;
     }
