@@ -113,7 +113,82 @@ InputType find_input_type(char * raw_input){
 }
 
 void parse_input(struct input* in){ // ! To be edited
-    in->input_type=find_input_type(in->raw_input);
+    in->input_type=find_input_type(in->raw_input); // Finds the type of input
+
+    switch(in->input_type){
+
+        case SCROLL_COMMAND: // If the input is a scroll command
+            in->command=in->raw_input;
+            break;
+
+        case QUIT_COMMAND: // If the input is a quit command
+            in->command=in->raw_input;
+            break;
+
+        case CELL_VALUE_ASSIGNMENT: // If the input is a direct numeric assignment of cell value
+            char *copy=strdup(in->raw_input);
+
+            char *f=strchr(copy,'=');
+            *f='\0';
+            in->cell_reference=strdup(copy);
+
+            char *expr=f+1;
+            if(is_integer(expr)){
+                in->value=strdup(expr);
+            }
+            else{
+                in->arithmetic_expression=strdup(f+1);
+            }
+
+            free(copy);
+    
+            break;
+
+        case FUNCTION_CALL:
+            char *copy=strdup(in->raw_input);
+            char *f=strchr(copy,'=');
+            *f='\0';
+
+            in->cell_reference=strdup(copy); // Sets the cell reference
+
+            char *open=strchr(f+1,'(');
+            *open='\0';
+
+            in->function_name=strdup(f+1); // Sets the function name
+
+            char *close=strchr(open+1,')');
+            *close='\0';
+            
+            if(strcmp(in->function_name,"SLEEP")==0){
+                if(is_integer(open+1)){
+                    in->value=strdup(open+1);
+                }
+                // else{ // ! What to do when the input in SLEEP is a cell name
+                //     in->cell_reference=open+1;
+                // }
+            }
+            else{
+                in->range=(Range *)malloc(sizeof(Range));
+                parse_range(open+1,in->range); // Parses the range and sets the start and end cell
+            }
+
+            free(copy);
+
+            break;
+
+        case CELL_DEPENDENT_FORMULA:
+            char *copy=strdup(in->raw_input);
+            char *f=strchr(copy,'=');
+            *f='\0';
+
+            in->cell_reference=strdup(copy); // Sets the cell reference
+
+            in->formula=strdup(f+1); // Sets the formula
+
+            free(copy);
+
+            break;
+    }
     return;
 }
 
@@ -148,22 +223,25 @@ bool is_cell_value_assignment(const char * raw_input){
     if (raw_input == NULL) {
         return false; // Handle null input safely
     }
+
+    char *copy=strdup(raw_input);
     
-    char *f=strchr(raw_input,'='); // Gets the first occurence of '='
+    char *f=strchr(copy,'='); // Gets the first occurence of '='
     if(f!=NULL){
         *f='\0';
 
         char *after=f+1; // We can use this to get the expression
         printf("%s\n",after);
 
-        char *before=raw_input;
+        char *before=copy;
 
         if(is_arithmetic_expression(after) && is_cell_name(before)){
             return true;
         }
 
-        free(before);
     }
+
+    free(copy);
     return false;
 }
 
@@ -173,7 +251,9 @@ bool is_function_call(const char * raw_input){
         return false; // Handle null input safely
     }
     
-    char *f=strchr(raw_input,'='); // Gets the first occurence of '='
+    char *copy=strdup(raw_input);
+
+    char *f=strchr(copy,'='); // Gets the first occurence of '='
     if(f!=NULL){
         *f='\0';
 
@@ -181,7 +261,7 @@ bool is_function_call(const char * raw_input){
         char *after=f+1; // We can use this to get the expression
 
         // Gets the cell name from the input
-        char *before=raw_input;
+        char *before=copy;
 
         char *open=strchr(after,'('); // Gets the first occurence of '('
         if(open==NULL){ // If there is no '(' then it is not a function call
@@ -216,6 +296,8 @@ bool is_function_call(const char * raw_input){
             return true;
         }
     }
+
+    free(copy);
     return false;
 }
 
@@ -239,5 +321,6 @@ bool is_cell_dependent_formula(const char * raw_input){
             return true;
         }
     }
+
     return false;
 }

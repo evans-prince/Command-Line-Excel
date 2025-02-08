@@ -101,6 +101,16 @@ bool is_integer(char *s){
     return false;
 }
 
+void parse_range(const char *s,Range *r){
+    char *copy=strdup(s);
+    char *colon=strchr(copy,':');
+    *colon='\0';
+    r->start_cell=strdup(copy);
+    r->end_cell=strdup(colon+1);
+
+    free(copy);
+}
+
 bool is_operator(char s){
     return (s=='+' || s=='-' || s=='*' || s=='/')?true:false;
 }
@@ -115,7 +125,6 @@ bool is_arithmetic_expression(char *s){
         s++;
     }
 
-    // 
     if(is_integer(s)){
         return true;
     }

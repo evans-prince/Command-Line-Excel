@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include"input_handler.h"
+
 #include<stdlib.h>
 #include<stdio.h>
 #include<stdbool.h>
@@ -18,5 +20,6 @@ bool is_arithmetic_expression(char *s);
 bool is_cell_expression(char *s);
 bool is_cell_name(char *s);
 int is_function_name(char *s);
+void parse_range(char *s,Range *r);
 
 #endif
