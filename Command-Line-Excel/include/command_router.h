@@ -14,6 +14,6 @@
 #include<string.h>
 #include <limits.h>
 
-void command_router(sheet *s , char* user_input);
+void command_router(sheet *s , char* user_input, bool is_output_enabled);
 
 #endif

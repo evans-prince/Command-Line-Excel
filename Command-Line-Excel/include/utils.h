@@ -21,5 +21,8 @@ bool is_cell_expression(char *s);
 bool is_cell_name(char *s);
 int is_function_name(char *s);
 void parse_range(char *s,Range *r);
+// new functions to write
+int calculate_arithmetic_expression(char * expr);
+bool is_valid_cell(const char * cell);
 
 #endif
