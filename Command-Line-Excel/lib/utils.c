@@ -8,6 +8,18 @@
 #include<ctype.h>
 #include<math.h>
 
+
+bool is_valid_cell(const char * cell){
+    
+    return true;
+}
+
+// function which calculate a string of arithmetic expression int int , return INTMIN if error
+int calculate_arithmetic_expression(char * expr){
+    
+    return -123;
+}
+
 // function to extract row index and col index from cell name string
 void cell_name_to_index(char* str, int *rowIndex, int* colIndex){
     //seprating the uppercase col name and integer row name
@@ -107,7 +119,7 @@ void parse_range(const char *s,Range *r){
     *colon='\0';
     r->start_cell=strdup(copy);
     r->end_cell=strdup(colon+1);
-
+    
     free(copy);
 }
 
@@ -124,23 +136,23 @@ bool is_arithmetic_expression(char *s){
     if(*s=='+' || *s=='-'){
         s++;
     }
-
+    
     if(is_integer(s)){
         return true;
     }
-
+    
     char *op=strpbrk(s,"+-/*");
     if(!op || op==s){
         return false;
     }
-
+    
     *op='\0';
     char *value1=s;
     char *value2=(op+1);
     if(*value2=='+' || *value2=='-'){
         value2++;
     }
-
+    
     if(is_integer(value1) && is_integer(value2)){
         return true;
     }
@@ -201,7 +213,7 @@ bool is_cell_expression(char *s){
     if(s==NULL){
         return false;
     }
-
+    
     if(*s == '+' || *s == '-'){
         s++;
     }
@@ -227,6 +239,6 @@ bool is_cell_expression(char *s){
     if(is_cell_name(value1) && is_cell_name(value2)){
         return true;
     }
-
+    
     return false;
 }

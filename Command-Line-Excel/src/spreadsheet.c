@@ -1,8 +1,3 @@
-#include "../include/display.h"
-#include "../include/formula_parser.h"
-#include "../include/input_handler.h"
-#include "../include/recalculation.h"
-#include "../include/scrolling.h"
 #include "../include/spreadsheet.h"
 #include "../include/utils.h"
 
@@ -13,19 +8,19 @@
 #include <limits.h>
 // Function to create a new sheet
 sheet *create_sheet(int rows, int cols){
-
-    // Allocate memory for the sheet 
+    
+    // Allocate memory for the sheet
     sheet *s=(sheet *)malloc(sizeof(sheet));
     s->num_rows=rows;
     s->num_cols=cols;
-
+    
     // Initialize the bounds of the sheet
     s->bounds.first_row=0;
     s->bounds.first_col=0;
-
+    
     // Allocate memory for the grid
     s->grid=(cell **)malloc(rows*sizeof(cell *));
-
+    
     // Initialize the grid
     for(int i=0;i<rows;i++){
         s->grid[i]=(cell *)malloc(cols*sizeof(cell));
@@ -34,7 +29,7 @@ sheet *create_sheet(int rows, int cols){
             s->grid[i][j].dependency=false;
         }
     }
-
+    
     return s;
 }
 

@@ -1,18 +1,7 @@
 #ifndef INPUT_HANDLER_H
 #define INPUT_HANDLER_H
 
-#include"display.h"
-#include"formula_parser.h"
-#include"recalculation.h"
-#include"scrolling.h"
-#include"spreadsheet.h"
-#include"utils.h"
-
-#include<stdlib.h>
-#include<stdio.h>
 #include<stdbool.h>
-#include<string.h>
-#include <limits.h>
 
 typedef enum {
     NOT_DECIDED= -1,
@@ -51,7 +40,7 @@ void parse_input(struct input* in);// its function is : depending on input type 
 // Like if its type is scroll_command just update command field rest need not to be cahanged.
 
 // Function to find the type of input
-InputType find_input_type(char * raw_input);
+InputType find_input_type(const char * raw_input);
 
 bool is_scroll_command(const char * raw_input);
 bool is_quit_command(const char * raw_input);

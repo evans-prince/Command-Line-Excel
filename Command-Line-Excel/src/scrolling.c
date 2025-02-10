@@ -1,7 +1,3 @@
-#include "../include/display.h"
-#include "../include/formula_parser.h"
-#include "../include/input_handler.h"
-#include "../include/recalculation.h"
 #include "../include/scrolling.h"
 #include "../include/spreadsheet.h"
 #include "../include/utils.h"
@@ -21,7 +17,7 @@ void scroll ( sheet *sheet , char scroll_direction) {
     if(last_row <10 && (scroll_direction=='s' || scroll_direction=='w')){
         return;//nothing to be done
     }
-
+    
     if(last_col<10 && (scroll_direction=='a' || scroll_direction=='d')){
         return;//nothing to be done
     }
@@ -29,7 +25,7 @@ void scroll ( sheet *sheet , char scroll_direction) {
     switch(scroll_direction){
         case 'w':
             if (first_row > 0)
-            sheet->bounds.first_row = max(0,first_row-10);
+                sheet->bounds.first_row = max(0,first_row-10);
             break;
         case 's':
             if (first_row + 10 < last_row)
@@ -37,7 +33,7 @@ void scroll ( sheet *sheet , char scroll_direction) {
             break;
         case 'a':
             if (first_col > 0)
-            sheet->bounds.first_col = max(0,first_col-10);
+                sheet->bounds.first_col = max(0,first_col-10);
             break;
         case 'd':
             sheet->bounds.first_col = min(first_col+20,last_col-1)-10;

@@ -7,8 +7,6 @@
 #include "../include/utils.h"
 #include "../include/command_router.h"
 
-#include<stdlib.h>
-#include<stdio.h>
 #include<stdbool.h>
 #include<string.h>
 #include <limits.h>
@@ -33,6 +31,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             }
             if(in->value!=NULL){
                 set_cell_value(s, in->cell_reference, atoi(in->value));
+                break;
             }else{
                 int val = calculate_arithmetic_expression(in->arithmetic_expression);
                 if (val == INT_MIN) { // Assuming INT_MIN indicates an error in calculation
@@ -42,54 +41,54 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 set_cell_value(s, in->cell_reference, val);
                 
                 break;
-                
-            case CELL_DEPENDENT_FORMULA:
-                
-                if(!is_valid_cell(in->cell_reference)){
-                    printf("Error: not a valid cell refrence.\n");
-                    break;
-                }
-                
-                int ans = eval_formula(in->formula);
-                if (ans == INT_MIN) { // Assuming INT_MIN indicates an error in calculation
-                    printf("Error: Invalid formula '%s'.\n", in->formula);
-                    break;
-                }
-                set_cell_value(s, in->cell_reference, ans);
-                trigger_recalculation(s);
-                
-                break;
-                
-            case FUNCTION_CALL:
-                
-                if(!is_valid_cell(in->cell_reference)){
-                    printf("Error: not a valid cell refrence.\n");
-                    break;
-                }
-                // to be edited
-                
-                break;
-                
-            case SCROLL_COMMAND:
-                scroll(s, *in->command);
-                break;
-                
-            case QUIT_COMMAND:
-                free_input(in);
-                exit(0);
-                break;
-                
-            case INVALID_INPUT:
-                printf("Error: Invalid input '%s'.\n", user_input);
-                break;
-                
             }
             
-            if(is_output_enabled){
-                display_sheet(s);
+        case CELL_DEPENDENT_FORMULA:
+            
+            if(!is_valid_cell(in->cell_reference)){
+                printf("Error: not a valid cell refrence.\n");
+                break;
             }
             
+            int ans = eval_formula(in->formula);
+            if (ans == INT_MIN) { // Assuming INT_MIN indicates an error in calculation
+                printf("Error: Invalid formula '%s'.\n", in->formula);
+                break;
+            }
+            set_cell_value(s, in->cell_reference, ans);
+            trigger_recalculation(s);
+            
+            break;
+            
+        case FUNCTION_CALL:
+            
+            if(!is_valid_cell(in->cell_reference)){
+                printf("Error: not a valid cell refrence.\n");
+                break;
+            }
+            // to be edited
+            
+            break;
+            
+        case SCROLL_COMMAND:
+            scroll(s, *in->command);
+            break;
+            
+        case QUIT_COMMAND:
             free_input(in);
-            return;
+            exit(0);
+            break;
+            
+        case INVALID_INPUT:
+            printf("Error: Invalid input '%s'.\n", user_input);
+            break;
+            
     }
+    
+    if(is_output_enabled){
+        display_sheet(s);
+    }
+    
+    free_input(in);
+    return;
 }

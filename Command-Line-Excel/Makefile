@@ -7,7 +7,7 @@ TARGET = sheet
 
 # Source files from src/ and lib/
 SRC = src/main.c src/display.c src/formula_parser.c src/input_handler.c \
-      src/recalculation.c src/scrolling.c src/spreadsheet.c lib/utils.c
+      src/recalculation.c src/scrolling.c src/spreadsheet.c src/command_router.c lib/utils.c
 
 # Object files (converting .c to .o)
 OBJ = $(SRC:.c=.o)

@@ -1,7 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include"input_handler.h"
+#include "input_handler.h"
 
 #include<stdlib.h>
 #include<stdio.h>
@@ -20,7 +20,7 @@ bool is_arithmetic_expression(char *s);
 bool is_cell_expression(char *s);
 bool is_cell_name(char *s);
 int is_function_name(char *s);
-void parse_range(char *s,Range *r);
+void parse_range(const char *s,Range *r); // move this function from utils may be to formula parser
 // new functions to write
 int calculate_arithmetic_expression(char * expr);
 bool is_valid_cell(const char * cell);

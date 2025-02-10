@@ -1,16 +1,9 @@
-#include "../include/display.h"
-#include "../include/formula_parser.h"
 #include "../include/input_handler.h"
-#include "../include/recalculation.h"
-#include "../include/scrolling.h"
-#include "../include/spreadsheet.h"
 #include "../include/utils.h"
 
-#include<stdlib.h>
-#include<stdio.h>
 #include<stdbool.h>
 #include<string.h>
-#include <limits.h>
+#include<limits.h>
 
 struct input* create_input(void){
     struct input *new_input =(struct input *) malloc(sizeof(struct input));
@@ -62,12 +55,12 @@ void free_input(struct input* in){// ALL THIS FUNCTION DO IS JUST FREE THE MEMOR
         free(in->range);
     }
     free(in->arithmetic_expression);
-    
+    in->arithmetic_expression=NULL;
     free(in);
 }
 
 // Function to find the type of input
-InputType find_input_type(char * raw_input){
+InputType find_input_type(const char * raw_input){
     // please don't mess with raw_input
     
     //    NOT_DECIDED= -1,
@@ -79,7 +72,8 @@ InputType find_input_type(char * raw_input){
     //    INVALID_INPUT = 5
     
     // note: before starting remove spaces from raw_input
-    remove_space(raw_input);
+    // this function recieves input which dont have any space
+    //remove_space(raw_input);
     // if input is empty or null then not decided
     if (raw_input == NULL || strlen(raw_input) == 0) {
         return INVALID_INPUT; // Empty input is invalid
@@ -114,48 +108,47 @@ InputType find_input_type(char * raw_input){
 
 void parse_input(struct input* in){ // ! To be edited
     in->input_type=find_input_type(in->raw_input); // Finds the type of input
-
+    
+    char * copy = strdup(in->raw_input);
+    
+    char *f=strchr(copy,'=');
+    
     switch(in->input_type){
-
+            
         case SCROLL_COMMAND: // If the input is a scroll command
-            in->command=in->raw_input;
+            in->command=strdup(in->raw_input);
             break;
-
+            
         case QUIT_COMMAND: // If the input is a quit command
-            in->command=in->raw_input;
+            in->command=strdup(in->raw_input);
             break;
-
+            
         case CELL_VALUE_ASSIGNMENT: // If the input is a direct numeric assignment of cell value
-            char *copy=strdup(in->raw_input);
-
-            char *f=strchr(copy,'=');
             *f='\0';
             in->cell_reference=strdup(copy);
-
+            
             char *expr=f+1;
             if(is_integer(expr)){
                 in->value=strdup(expr);
             }
             else{
-                in->arithmetic_expression=strdup(f+1);
+                in->arithmetic_expression=strdup(expr);
             }
-
+            
             free(copy);
-    
+            
             break;
-
+            
         case FUNCTION_CALL:
-            char *copy=strdup(in->raw_input);
-            char *f=strchr(copy,'=');
             *f='\0';
-
+            
             in->cell_reference=strdup(copy); // Sets the cell reference
-
+            
             char *open=strchr(f+1,'(');
             *open='\0';
-
+            
             in->function_name=strdup(f+1); // Sets the function name
-
+            
             char *close=strchr(open+1,')');
             *close='\0';
             
@@ -171,29 +164,31 @@ void parse_input(struct input* in){ // ! To be edited
                 in->range=(Range *)malloc(sizeof(Range));
                 parse_range(open+1,in->range); // Parses the range and sets the start and end cell
             }
-
+            
             free(copy);
-
+            
             break;
-
+            
         case CELL_DEPENDENT_FORMULA:
-            char *copy=strdup(in->raw_input);
-            char *f=strchr(copy,'=');
             *f='\0';
-
+            
             in->cell_reference=strdup(copy); // Sets the cell reference
-
+            
             in->formula=strdup(f+1); // Sets the formula
-
+            
             free(copy);
-
+            
             break;
+        case NOT_DECIDED:
+        case INVALID_INPUT:
+        default:
+            fprintf(stderr, "Unhandled input type or invalid input.\n");
     }
     return;
 }
 
 // Function to check if the input is a scroll command
-bool is_scroll_command(const char * raw_input){ 
+bool is_scroll_command(const char * raw_input){
     
     if (raw_input == NULL) {
         return false; // Handle null input safely
@@ -219,60 +214,60 @@ bool is_quit_command(const char * raw_input){
 }
 
 // Function to check if the input is a direct numeric assignment of cell value
-bool is_cell_value_assignment(const char * raw_input){  
+bool is_cell_value_assignment(const char * raw_input){
     if (raw_input == NULL) {
         return false; // Handle null input safely
     }
-
+    
     char *copy=strdup(raw_input);
     
     char *f=strchr(copy,'='); // Gets the first occurence of '='
     if(f!=NULL){
         *f='\0';
-
+        
         char *after=f+1; // We can use this to get the expression
         printf("%s\n",after);
-
+        
         char *before=copy;
-
+        
         if(is_arithmetic_expression(after) && is_cell_name(before)){
             return true;
         }
-
+        
     }
-
+    
     free(copy);
     return false;
 }
 
 // Function to check if the input is a function call
-bool is_function_call(const char * raw_input){         
+bool is_function_call(const char * raw_input){
     if (raw_input == NULL) {
         return false; // Handle null input safely
     }
     
     char *copy=strdup(raw_input);
-
+    
     char *f=strchr(copy,'='); // Gets the first occurence of '='
     if(f!=NULL){
         *f='\0';
-
+        
         // Gets the string after '=' from the input
         char *after=f+1; // We can use this to get the expression
-
+        
         // Gets the cell name from the input
         char *before=copy;
-
+        
         char *open=strchr(after,'('); // Gets the first occurence of '('
         if(open==NULL){ // If there is no '(' then it is not a function call
             return false;
         }
-
+        
         *open='\0';
-
+        
         // Gets the function name from the after string
         char *func=after;
-
+        
         char *close=strrchr(open+1,')'); // Gets the first occurence of ')'
         if(close==NULL){ // If there is no ')' then it is not a function call
             return false;
@@ -282,37 +277,38 @@ bool is_function_call(const char * raw_input){
         if(is_function_name(func)==2 && (is_cell_name(open+1) || is_integer(open+1))){
             return true;
         }
-
+        
         // Gets the range from the after string
         char *range=strchr(open+1,':');
         if(range==NULL){
             return false;
         }
         *range='\0';
-        char *cell1=open+1;  
+        char *cell1=open+1;
         char *cell2=range+1;
-
+        
         if(is_cell_name(before) && is_function_name(func)==1 && is_cell_name(cell1) && is_cell_name(cell2)){
             return true;
         }
     }
-
+    
     free(copy);
     return false;
 }
 
 // Function to check if the input is a cell dependent formula
-bool is_cell_dependent_formula(const char * raw_input){ 
-    if (raw_input == NULL) {
+bool is_cell_dependent_formula(const char * raw_input){
+    char * input = strdup(raw_input);
+    if (input == NULL) {
         return false; // Handle null input safely
     }
-
-    char *f=strchr(raw_input, '='); // it gives the first occurrence of '='
+    
+    char *f=strchr(input, '='); // it gives the first occurrence of '='
     if(f!=NULL){
         *f='\0';
-
+        
         char *after=f+1;
-        char *before=raw_input;
+        char *before=input;
         
         if(!is_cell_name(before)){
             return false;
@@ -321,6 +317,6 @@ bool is_cell_dependent_formula(const char * raw_input){
             return true;
         }
     }
-
+    
     return false;
 }
