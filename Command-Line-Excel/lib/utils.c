@@ -166,7 +166,7 @@ bool is_cell_name(char *s){
             flag_alpha=true;
         }
         else if(flag_alpha && isdigit(*s) && *s>='0'){ // Checks for a continuous stream of digits
-            if(*s=='0' && num_count==0){ // If the first digit is 0
+            if(*s=='0' && num_count==0){ // If the first digit after alphabets is 0
                 return false;
             }
             s++;
