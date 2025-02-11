@@ -109,14 +109,17 @@ InputType find_input_type(const char * raw_input){
 void parse_input(struct input* in){ // ! To be edited
     in->input_type=find_input_type(in->raw_input); // Finds the type of input
     
-    char * copy = strdup(in->raw_input);
+    char * copy = (char *) malloc(strlen(in->raw_input)+1);
+    strcpy(copy,in->raw_input);
     
     char *f=strchr(copy,'=');
     
     switch(in->input_type){
             
         case SCROLL_COMMAND: // If the input is a scroll command
-            in->command=strdup(in->raw_input);
+//            in->command=strdup(in->raw_input);
+            in->command=(char *) malloc(strlen(in->raw_input)+1);
+            strcpy(in->command, in->raw_input);
             break;
             
         case QUIT_COMMAND: // If the input is a quit command
@@ -135,7 +138,7 @@ void parse_input(struct input* in){ // ! To be edited
                 in->arithmetic_expression=strdup(expr);
             }
             
-            free(copy);
+//            free(copy);
             
             break;
             
@@ -165,7 +168,7 @@ void parse_input(struct input* in){ // ! To be edited
                 parse_range(open+1,in->range); // Parses the range and sets the start and end cell
             }
             
-            free(copy);
+//            free(copy);
             
             break;
             
@@ -176,7 +179,7 @@ void parse_input(struct input* in){ // ! To be edited
             
             in->formula=strdup(f+1); // Sets the formula
             
-            free(copy);
+//            free(copy);
             
             break;
         case NOT_DECIDED:
