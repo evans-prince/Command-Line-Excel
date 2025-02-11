@@ -136,7 +136,7 @@ bool is_operator(char s){
 
 // Function to check if a string is an explicit assignment or a mathematical expression
 bool is_arithmetic_expression(char *s){
-    if(s==NULL){
+    if(s==NULL || strlen(s)==0){
         return false; // Handle null input safely
     }
     
@@ -217,7 +217,7 @@ int is_function_name(char *s){
 
 // Function to check if string is cell dependent expression like A1=B1 or A1 = 2*-B1
 bool is_cell_expression(char *s){
-    if(s==NULL){
+    if(s==NULL || strlen(s)==0){
         return false;
     }
     
