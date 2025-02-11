@@ -117,25 +117,25 @@ void parse_input(struct input* in){ // ! To be edited
     switch(in->input_type){
             
         case SCROLL_COMMAND: // If the input is a scroll command
-//            in->command=strdup(in->raw_input);
-            in->command=(char *) malloc(strlen(in->raw_input)+1);
-            strcpy(in->command, in->raw_input);
+            in->command=my_strdup(in->raw_input);
+//            in->command=(char *) malloc(strlen(in->raw_input)+1);
+//            strcpy(in->command, in->raw_input);
             break;
             
         case QUIT_COMMAND: // If the input is a quit command
-            in->command=strdup(in->raw_input);
+            in->command=my_strdup(in->raw_input);
             break;
             
         case CELL_VALUE_ASSIGNMENT: // If the input is a direct numeric assignment of cell value
             *f='\0';
-            in->cell_reference=strdup(copy);
+            in->cell_reference=my_strdup(copy);
             
             char *expr=f+1;
             if(is_integer(expr)){
-                in->value=strdup(expr);
+                in->value=my_strdup(expr);
             }
             else{
-                in->arithmetic_expression=strdup(expr);
+                in->arithmetic_expression=my_strdup(expr);
             }
             
 //            free(copy);
@@ -145,19 +145,19 @@ void parse_input(struct input* in){ // ! To be edited
         case FUNCTION_CALL:
             *f='\0';
             
-            in->cell_reference=strdup(copy); // Sets the cell reference
+            in->cell_reference=my_strdup(copy); // Sets the cell reference
             
             char *open=strchr(f+1,'(');
             *open='\0';
             
-            in->function_name=strdup(f+1); // Sets the function name
+            in->function_name=my_strdup(f+1); // Sets the function name
             
             char *close=strchr(open+1,')');
             *close='\0';
             
             if(strcmp(in->function_name,"SLEEP")==0){
                 if(is_integer(open+1)){
-                    in->value=strdup(open+1);
+                    in->value=my_strdup(open+1);
                 }
                 // else{ // ! What to do when the input in SLEEP is a cell name
                 //     in->cell_reference=open+1;
@@ -175,9 +175,9 @@ void parse_input(struct input* in){ // ! To be edited
         case CELL_DEPENDENT_FORMULA:
             *f='\0';
             
-            in->cell_reference=strdup(copy); // Sets the cell reference
+            in->cell_reference=my_strdup(copy); // Sets the cell reference
             
-            in->formula=strdup(f+1); // Sets the formula
+            in->formula=my_strdup(f+1); // Sets the formula
             
 //            free(copy);
             
@@ -222,7 +222,7 @@ bool is_cell_value_assignment(const char * raw_input){
         return false; // Handle null input safely
     }
     
-    char *copy=strdup(raw_input);
+    char *copy=my_strdup(raw_input);
     
     char *f=strchr(copy,'='); // Gets the first occurence of '='
     if(f!=NULL){
@@ -249,7 +249,7 @@ bool is_function_call(const char * raw_input){
         return false; // Handle null input safely
     }
     
-    char *copy=strdup(raw_input);
+    char *copy=my_strdup(raw_input);
     
     char *f=strchr(copy,'='); // Gets the first occurence of '='
     if(f!=NULL){
@@ -301,7 +301,7 @@ bool is_function_call(const char * raw_input){
 
 // Function to check if the input is a cell dependent formula
 bool is_cell_dependent_formula(const char * raw_input){
-    char * input = strdup(raw_input);
+    char * input = my_strdup(raw_input);
     if (input == NULL) {
         return false; // Handle null input safely
     }

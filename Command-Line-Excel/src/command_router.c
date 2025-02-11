@@ -15,7 +15,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
     struct input *in = create_input();
     remove_space(user_input);
     //    in->raw_input=user_input;
-    in->raw_input=strdup(user_input);
+    in->raw_input=my_strdup(user_input);
     parse_input(in);
     
     switch(in->input_type){

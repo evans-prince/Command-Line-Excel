@@ -20,6 +20,13 @@ int calculate_arithmetic_expression(char * expr){
     return -123;
 }
 
+char *my_strdup(const char *s) {
+    if (s == NULL) return NULL;
+    char *copy = malloc(strlen(s) + 1);
+    if (copy) strcpy(copy, s);
+    return copy;
+}
+
 // function to extract row index and col index from cell name string
 void cell_name_to_index(char* str, int *rowIndex, int* colIndex){
     //seprating the uppercase col name and integer row name

@@ -9,6 +9,7 @@
 #include<string.h>
 #include <limits.h>
 
+char *my_strdup(const char *s);
 int max ( int a , int b ) ;
 int min ( int a , int b ) ;
 void cell_name_to_index(char* str, int *rowIndex, int* colIndex);
