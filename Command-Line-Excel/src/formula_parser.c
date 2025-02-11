@@ -5,5 +5,5 @@
 
 int eval_formula(char * expr){
     
-    return 0;
+    return -123;
 }

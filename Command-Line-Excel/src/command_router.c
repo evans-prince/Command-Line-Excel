@@ -14,7 +14,7 @@
 void command_router(sheet * s , char * user_input , bool is_output_enabled) {
     struct input *in = create_input();
     remove_space(user_input);
-//    in->raw_input=user_input;
+    //    in->raw_input=user_input;
     in->raw_input=strdup(user_input);
     parse_input(in);
     
@@ -77,6 +77,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             
         case QUIT_COMMAND:
             free_input(in);
+            printf("Exiting program. Goodbye!\n");
             exit(0);
             break;
             

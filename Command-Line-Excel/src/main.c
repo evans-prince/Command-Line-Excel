@@ -4,6 +4,7 @@
 #include "../include/utils.h"
 
 #include<stdlib.h>
+#include<assert.h>
 #include<stdio.h>
 #include<stdbool.h>
 #include<string.h>
@@ -43,16 +44,12 @@ int main(int argc, char *argv[]) {
         // Remove newline character
         input[strcspn(input, "\n")] = 0;
         
-        if (strcmp(input, "q") == 0 || strcmp(input, "quit") == 0) {
-            printf("Exiting program. Goodbye!\n");
-            break;
-        }
         
         command_router(s, input, true);
         
     }
     
-    free(input);
-    
+    // code should never be here , hence crash the software if it comes here
+    assert(false);
     return 0;
 }

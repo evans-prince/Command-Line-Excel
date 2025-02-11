@@ -316,7 +316,7 @@ bool is_cell_dependent_formula(const char * raw_input){
         if(!is_cell_name(before)){
             return false;
         }
-        if(is_cell_expression(after)){
+        if(is_cell_name(after) || is_cell_expression(after)){
             return true;
         }
     }
