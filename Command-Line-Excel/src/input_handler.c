@@ -109,8 +109,7 @@ InputType find_input_type(const char * raw_input){
 void parse_input(struct input* in){ // ! To be edited
     in->input_type=find_input_type(in->raw_input); // Finds the type of input
     
-    char * copy = (char *) malloc(strlen(in->raw_input)+1);
-    strcpy(copy,in->raw_input);
+    char *copy=my_strdup(in->raw_input);
     
     char *f=strchr(copy,'=');
     
@@ -229,7 +228,6 @@ bool is_cell_value_assignment(const char * raw_input){
         *f='\0';
         
         char *after=f+1; // We can use this to get the expression
-        printf("%s\n",after);
         
         char *before=copy;
         

@@ -88,6 +88,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
     }
     
     if(is_output_enabled){
+        printf("\n");
         display_sheet(s);
     }
     

@@ -108,7 +108,7 @@ void remove_space(char *c){
 
 // Function to check if a string is an integer
 bool is_integer(char *s){
-    if(s==NULL){
+    if(s==NULL || strlen(s)==0){
         return false; // Handle null input safely
     }
     
@@ -121,11 +121,11 @@ bool is_integer(char *s){
 }
 
 void parse_range(const char *s,Range *r){
-    char *copy=strdup(s);
+    char *copy=my_strdup(s);
     char *colon=strchr(copy,':');
     *colon='\0';
-    r->start_cell=strdup(copy);
-    r->end_cell=strdup(colon+1);
+    r->start_cell=my_strdup(copy);
+    r->end_cell=my_strdup(colon+1);
     
     free(copy);
 }
