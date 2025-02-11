@@ -1,6 +1,7 @@
 # Compiler and Flags
 CC = gcc -std=c11
 CFLAGS = -Wall -Wextra -g -Iinclude  # Include header files from include/
+LDFLAGS=-lm
 
 # Output executable
 TARGET = sheet
@@ -17,7 +18,7 @@ all: $(TARGET)
 
 # Linking the final executable
 $(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJ)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJ) $(LDFLAGS)
 
 # Rule for compiling .c files to .o
 %.o: %.c

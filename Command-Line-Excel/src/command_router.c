@@ -26,7 +26,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             
         case CELL_VALUE_ASSIGNMENT:
             
-            if(!is_valid_cell(in->cell_reference)){
+            if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
                 printf("Error: not a valid cell refrence '%s'.\n",in->cell_reference);
                 break;
             }
@@ -46,7 +46,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             
         case CELL_DEPENDENT_FORMULA:
             
-            if(!is_valid_cell(in->cell_reference)){
+            if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
                 printf("Error: not a valid cell refrence.\n");
                 break;
             }
@@ -63,7 +63,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             
         case FUNCTION_CALL:
             
-            if(!is_valid_cell(in->cell_reference)){
+            if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
                 printf("Error: not a valid cell refrence.\n");
                 break;
             }

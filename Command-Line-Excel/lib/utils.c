@@ -9,7 +9,7 @@
 #include<math.h>
 
 
-bool is_valid_cell(const char * cell){
+bool is_valid_cell(int num_rows, int num_cols, const char * cell){
     
     return true;
 }

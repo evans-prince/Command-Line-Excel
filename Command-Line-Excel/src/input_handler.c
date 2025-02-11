@@ -117,8 +117,6 @@ void parse_input(struct input* in){ // ! To be edited
             
         case SCROLL_COMMAND: // If the input is a scroll command
             in->command=my_strdup(in->raw_input);
-//            in->command=(char *) malloc(strlen(in->raw_input)+1);
-//            strcpy(in->command, in->raw_input);
             break;
             
         case QUIT_COMMAND: // If the input is a quit command

@@ -24,6 +24,6 @@ int is_function_name(char *s);
 void parse_range(const char *s,Range *r); // move this function from utils may be to formula parser
 // new functions to write
 int calculate_arithmetic_expression(char * expr);
-bool is_valid_cell(const char * cell);
+bool is_valid_cell(int num_rows, int num_cols, const char * cell);
 
 #endif
