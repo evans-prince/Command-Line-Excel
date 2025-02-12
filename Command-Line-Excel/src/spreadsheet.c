@@ -26,7 +26,12 @@ sheet *create_sheet(int rows, int cols){
         s->grid[i]=(cell *)malloc(cols*sizeof(cell));
         for(int j=0;j<cols;j++){
             s->grid[i][j].val=0;
-            s->grid[i][j].dependency=false;
+            s->grid[i][j].dirty=false;
+            s->grid[i][j].formula=NULL;
+            s->grid[i][j].parents=NULL;
+            s->grid[i][j].children=NULL;
+            s->grid[i][j].num_parents=0;
+            s->grid[i][j].num_children=0;
         }
     }
     

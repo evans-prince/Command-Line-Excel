@@ -5,7 +5,12 @@
 
 typedef struct cell {
     int val;
-    bool dependency;
+    bool dirty;
+    char *formula;
+    struct cell **parents;
+    struct cell **children;
+    int num_parents;
+    int num_children;
 }cell;
 
 typedef struct spreadsheet_bounds {
