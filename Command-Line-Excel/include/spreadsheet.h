@@ -30,5 +30,6 @@ void set_cell_value(sheet *s ,char* cell_reference, int value);
 void add_dependency(cell *target, cell *dependency);
 void remove_dependencies(cell *target);
 void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_count);
+bool has_cycle(cell *start);
 
 #endif

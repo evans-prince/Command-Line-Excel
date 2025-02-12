@@ -10,14 +10,62 @@
 
 
 bool is_valid_cell(int num_rows, int num_cols, const char * cell){
-    
-    return true;
+    int row_idx, col_idx;
+    cell_name_to_index(cell, &row_idx, &col_idx);
+
+    if(row_idx<num_rows && col_idx<num_cols && row_idx>=0 && col_idx>=0){
+        return true;
+    }
+
+    return false;
 }
 
 // function which calculate a string of arithmetic expression int int , return INTMIN if error
-int calculate_arithmetic_expression(char * expr){
+int calculate_arithmetic_expression(const char * expr){
+    if(expr==NULL || strlen(expr)==0){
+        return INT_MIN;
+    }
+    char *s=my_strdup(expr);
     
-    return -123;
+    int value1;
+
+    char *f=strpbrk(s,"+-/*"); 
+    if(f==NULL){
+        value1=atoi(s);
+        free(s);
+        return value1;
+    }
+
+    char op=*f;
+    *f='\0';
+    value1=atoi(s);
+
+    int value2;
+    char *c=f+1;
+    value2=atoi(c+1);
+
+    free(s);
+
+    switch(op){
+        case '+':
+                return value1+value2; // Addition
+            case '-':
+                return value1-value2; // Subtraction
+            case '*':
+                return value1*value2; // Multiplication
+            case '/':
+                if(value2==0){
+                    fprintf(stderr, "Division by zero error\n"); 
+                    return INT_MIN;
+                }
+                return value1/value2; // Division
+            
+            default:
+                fprintf(stderr, "Invalid operator: %c\n", op);
+                return INT_MIN; 
+    }
+
+    return INT_MIN;
 }
 
 char *my_strdup(const char *s) {
@@ -30,6 +78,10 @@ char *my_strdup(const char *s) {
 // function to extract row index and col index from cell name string
 void cell_name_to_index(char* str, int *rowIndex, int* colIndex){
     //seprating the uppercase col name and integer row name
+    if(str=NULL || rowIndex==NULL || colIndex==NULL){
+        return;
+    }
+
     char * colname=  str;
     *rowIndex=0;
     *colIndex=0;

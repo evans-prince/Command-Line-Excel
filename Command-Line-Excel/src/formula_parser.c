@@ -1,12 +1,83 @@
 #include "../include/formula_parser.h"
 #include "../include/utils.h"
+#include "../include/spreadsheet.h"
 
 #include<string.h>
 #include<ctype.h>
 
-int eval_formula(sheet *s , char *vale1 , char *v2,char * op){
+// Evaluating the formula
+int eval_formula(sheet *s, char *value1, char *value2, char *op){ 
+    // value1=cell, value2=number
+    // value1=number, value2=cell
+    // value1=cell, value2=cell
+    // value1=cell ,value2=NULL, op=NULL
+    if(value1==NULL || strlen(value1)==0){
+        return INT_MIN; 
+    }
+
+    int a,b;
+
+    // Getting the value for a
+    if(is_cell_name(value1)){
+        if(!is_valid_cell(s->num_rows,s->num_cols,value1)){
+            fprintf(stderr, "Invalid cell reference: %s\n", value1);
+            return INT_MIN;
+        }
+        int row_idx, col_idx;
+        cell_name_to_index(value1, &row_idx, &col_idx);
+
+        a=s->grid[row_idx][col_idx].val; // Get value from cell
+        
+    }
+    else if(is_integer(value1)){
+        a=atoi(value1); // Convert string to integer
+    }
+    else{
+        fprintf(stderr, "Invalid value1: %s\n", value1);
+        return INT_MIN;
+    }
+
+    // Getting the value for b
+    if(is_cell_name(value2)){
+        if(is_valid_cell(s->num_rows,s->num_cols,value2)){
+            fprintf(stderr, "Invalid cell reference: %s\n", value2);
+            return INT_MIN;
+        }
+        int row_idx, col_idx;
+        cell_name_to_index(value2, &row_idx, &col_idx);
+
+        b=s->grid[row_idx][col_idx].val; // Get value from cell
+    }
+    else if(is_integer(value2)){
+        b=atoi(value2); // Convert string to integer
+    }
+    else{
+        fprintf(stderr, "Invalid value1: %s\n", value2);
+        return INT_MIN;
+    }
+
+    if(op!=NULL){
+        switch(*op){
+            case '+':
+                return a+b; // Addition
+            case '-':
+                return a-b; // Subtraction
+            case '*':
+                return a*b; // Multiplication
+            case '/':
+                if(b==0){
+                    fprintf(stderr, "Division by zero error\n"); 
+                    return INT_MIN;
+                }
+                return a/b; // Division
+            
+            default:
+                fprintf(stderr, "Invalid operator: %c\n", *op);
+                return INT_MIN; 
+        }
+    }
     
-    return -123;
+    return a; // Return the value1 if no operator
 }
 
 char **parse_formula(const char *original_formula , int *dep_count){ // char** ans is just a pointer of array of strings

@@ -6,6 +6,7 @@
 #include<stdbool.h>
 #include<string.h>
 #include <limits.h>
+
 // Function to create a new sheet
 sheet *create_sheet(int rows, int cols){
     
@@ -96,7 +97,6 @@ void add_dependency(cell *target, cell *dependency){//dependency means parent of
     
     dependency->children[dependency->num_children++]=target;// now target->num_parents increased
     
-    
 }
 
 void remove_dependencies(cell *target){// It removes for every  parents in target->parents
@@ -162,4 +162,63 @@ void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_
     }
     
     return;
+}
+
+bool dfs(cell *c, cell *root, cell ***modified_cells, int *num_modified_cells, int *size){
+
+    // If the current cell is the root, a cycle is detected
+    if(c==root){
+        return true;
+    }
+    
+    // If the cell is already visited i.e dirty or has no children, no cycle is there
+    if(c->dirty || c->children==NULL){
+        return false;
+    }
+    
+    // Mark the cell as visited (dirty)
+    c->dirty=true;
+
+    // If the array of modified cells is full, we double its size using realloc
+    if(*num_modified_cells==*size){
+        *size *= 2;
+        *modified_cells = (cell **)realloc(*modified_cells, *size * sizeof(cell *));
+        // *modified_cells gives us the actual array of pointers
+    }
+
+    // Add the current cell to the array of modified cells
+    (*modified_cells)[*num_modified_cells]=c;
+    (*num_modified_cells)++;
+
+    // Recursively checking all children of the current cell for cycles
+    for(int i=0; i<c->num_children; i++){
+        if(dfs(c->children[i], root, modified_cells, num_modified_cells, size)){
+            return true;
+        }
+    }
+    
+    // No cycle detected
+    return false;
+}
+
+bool has_cycle(cell *start){
+    int size=1000;
+    cell **modified_cells=(cell **)malloc(size*sizeof(cell *));
+    int num_modified_cells=0;
+
+    for(int i=0; i<start->num_children; i++){
+        if(dfs(start->children[i], start, &modified_cells, &num_modified_cells, &size)){
+            free(modified_cells);
+            return true;
+        }
+    }
+
+    // Resetting the dirty flag for all modified cells
+    for(int i=0; i<num_modified_cells; i++){
+        modified_cells[i]->dirty=false;
+    }
+
+    // Free the allocated memory for modified cells
+    free(modified_cells);
+    return false;
 }
