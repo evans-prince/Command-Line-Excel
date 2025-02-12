@@ -46,3 +46,120 @@ void set_cell_value(sheet *s , char* cell_reference, int value){
     s->grid[rowIndex][colIndex].val = value;
     return;
 }
+
+void add_dependency(cell *target, cell *dependency){//dependency means parent of target cell
+    // target is child
+    if(target->num_parents==0){
+        target->parents=( cell ** )malloc(2*sizeof(cell*) );
+        if(!target->parents){
+            fprintf(stderr, "Memory allocation failed for parents in add_dependency function.\n");
+            exit(EXIT_FAILURE);
+        }
+    } else if (target->num_parents %2 ==0){
+        target->parents=( cell **) realloc(target->parents,(target->num_parents +2 )* sizeof(cell*));
+        if(!target->parents){
+            fprintf(stderr, "Memory reallocation failed for parents in add_dependency function.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    
+    for(int i=0; i < target->num_parents;i++ ){
+        if(target->parents[i] == dependency){
+            return;
+        }
+    }
+    
+    target->parents[target->num_parents++]=dependency;// now target->num_parents increased
+    // and dependency is parent of target cell
+    
+    // Same thing above should also be done for children
+    // that is we have to add target as a child of dependency cell
+    if(dependency->num_children==0){
+        dependency->children=( cell ** )malloc(2*sizeof(cell*) );
+        if(!dependency->children){
+            fprintf(stderr, "Memory allocation failed for children in add_dependency function.\n");
+            exit(EXIT_FAILURE);
+        }
+    } else if (dependency->num_children %2 ==0){
+        dependency->children=( cell **) realloc(dependency->children,(dependency->num_children +2 )* sizeof(cell*));
+        if(!dependency->children){
+            fprintf(stderr, "Memory reallocation failed for children in add_dependency function.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    
+    for(int i=0; i < dependency->num_children ;i++ ){
+        if(dependency->children[i] == target){
+            return;
+        }
+    }
+    
+    dependency->children[dependency->num_children++]=target;// now target->num_parents increased
+    
+    
+}
+
+void remove_dependencies(cell *target){// It removes for every  parents in target->parents
+    // remove its children target cell
+    // Then free the memory for target->parents
+    
+    if(target->num_parents==0){
+        return;
+    }
+    
+    for(int i=0;i<target->num_parents;i++){
+        cell * parent = target->parents[i];
+        
+        for(int j=0;j<parent->num_children; j++) {
+            if(parent->children[j] == target ){
+                
+                for(int k=j;k<parent->num_children-1;k++) {
+                    parent->children[k]=parent->children[k+1];
+                }
+                parent->num_children--;
+                break;
+            }
+        }
+    }
+    
+    free(target->parents);
+    target->parents=NULL;
+    target->num_parents=0;
+    return;
+}
+
+void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_count){
+    // this function will remove all old dependency of cell_ref and add all new dependencies from char** dependencies
+    
+    if(cell_ref==NULL || dependencies==NULL || dep_count<0){
+        fprintf(stderr, "Wrong input to update_dependcies\n");
+        return;
+    }
+    
+    int rowIndex , colIndex;
+    cell_name_to_index(cell_ref, &rowIndex, &colIndex);
+    
+    // target cell is the cell of cell_ref
+    cell *target = &s->grid[rowIndex][colIndex];
+    
+    // remove old parents of target cell and from their children list remove target
+    remove_dependencies(target);
+    
+    for(int i=0;i<dep_count;i++){
+        int rowIndex_of_dep , colIndex_of_dep;
+        
+        if(!is_valid_cell(s->num_rows,s->num_cols,dependencies[i])){
+            fprintf(stderr, "Incorrect cell refrence : '%s' in dependencies in update_dependencies.\n", dependencies[i]);
+            continue;
+        }
+        
+        cell_name_to_index(dependencies[i], &rowIndex_of_dep, &colIndex_of_dep);
+        // parent is cell correspoding to ith cell in dependencies
+        cell *parent = &s->grid[rowIndex_of_dep][colIndex_of_dep];
+        
+        //target depends on these parents so add its dependencies
+        add_dependency(target, parent);
+    }
+    
+    return;
+}

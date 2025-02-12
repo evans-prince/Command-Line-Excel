@@ -51,6 +51,16 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 break;
             }
             
+            int dep_count=0;
+            char ** dependencies=parse_formula(in->formula,&dep_count);
+            
+            if(dependencies==NULL || dep_count==0){
+                printf("Error , failed to parse formula : '%s.\n" , in->formula);
+                break;
+            }
+            
+            update_dependencies(s, in->cell_reference, dependencies, dep_count);
+            
             int ans = eval_formula(in->formula);
             if (ans == INT_MIN) { // Assuming INT_MIN indicates an error in calculation
                 printf("Error: Invalid formula '%s'.\n", in->formula);
@@ -58,6 +68,12 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             }
             set_cell_value(s, in->cell_reference, ans);
             trigger_recalculation(s);
+            
+            for(int i=0; i<dep_count;i++){
+                free(dependencies[i]);
+            }
+            
+            free(dependencies);
             
             break;
             
