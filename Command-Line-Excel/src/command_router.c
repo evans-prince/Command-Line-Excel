@@ -58,10 +58,21 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 printf("Error , failed to parse formula : '%s.\n" , in->formula);
                 break;
             }
+           // I have to update the depndencies here as per new logic
+            //  one of this may contain integer value dependencies[0] ,  dependencies[2] and dependencis[1] has op
+            char * valid_dependencies[2];
+            int valid_dep_count=0;
+            if(is_cell_name(dependencies[0])){
+                valid_dependencies[valid_dep_count++]=dependencies[0];
+            }
             
-            update_dependencies(s, in->cell_reference, dependencies, dep_count);
+            if(is_cell_name(dependencies[2])){
+                valid_dependencies[valid_dep_count++]=dependencies[2];
+            }
+
+            update_dependencies(s, in->cell_reference, valid_dependencies, valid_dep_count);
             
-            int ans = eval_formula(in->formula);
+            int ans = eval_formula(s,dependencies[0],dependencies[2],dependencies[1]);
             if (ans == INT_MIN) { // Assuming INT_MIN indicates an error in calculation
                 printf("Error: Invalid formula '%s'.\n", in->formula);
                 break;
