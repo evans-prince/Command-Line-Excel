@@ -50,10 +50,6 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 printf("Error: not a valid cell refrence.\n");
                 break;
             }
-            if(has_cycle(in->cell_reference)){
-                printf("Circular Reference detected\n");
-                break;
-            }
             
             int dep_count=0;
             char ** dependencies=parse_formula(in->formula,&dep_count);
@@ -72,6 +68,25 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             
             if(is_cell_name(dependencies[2])){
                 valid_dependencies[valid_dep_count++]=dependencies[2];
+            }
+
+            int row1,col1;
+            cell_name_to_index(valid_dependencies[0], &row1, &col1);
+            cell *parent1=&s->grid[row1][col1]; // Getting the parent cell 
+
+            int row2,col2;
+            cell_name_to_index(in->cell_reference, &row2, &col2);
+            cell *child=&s->grid[row2][col2]; // Getting the child cell
+
+            if(has_cycle(parent1, child)){
+                fprintf(stderr, "Circular reference detected.\n");
+                for(int i=0; i<dep_count;i++){
+                    free(dependencies[i]);
+                }
+                
+                free(dependencies);
+                free_input(in);
+                return;
             }
 
             update_dependencies(s, in->cell_reference, valid_dependencies, valid_dep_count);

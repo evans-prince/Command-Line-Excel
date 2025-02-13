@@ -38,7 +38,10 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
     }
 
     // Getting the value for b
-    if(is_cell_name(value2)){
+    if(value2==NULL){
+        b=0;
+    }
+    else if(is_cell_name(value2)){
         if(!is_valid_cell(s->num_rows,s->num_cols,value2)){
             fprintf(stderr, "Invalid cell reference: %s\n", value2);
             return INT_MIN;

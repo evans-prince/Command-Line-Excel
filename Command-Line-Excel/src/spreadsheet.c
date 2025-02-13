@@ -164,41 +164,38 @@ void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_
     return;
 }
 
-bool dfs(cell *c, cell *root, cell ***modified_cells, int *num_modified_cells, int *size){
-    if(c==NULL){
+bool dfs(cell *current, cell *child, cell ***modified_cells, int *num_modified_cells, int *size){
+    if(current==NULL){
         return false;
     }
 
     // If the current cell is the root, a cycle is detected
-    if(c==root){
+    if(current==child){
         return true;
     }
     
     // If the cell is already visited i.e dirty or has no children, no cycle is there
-    if(c->dirty || c->children==NULL){
+    if(current->dirty || current->num_parents==0){
         return false;
     }
     
     // Mark the cell as visited (dirty)
-    c->dirty=true;
+    current->dirty=true;
 
     // If the array of modified cells is full, we double its size using realloc
     if(*num_modified_cells==*size){
-        *size *= 2;
+        *size+=1000;
         *modified_cells = (cell **)realloc(*modified_cells, *size * sizeof(cell *));
         // *modified_cells gives us the actual array of pointers
     }
 
     // Add the current cell to the array of modified cells
-    (*modified_cells)[*num_modified_cells]=c;
+    (*modified_cells)[*num_modified_cells]=current;
     (*num_modified_cells)++;
 
     // Recursively checking all children of the current cell for cycles
-    for(int i=0; i<c->num_children; i++){
-        if (c->num_children==0) {
-            return false;
-        }
-        if(dfs(c->children[i], root, modified_cells, num_modified_cells, size)){
+    for(int i=0; i<current->num_parents; i++){
+        if(dfs(current->parents[i], child, modified_cells, num_modified_cells, size)){
             return true;
         }
     }
@@ -207,17 +204,12 @@ bool dfs(cell *c, cell *root, cell ***modified_cells, int *num_modified_cells, i
     return false;
 }
 
-bool has_cycle(cell *start){
+bool has_cycle(cell *parent, cell *child){
     int size=1000;
     cell **modified_cells=(cell **)malloc(size*sizeof(cell *));
     int num_modified_cells=0;
 
-    for(int i=0; i<start->num_children; i++){
-        if(dfs(start->children[i], start, &modified_cells, &num_modified_cells, &size)){
-            free(modified_cells);
-            return true;
-        }
-    }
+    bool cycle_found=dfs(parent, child, &modified_cells, &num_modified_cells, &size);
 
     // Resetting the dirty flag for all modified cells
     for(int i=0; i<num_modified_cells; i++){
@@ -226,5 +218,5 @@ bool has_cycle(cell *start){
 
     // Free the allocated memory for modified cells
     free(modified_cells);
-    return false;
+    return cycle_found;
 }
