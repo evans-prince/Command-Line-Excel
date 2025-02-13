@@ -1,7 +1,7 @@
 # Compiler and Flags
 CC = gcc -std=c11
 CFLAGS = -Wall -Wextra -g -Iinclude  # Include header files from include/
-LDFLAGS=-lm
+LDFLAGS = -lm
 
 # Output executable
 TARGET = sheet
@@ -31,3 +31,8 @@ clean:
 # Run the program (Optional)
 run: all
 	./$(TARGET)
+
+# Run Valgrind to check for memory leaks
+valgrind: all
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(TARGET)
+
