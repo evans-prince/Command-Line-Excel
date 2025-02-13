@@ -33,6 +33,7 @@ sheet *create_sheet(int rows, int cols){
             s->grid[i][j].children=NULL;
             s->grid[i][j].num_parents=0;
             s->grid[i][j].num_children=0;
+            s->grid[i][j].visited=false;
         }
     }
     
@@ -213,13 +214,13 @@ bool dfs(cell *current, cell *child, cell ***modified_cells, int *num_modified_c
         return true;
     }
     
-    // If the cell is already visited i.e dirty or has no children, no cycle is there
-    if(current->dirty || current->num_parents==0){
+    // If the cell is already visited or has no children, no cycle is there
+    if(current->visited || current->num_parents==0){
         return false;
     }
     
     // Mark the cell as visited (dirty)
-    current->dirty=true;
+    current->visited=true;
 
     // If the array of modified cells is full, we double its size using realloc
     if(*num_modified_cells==*size){
@@ -250,9 +251,9 @@ bool has_cycle(cell *parent, cell *child){
 
     bool cycle_found=dfs(parent, child, &modified_cells, &num_modified_cells, &size);
 
-    // Resetting the dirty flag for all modified cells
+    // Resetting the visited flag for all modified cells
     for(int i=0; i<num_modified_cells; i++){
-        modified_cells[i]->dirty=false;
+        modified_cells[i]->visited=false;
     }
 
     // Free the allocated memory for modified cells

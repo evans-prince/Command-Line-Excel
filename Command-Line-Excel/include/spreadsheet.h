@@ -11,6 +11,7 @@ typedef struct cell {
     struct cell **children;
     int num_parents;
     int num_children;
+    bool visited;
 }cell;
 
 typedef struct spreadsheet_bounds {

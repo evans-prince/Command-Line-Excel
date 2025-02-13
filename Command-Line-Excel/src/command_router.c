@@ -119,7 +119,10 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 break;
             }
             set_cell_value(s, in->cell_reference, ans);
-            trigger_recalculation(s);
+            
+            if(child->num_children!=0){
+                trigger_recalculation(s, child);
+            }    
             
             for(int i=0; i<dep_count;i++){
                 free(dependencies[i]);
