@@ -107,6 +107,9 @@ char **parse_formula(const char *original_formula , int *dep_count){ // char** a
         free(formula);
         return NULL;
     }
+    dependencies[0]=NULL;
+    dependencies[1]=NULL;
+    dependencies[2]=NULL;
     
     *dep_count=0;
     char * op = strpbrk(formula, "+-*/");
