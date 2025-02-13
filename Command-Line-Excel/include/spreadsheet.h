@@ -26,6 +26,7 @@ typedef struct sheet {
 }sheet;
 
 sheet *create_sheet(int rows, int cols);
+void free_sheet (sheet * s );
 void set_cell_value(sheet *s ,char* cell_reference, int value);
 void add_dependency(cell *target, cell *dependency);
 void remove_dependencies(cell *target);

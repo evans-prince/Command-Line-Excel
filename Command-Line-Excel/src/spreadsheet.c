@@ -39,6 +39,41 @@ sheet *create_sheet(int rows, int cols){
     return s;
 }
 
+void free_sheet (sheet * s ){
+    if(!s){
+        return;
+    }
+    
+    for(int i=0;i<s->num_rows;i++){
+        for(int j=0;j<s->num_cols;j++){
+            
+           free( s->grid[i][j].formula);
+            
+            s->grid[i][j].formula=NULL;
+            
+            for(int k=0;k < s->grid[i][j].num_parents ; k++){
+                free(s->grid[i][j].parents[k]);
+                s->grid[i][j].parents[k]=NULL;
+            }
+            
+            free( s->grid[i][j].parents);
+            s->grid[i][j].parents=NULL;
+            
+            for(int m=0;m < s->grid[i][j].num_children ; m++){
+                free(s->grid[i][j].children[m]);
+                s->grid[i][j].children[m]=NULL;
+            }
+            
+            free( s->grid[i][j].children);
+            s->grid[i][j].children=NULL;
+        }
+        free( s->grid[i]);
+    }
+    free(s->grid);
+    free(s);
+    return;
+}
+
 void set_cell_value(sheet *s , char* cell_reference, int value){
     
     int rowIndex, colIndex;
