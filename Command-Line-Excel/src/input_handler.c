@@ -232,6 +232,7 @@ bool is_cell_value_assignment(const char * raw_input){
         char *before=copy;
         
         if(is_arithmetic_expression(after) && is_cell_name(before)){
+            free(copy);
             return true;
         }
         
@@ -261,6 +262,7 @@ bool is_function_call(const char * raw_input){
         
         char *open=strchr(after,'('); // Gets the first occurence of '('
         if(open==NULL){ // If there is no '(' then it is not a function call
+            free(copy);
             return false;
         }
         
@@ -276,6 +278,7 @@ bool is_function_call(const char * raw_input){
         *close='\0';
         
         if(is_function_name(func)==2 && (is_cell_name(open+1) || is_integer(open+1))){
+            free(copy);
             return true;
         }
         
@@ -289,6 +292,7 @@ bool is_function_call(const char * raw_input){
         char *cell2=range+1;
         
         if(is_cell_name(before) && is_function_name(func)==1 && is_cell_name(cell1) && is_cell_name(cell2)){
+            free(copy);
             return true;
         }
     }
@@ -301,6 +305,7 @@ bool is_function_call(const char * raw_input){
 bool is_cell_dependent_formula(const char * raw_input){
     char * input = my_strdup(raw_input);
     if (input == NULL) {
+        free(input);
         return false; // Handle null input safely
     }
     
@@ -312,12 +317,16 @@ bool is_cell_dependent_formula(const char * raw_input){
         char *before=input;
         
         if(!is_cell_name(before)){
+            free(input);
             return false;
         }
         if(is_cell_name(after) || is_cell_expression(after)){
+            free(input);    
             return true;
         }
     }
+
+    free(input);
     
     return false;
 }

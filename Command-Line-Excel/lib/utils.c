@@ -74,7 +74,7 @@ int calculate_arithmetic_expression(const char * expr){
 
 char *my_strdup(const char *s) {
     if (s == NULL) return NULL;
-    char *copy = malloc(strlen(s) + 1);
+    char *copy =(char *)malloc(strlen(s) + 1);
     if (copy) strcpy(copy, s);
     return copy;
 }

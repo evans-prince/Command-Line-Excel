@@ -47,22 +47,22 @@ void free_sheet (sheet * s ){
     for(int i=0;i<s->num_rows;i++){
         for(int j=0;j<s->num_cols;j++){
             
-           free( s->grid[i][j].formula);
+            free( s->grid[i][j].formula);
             
             s->grid[i][j].formula=NULL;
             
-            for(int k=0;k < s->grid[i][j].num_parents ; k++){
-                free(s->grid[i][j].parents[k]);
-                s->grid[i][j].parents[k]=NULL;
-            }
+            // for(int k=0;k < s->grid[i][j].num_parents ; k++){
+            //     free(s->grid[i][j].parents[k]);
+            //     s->grid[i][j].parents[k]=NULL;
+            // }
             
             free( s->grid[i][j].parents);
             s->grid[i][j].parents=NULL;
             
-            for(int m=0;m < s->grid[i][j].num_children ; m++){
-                free(s->grid[i][j].children[m]);
-                s->grid[i][j].children[m]=NULL;
-            }
+            // for(int m=0;m < s->grid[i][j].num_children ; m++){
+            //     free(s->grid[i][j].children[m]);
+            //     s->grid[i][j].children[m]=NULL;
+            // }
             
             free( s->grid[i][j].children);
             s->grid[i][j].children=NULL;
@@ -119,7 +119,7 @@ void add_dependency(cell *target, cell *dependency){//dependency means parent of
             fprintf(stderr, "Memory allocation failed for children in add_dependency function.\n");
             exit(EXIT_FAILURE);
         }
-    } else if (dependency->num_children %2 ==0){
+    } else if (dependency->num_children==size){
         size*=2;
         dependency->children=( cell **) realloc(dependency->children,(size)* sizeof(cell*));
         if(!dependency->children){
