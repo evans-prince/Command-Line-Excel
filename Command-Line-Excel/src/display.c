@@ -18,7 +18,9 @@ void display_sheet(sheet *s){
     // Print the column names
     printf("\t");
     for(int j=first_col;j<=last_col;j++){
-        printf("%-*s\t",width,col_index_to_name(j));
+        char *name=col_index_to_name(j);
+        printf("%-*s\t",width,name);
+        free(name);
     }
     
     // Print the grid

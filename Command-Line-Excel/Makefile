@@ -34,5 +34,5 @@ run: all
 
 # Run Valgrind to check for memory leaks
 valgrind: all
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(TARGET)
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(TARGET) $(ARGS)
 
