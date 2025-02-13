@@ -59,7 +59,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 break;
             }
            // I have to update the depndencies here as per new logic
-            //  one of this may contain integer value dependencies[0] ,  dependencies[2] and dependencis[1] has op
+            //  one of this may contain integer value dependencies[0] ,  dependencies[2] and dependencies[1] has op
             char * valid_dependencies[2];
             int valid_dep_count=0;
             if(is_cell_name(dependencies[0])){
@@ -70,8 +70,16 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 valid_dependencies[valid_dep_count++]=dependencies[2];
             }
 
+            char *parent;
+            if(is_cell_name(valid_dependencies[0]) && is_valid_cell(s->num_rows, s->num_cols, valid_dependencies[0])){
+                parent=valid_dependencies[0];
+            }
+            else if(is_cell_name(valid_dependencies[1]) && is_valid_cell(s->num_rows, s->num_cols, valid_dependencies[1])){
+                parent=valid_dependencies[1];
+            }
+
             int row1,col1;
-            cell_name_to_index(valid_dependencies[0], &row1, &col1);
+            cell_name_to_index(parent, &row1, &col1);
             cell *parent1=&s->grid[row1][col1]; // Getting the parent cell 
 
             int row2,col2;

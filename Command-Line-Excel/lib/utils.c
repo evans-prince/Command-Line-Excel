@@ -10,6 +10,10 @@
 
 
 bool is_valid_cell(int num_rows, int num_cols, const char * cell){
+    if(cell==NULL){
+        return false;
+    }
+
     int row_idx, col_idx;
     cell_name_to_index(cell, &row_idx, &col_idx);
 

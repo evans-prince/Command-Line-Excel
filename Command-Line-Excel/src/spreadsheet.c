@@ -135,7 +135,7 @@ void remove_dependencies(cell *target){// It removes for every  parents in targe
 void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_count){
     // this function will remove all old dependency of cell_ref and add all new dependencies from char** dependencies
     
-    if(cell_ref==NULL || dependencies==NULL || dep_count<0){
+    if(cell_ref==NULL || dependencies==NULL || dep_count<=0){
         fprintf(stderr, "Wrong input to update_dependcies\n");
         return;
     }
@@ -188,7 +188,7 @@ bool dfs(cell *current, cell *child, cell ***modified_cells, int *num_modified_c
 
     // If the array of modified cells is full, we double its size using realloc
     if(*num_modified_cells==*size){
-        *size+=1000;
+        *size*=2;
         *modified_cells = (cell **)realloc(*modified_cells, *size * sizeof(cell *));
         // *modified_cells gives us the actual array of pointers
     }
@@ -210,7 +210,7 @@ bool dfs(cell *current, cell *child, cell ***modified_cells, int *num_modified_c
 
 bool has_cycle(cell *parent, cell *child){
     int size=1000;
-    cell **modified_cells=(cell **)malloc(size*sizeof(cell *));
+    cell **modified_cells=(cell **)malloc(size*sizeof(cell *)); // pointer to an array of cells
     int num_modified_cells=0;
 
     bool cycle_found=dfs(parent, child, &modified_cells, &num_modified_cells, &size);
