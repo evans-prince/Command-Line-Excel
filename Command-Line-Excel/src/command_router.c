@@ -51,6 +51,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             cell *target=&s->grid[row_idx][col_idx];
             if(target->formula!=NULL){
                 remove_dependencies(target);
+                free(target->formula);
                 target->formula=NULL;
             }
 

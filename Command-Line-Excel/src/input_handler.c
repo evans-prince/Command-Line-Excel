@@ -184,6 +184,8 @@ void parse_input(struct input* in){ // ! To be edited
         default:
             fprintf(stderr, "Unhandled input type or invalid input.\n");
     }
+
+    free(copy);
     return;
 }
 
