@@ -27,7 +27,7 @@ bool is_valid_cell(int num_rows, int num_cols, const char * cell){
 // function which calculate a string of arithmetic expression int int , return INTMIN if error
 int calculate_arithmetic_expression(const char * expr){
     if(expr==NULL || strlen(expr)==0){
-        return INT_MIN;
+        return INT_MAX;
     }
     char *s=my_strdup(expr);
     
@@ -66,10 +66,10 @@ int calculate_arithmetic_expression(const char * expr){
         
         default:
             fprintf(stderr, "Invalid operator: %c\n", op);
-            return INT_MIN; 
+            return INT_MAX;
     }
 
-    return INT_MIN;
+    return INT_MAX;
 }
 
 char *my_strdup(const char *s) {

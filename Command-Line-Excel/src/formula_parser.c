@@ -12,7 +12,7 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
     // value1=cell, value2=cell
     // value1=cell ,value2=NULL, op=NULL
     if(value1==NULL || strlen(value1)==0){
-        return INT_MIN; 
+        return INT_MAX;
     }
 
     int a,b;
@@ -21,7 +21,7 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
     if(is_cell_name(value1)){
         if(!is_valid_cell(s->num_rows,s->num_cols,value1)){
             fprintf(stderr, "Invalid cell reference: %s\n", value1);
-            return INT_MIN;
+            return INT_MAX;
         }
         int row_idx, col_idx;
         cell_name_to_index(value1, &row_idx, &col_idx);
@@ -34,7 +34,7 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
     }
     else{
         fprintf(stderr, "Invalid value1: %s\n", value1);
-        return INT_MIN;
+        return INT_MAX;
     }
 
     // Getting the value for b
@@ -44,7 +44,7 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
     else if(is_cell_name(value2)){
         if(!is_valid_cell(s->num_rows,s->num_cols,value2)){
             fprintf(stderr, "Invalid cell reference: %s\n", value2);
-            return INT_MIN;
+            return INT_MAX;
         }
         int row_idx, col_idx;
         cell_name_to_index(value2, &row_idx, &col_idx);
@@ -56,7 +56,7 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
     }
     else{
         fprintf(stderr, "Invalid value1: %s\n", value2);
-        return INT_MIN;
+        return INT_MAX;
     }
 
     if(op!=NULL){
@@ -76,7 +76,7 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
             
             default:
                 fprintf(stderr, "Invalid operator: %c\n", *op);
-                return INT_MIN; 
+                return INT_MAX;
         }
     }
     
