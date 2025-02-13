@@ -165,6 +165,9 @@ void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_
 }
 
 bool dfs(cell *c, cell *root, cell ***modified_cells, int *num_modified_cells, int *size){
+    if(c==NULL){
+        return false;
+    }
 
     // If the current cell is the root, a cycle is detected
     if(c==root){
@@ -192,6 +195,9 @@ bool dfs(cell *c, cell *root, cell ***modified_cells, int *num_modified_cells, i
 
     // Recursively checking all children of the current cell for cycles
     for(int i=0; i<c->num_children; i++){
+        if (c->num_children==0) {
+            return false;
+        }
         if(dfs(c->children[i], root, modified_cells, num_modified_cells, size)){
             return true;
         }

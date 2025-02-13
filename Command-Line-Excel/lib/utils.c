@@ -78,9 +78,6 @@ char *my_strdup(const char *s) {
 // function to extract row index and col index from cell name string
 void cell_name_to_index(char* str, int *rowIndex, int* colIndex){
     //seprating the uppercase col name and integer row name
-    if(str=NULL || rowIndex==NULL || colIndex==NULL){
-        return;
-    }
 
     char * colname=  str;
     *rowIndex=0;

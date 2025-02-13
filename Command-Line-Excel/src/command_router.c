@@ -50,6 +50,10 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 printf("Error: not a valid cell refrence.\n");
                 break;
             }
+            if(has_cycle(in->cell_reference)){
+                printf("Circular Reference detected\n");
+                break;
+            }
             
             int dep_count=0;
             char ** dependencies=parse_formula(in->formula,&dep_count);
