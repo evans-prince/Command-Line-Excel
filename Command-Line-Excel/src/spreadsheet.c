@@ -50,14 +50,16 @@ void set_cell_value(sheet *s , char* cell_reference, int value){
 
 void add_dependency(cell *target, cell *dependency){//dependency means parent of target cell
     // target is child
+    int capacity=2;
     if(target->num_parents==0){
-        target->parents=( cell ** )malloc(2*sizeof(cell*) );
+        target->parents=( cell ** )malloc(capacity*sizeof(cell*) );
         if(!target->parents){
             fprintf(stderr, "Memory allocation failed for parents in add_dependency function.\n");
             exit(EXIT_FAILURE);
         }
-    } else if (target->num_parents %2 ==0){
-        target->parents=( cell **) realloc(target->parents,(target->num_parents +2 )* sizeof(cell*));
+    } else if (target->num_parents ==capacity){
+        capacity*=2;
+        target->parents=( cell **) realloc(target->parents,(capacity)* sizeof(cell*));
         if(!target->parents){
             fprintf(stderr, "Memory reallocation failed for parents in add_dependency function.\n");
             exit(EXIT_FAILURE);
@@ -75,14 +77,16 @@ void add_dependency(cell *target, cell *dependency){//dependency means parent of
     
     // Same thing above should also be done for children
     // that is we have to add target as a child of dependency cell
+    int size=1000;
     if(dependency->num_children==0){
-        dependency->children=( cell ** )malloc(2*sizeof(cell*) );
+        dependency->children=( cell ** )malloc(size*sizeof(cell*) );
         if(!dependency->children){
             fprintf(stderr, "Memory allocation failed for children in add_dependency function.\n");
             exit(EXIT_FAILURE);
         }
     } else if (dependency->num_children %2 ==0){
-        dependency->children=( cell **) realloc(dependency->children,(dependency->num_children +2 )* sizeof(cell*));
+        size*=2;
+        dependency->children=( cell **) realloc(dependency->children,(size)* sizeof(cell*));
         if(!dependency->children){
             fprintf(stderr, "Memory reallocation failed for children in add_dependency function.\n");
             exit(EXIT_FAILURE);
