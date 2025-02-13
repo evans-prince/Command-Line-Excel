@@ -32,7 +32,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             }
             if(in->value!=NULL){
                 set_cell_value(s, in->cell_reference, atoi(in->value));
-                break;
+                // break;
             }else{
                 int val = calculate_arithmetic_expression(in->arithmetic_expression);
                 if (val == INT_MIN) { // Assuming INT_MIN indicates an error in calculation
@@ -41,8 +41,20 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 }
                 set_cell_value(s, in->cell_reference, val);
                 
-                break;
+                // break;
             }
+
+            // Added a check so that older dependencies of cell_reference are removed
+            // Only when the cell_reference's formula field is not NULL
+            int row_idx, col_idx;
+            cell_name_to_index(in->cell_reference, &row_idx, &col_idx);
+            cell *target=&s->grid[row_idx][col_idx];
+            if(target->formula!=NULL){
+                remove_dependencies(target);
+                target->formula=NULL;
+            }
+
+            break;
             
         case CELL_DEPENDENT_FORMULA:
             
@@ -85,6 +97,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             int row2,col2;
             cell_name_to_index(in->cell_reference, &row2, &col2);
             cell *child=&s->grid[row2][col2]; // Getting the child cell
+            child->formula=my_strdup(in->formula); // Updated the child's formula as it is dependent on the parents
 
             if(has_cycle(parent1, child)){
                 fprintf(stderr, "Circular reference detected.\n");
@@ -121,7 +134,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 printf("Error: not a valid cell refrence.\n");
                 break;
             }
-            // to be edited
+            // ! To be edited
             
             break;
             

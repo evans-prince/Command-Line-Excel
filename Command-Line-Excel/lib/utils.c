@@ -33,7 +33,7 @@ int calculate_arithmetic_expression(const char * expr){
     
     int value1;
 
-    char *f=strpbrk(s,"+-/*"); 
+    char *f=strpbrk(s+1,"+-/*"); 
     if(f==NULL){
         value1=atoi(s);
         free(s);
@@ -46,27 +46,27 @@ int calculate_arithmetic_expression(const char * expr){
 
     int value2;
     char *c=f+1;
-    value2=atoi(c+1);
+    value2=atoi(c);
 
     free(s);
 
     switch(op){
         case '+':
-                return value1+value2; // Addition
-            case '-':
-                return value1-value2; // Subtraction
-            case '*':
-                return value1*value2; // Multiplication
-            case '/':
-                if(value2==0){
-                    fprintf(stderr, "Division by zero error\n"); 
-                    return INT_MIN;
-                }
-                return value1/value2; // Division
-            
-            default:
-                fprintf(stderr, "Invalid operator: %c\n", op);
-                return INT_MIN; 
+            return value1+value2; // Addition
+        case '-':
+            return value1-value2; // Subtraction
+        case '*':
+            return value1*value2; // Multiplication
+        case '/':
+            if(value2==0){
+                fprintf(stderr, "Division by zero error\n"); 
+                return INT_MIN;
+            }
+            return value1/value2; // Division
+        
+        default:
+            fprintf(stderr, "Invalid operator: %c\n", op);
+            return INT_MIN; 
     }
 
     return INT_MIN;
