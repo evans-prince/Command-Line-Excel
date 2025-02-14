@@ -22,12 +22,8 @@ void recalculate_cells(sheet *s, cell **order, int len){
 
             int ans=eval_formula(s, dependencies[0], dependencies[2], dependencies[1]);
             if (ans==INT_MAX) { // Assuming INT_MAX indicates an error in calculation
-                // printf("Error: Invalid formula '%s'.\n", order[i]->formula);
-                // ! To be edited by ME
+                fprintf(stderr, "Error: Invalid formula '%s'.\n", order[i]->formula);
                 continue;
-            }
-            else if(ans==INT_MIN){ // It means that formula is of the form div by 0 
-                // ! To be edited by ME
             }
 
             order[i]->val=ans;
@@ -66,4 +62,5 @@ void trigger_recalculation(sheet *s, cell *current){
     recalculate_cells(s, order, len);
     
     free(order);
+    return;
 }

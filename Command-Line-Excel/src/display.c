@@ -28,7 +28,13 @@ void display_sheet(sheet *s){
     for (int i=first_row;i<=last_row;i++){
         printf("%d\t",i+1);
         for(int j=first_col;j<=last_col;j++){
-            printf("%-*d\t",width,s->grid[i][j].val);
+            if(s->grid[i][j].val==INT_MIN){  
+                // If there is a div by 0 error in the cell then display 'ERR'
+                printf("%-*s\t",width,"ERR");
+            }
+            else{
+                printf("%-*d\t",width,s->grid[i][j].val);
+            }
         }
         printf("\n");
     }

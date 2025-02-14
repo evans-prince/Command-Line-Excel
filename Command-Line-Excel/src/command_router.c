@@ -30,18 +30,18 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 printf("Error: not a valid cell refrence '%s'.\n",in->cell_reference);
                 break;
             }
+
             if(in->value!=NULL){
                 set_cell_value(s, in->cell_reference, atoi(in->value));
-                // break;
+
             }else{
                 int val = calculate_arithmetic_expression(in->arithmetic_expression);
-                if (val == INT_MIN) { // Assuming INT_MIN indicates an error in calculation
+                if (val == INT_MAX) { // Assuming INT_MIN indicates an error in calculation
                     printf("Error: Invalid arithmetic expression '%s'.\n", in->arithmetic_expression);
                     break;
                 }
                 set_cell_value(s, in->cell_reference, val);
                 
-                // break;
             }
 
             // Added a check so that older dependencies of cell_reference are removed
@@ -114,10 +114,15 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             update_dependencies(s, in->cell_reference, valid_dependencies, valid_dep_count);
             
             int ans = eval_formula(s,dependencies[0],dependencies[2],dependencies[1]);
-            if (ans == INT_MIN) { // Assuming INT_MIN indicates an error in calculation
+            if (ans == INT_MAX) { // Assuming INT_MIN indicates an error in calculation
                 printf("Error: Invalid formula '%s'.\n", in->formula);
                 break;
             }
+            // else if(ans==INT_MIN){
+            //     printf("Error: Division by zero error.\n");
+            //     break;
+            // }
+
             set_cell_value(s, in->cell_reference, ans);
             
             if(child->num_children!=0){

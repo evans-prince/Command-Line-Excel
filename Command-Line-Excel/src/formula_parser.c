@@ -27,6 +27,10 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
         cell_name_to_index(value1, &row_idx, &col_idx);
 
         a=s->grid[row_idx][col_idx].val; // Get value from cell
+
+        if(a==INT_MIN){ // To handle Div by 0 error
+            return a;
+        }
         
     }
     else if(is_integer(value1)){
@@ -50,6 +54,10 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
         cell_name_to_index(value2, &row_idx, &col_idx);
 
         b=s->grid[row_idx][col_idx].val; // Get value from cell
+
+        if(b==INT_MIN){ // To handle Div by 0 error
+            return b;
+        }
     }
     else if(is_integer(value2)){
         b=atoi(value2); // Convert string to integer
