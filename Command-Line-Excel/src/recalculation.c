@@ -1,5 +1,4 @@
 #include "../include/recalculation.h"
-#include "../include/spreadsheet.h"
 #include "../include/utils.h"
 #include "../include/formula_parser.h"
 
@@ -38,14 +37,21 @@ void recalculate_cells(sheet *s, cell **order, int len){
 
     return;
 }
-void mark_children_dirty(cell * target){
+void mark_children_dirty(sheet *s ,cell * target){
     for(int i=0;i<target->num_children;i++){
-        target->children[i]->dirty=true;
-        mark_children_dirty(target->children[i]);
+        add_to_calculation_chain(s, target->children[i]);
+        mark_children_dirty(s,target->children[i]);
     }
+    return;
 }
 
 void trigger_recalculation(sheet *s, cell *current){
+    
+    // you will be given only sheet pointer s ,
+    //from this you have to recalculate every cell available in calculation chain
+    
+    // so update this function accordingly
+    
     if(current==NULL){
         return;
     }
@@ -63,4 +69,84 @@ void trigger_recalculation(sheet *s, cell *current){
     
     free(order);
     return;
+}
+
+void add_to_calculation_chain(sheet *s, cell *c){
+    if(c->dirty){
+        return;
+    }
+    
+    c->dirty=true;
+    if(s->num_dirty_cells==s->chain_capacity){
+        s->chain_capacity*=2;
+        
+        s->calculation_chain=(cell **) realloc(s->calculation_chain, s->chain_capacity*sizeof(cell *));
+        if(!s->calculation_chain){
+            fprintf(stderr, "Memory reallocation failed in add_to_calculation_chain function. \n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    
+    s->calculation_chain[s->num_dirty_cells] = c;
+    s->num_dirty_cells++;
+    return;
+}
+
+void remove_from_calculation_chain(sheet *s, cell *c){
+    
+    for (int i = 0; i < s->num_dirty_cells; i++) {
+        
+        if (s->calculation_chain[i] == c){
+            
+            for(int j=i; j< s->num_dirty_cells-1; j++) {
+                s->calculation_chain[j] = s->calculation_chain[j+1];
+            }
+            s->num_dirty_cells--;
+            c->dirty=false;
+            return;
+        }
+        
+    }
+    return;
+}
+
+void update_topological_ranks(cell *target){
+    if (target->num_parents == 0){
+        target->topological_rank = 0;
+    }else{
+        int max_rank = -1;
+        for (int i=0; i < target->num_parents; i++){
+            if(target->parents[i]->topological_rank > max_rank){
+                max_rank = target->parents[i]->topological_rank;
+            }
+        }
+        target->topological_rank = max_rank+1;
+    }
+
+    for(int i=0; i < target->num_children; i++){
+        update_topological_ranks(target->children[i]);
+    }
+    
+    return;
+}
+
+int compare_cells(const void *a , const void *b){ // negative means cellA < cellB
+                        // zero means equal and positive means cellB < cellA
+    
+    cell *cellA = *(cell **) a;// a is void ptr so first cast to cell** which is ptr of ptr to cell
+                                // another * is used for dereferencing
+    cell *cellB = *(cell **) b;
+    
+    return cellA->topological_rank - cellB->topological_rank;
+
+}
+
+void sort_calculation_chain(sheet *s){
+    qsort(s->calculation_chain, s->num_dirty_cells, sizeof(cell *), compare_cells);
+    // the sorting algo can be made by ouselves for improving efficiency of our program
+    // likely we  will use binary search to find the position of new incoming elem
+    // and place it in already sorted chain.
+    // we have to shift the entire chain then
+    // we may have to remove some elem from chain , the function is already made use them
+    // if needed
 }

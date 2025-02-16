@@ -2,6 +2,7 @@
 #define SPREADSHEET_H
 
 #include<stdbool.h>
+#include "recalculation.h"
 
 typedef struct cell {
     int val;
@@ -12,6 +13,7 @@ typedef struct cell {
     int num_parents;
     int num_children;
     bool visited;
+    int topological_rank;
 }cell;
 
 typedef struct spreadsheet_bounds {
@@ -24,6 +26,10 @@ typedef struct sheet {
     int num_rows;
     int num_cols;
     spreadsheet_bounds bounds;
+    
+    cell ** calculation_chain;
+    int num_dirty_cells;
+    int chain_capacity;
 }sheet;
 
 sheet *create_sheet(int rows, int cols);

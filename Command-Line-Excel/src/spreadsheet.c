@@ -12,6 +12,10 @@ sheet *create_sheet(int rows, int cols){
     
     // Allocate memory for the sheet
     sheet *s=(sheet *)malloc(sizeof(sheet));
+    if(!s){
+        fprintf(stderr, "Memory allocation failed for sheet in create_sheet. \n");
+        exit(EXIT_FAILURE);
+    }
     s->num_rows=rows;
     s->num_cols=cols;
     
@@ -36,6 +40,14 @@ sheet *create_sheet(int rows, int cols){
             s->grid[i][j].visited=false;
         }
     }
+    
+    s->chain_capacity=100;
+    s->calculation_chain= (cell ** ) malloc(s->chain_capacity*sizeof(cell *));
+    if(!s->calculation_chain){
+        fprintf(stderr, "Memory allocation failed for calculation chain in create_sheet. \n");
+        exit(EXIT_FAILURE);
+    }
+    s->num_dirty_cells=0;
     
     return s;
 }
@@ -200,6 +212,10 @@ void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_
         //target depends on these parents so add its dependencies
         add_dependency(target, parent);
     }
+  
+    update_topological_ranks(target);
+    add_to_calculation_chain(s , target);
+    mark_children_dirty(s , target);
     
     return;
 }

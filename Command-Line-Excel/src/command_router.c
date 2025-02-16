@@ -55,6 +55,8 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 target->formula=NULL;
             }
 
+            mark_children_dirty(s, target);
+            trigger_recalculation(s);
             break;
             
         case CELL_DEPENDENT_FORMULA:
