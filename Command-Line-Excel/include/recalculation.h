@@ -1,9 +1,10 @@
 #ifndef RECALCULATION_H
 #define RECALCULATION_H
 
-#include "../include/spreadsheet.h"
+typedef struct sheet sheet;
+typedef struct cell cell;
 
-void trigger_recalculation(sheet *s, cell *current);
+void trigger_recalculation(sheet *s);
 void recalculate_cells(sheet *s, cell **order, int len);
 void mark_children_dirty(sheet *s ,cell * target);
 void add_to_calculation_chain(sheet *s, cell *c);

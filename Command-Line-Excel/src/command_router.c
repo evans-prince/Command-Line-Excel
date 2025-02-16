@@ -115,21 +115,27 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
 
             update_dependencies(s, in->cell_reference, valid_dependencies, valid_dep_count);
             
-            int ans = eval_formula(s,dependencies[0],dependencies[2],dependencies[1]);
-            if (ans == INT_MAX) { // Assuming INT_MIN indicates an error in calculation
-                printf("Error: Invalid formula '%s'.\n", in->formula);
-                break;
-            }
-            // else if(ans==INT_MIN){
-            //     printf("Error: Division by zero error.\n");
-            //     break;
-            // }
-
-            set_cell_value(s, in->cell_reference, ans);
+//            int ans = eval_formula(s,dependencies[0],dependencies[2],dependencies[1]);
+//            if (ans == INT_MAX) { // Assuming INT_MIN indicates an error in calculation
+//                printf("Error: Invalid formula '%s'.\n", in->formula);
+//                break;
+//            }
+//            // else if(ans==INT_MIN){
+//            //     printf("Error: Division by zero error.\n");
+//            //     break;
+//            // }
+//
+//            set_cell_value(s, in->cell_reference, ans);
+//            
+//            if(child->num_children!=0){
+//                trigger_recalculation(s, child);
+//            }
             
-            if(child->num_children!=0){
-                trigger_recalculation(s, child);
-            }    
+            int row, col;
+            cell_name_to_index(in->cell_reference, &row, &col);
+            add_to_calculation_chain(s, &s->grid[row][col]);
+            
+            trigger_recalculation(s);
             
             for(int i=0; i<dep_count;i++){
                 free(dependencies[i]);

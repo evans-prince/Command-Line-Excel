@@ -1,4 +1,5 @@
 #include "../include/recalculation.h"
+#include "../include/spreadsheet.h"
 #include "../include/utils.h"
 #include "../include/formula_parser.h"
 
@@ -45,30 +46,49 @@ void mark_children_dirty(sheet *s ,cell * target){
     return;
 }
 
-void trigger_recalculation(sheet *s, cell *current){
+void trigger_recalculation(sheet *s){
     
-    // you will be given only sheet pointer s ,
-    //from this you have to recalculate every cell available in calculation chain
+//    // you will be given only sheet pointer s ,
+//    //from this you have to recalculate every cell available in calculation chain
+//    
+//    // so update this function accordingly
+//    
+//    if(current==NULL){
+//        return;
+//    }
+//
+//    current->dirty=true;
+//    mark_children_dirty(current); // ! To be made by PRINCE
+//
+//    int len=0;
+//    cell **order=topological_sort(current, &len); // ! To be made by PRINCE
+//    // ! Don't include current cell in the topo sort order as we have already evaluated its value
+//
+//    // order is a pointer to an array of cells
+//
+//    recalculate_cells(s, order, len);
+//    
+//    free(order);
+//    return;
     
-    // so update this function accordingly
-    
-    if(current==NULL){
-        return;
-    }
+    sort_calculation_chain(s); // Ensure calculation chain is sorted
 
-    current->dirty=true;
-    mark_children_dirty(current); // ! To be made by PRINCE
+       while (s->num_dirty_cells > 0) {
+           cell *c = s->calculation_chain[0]; // Process first dirty cell
 
-    int len=0;
-    cell **order=topological_sort(current, &len); // ! To be made by PRINCE
-    // ! Don't include current cell in the topo sort order as we have already evaluated its value
+           if (c->formula != NULL) {
+               int dep_count;
+               char **dependencies = parse_formula(c->formula, &dep_count);
+               c->val = eval_formula(s, dependencies[0], dependencies[2], dependencies[1]);
+               for(int i=0; i<dep_count;i++){
+                   free(dependencies[i]);
+               }
+               free(dependencies); // Free allocated memory
+           }
 
-    // order is a pointer to an array of cells
-
-    recalculate_cells(s, order, len);
-    
-    free(order);
-    return;
+           remove_from_calculation_chain(s, c); // Remove processed cell from chain
+           c->dirty = false; // Reset dirty flag
+       }
 }
 
 void add_to_calculation_chain(sheet *s, cell *c){
