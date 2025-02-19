@@ -7,6 +7,8 @@
 #include<limits.h>
 #include<ctype.h>
 #include<math.h>
+#include<unistd.h>
+#include<errno.h>
 
 
 bool is_valid_cell(int num_rows, int num_cols, const char * cell){

@@ -36,11 +36,11 @@ struct input* create_input(void);//initializes the input struct.
 // destructor function
 void free_input(struct input* in); // Frees all dynamically allocated memory in the struct.
 
-void parse_input(struct input* in);// its function is : depending on input type it update our input object
+void parse_input(struct input* in,char error_message[]);// its function is : depending on input type it update our input object
 // Like if its type is scroll_command just update command field rest need not to be cahanged.
 
 // Function to find the type of input
-InputType find_input_type(const char * raw_input);
+InputType find_input_type(const char * raw_input, char error_message[],int msg_size);
 
 bool is_scroll_command(const char * raw_input);
 bool is_quit_command(const char * raw_input);

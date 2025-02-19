@@ -4,6 +4,11 @@
 typedef struct sheet sheet;
 #include<stdbool.h>
 
-void command_router(sheet *s , char* user_input, bool is_output_enabled);
+typedef struct{
+    char status_message[100];
+    float elapsed_time;
+}CommandStatus;
+
+CommandStatus command_router(sheet *s , char* user_input, bool is_output_enabled);
 
 #endif

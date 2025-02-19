@@ -10,24 +10,41 @@
 #include<stdbool.h>
 #include<string.h>
 #include <limits.h>
+#include <unistd.h>
+#include <errno.h>
 
-void command_router(sheet * s , char * user_input , bool is_output_enabled) {
+CommandStatus command_router(sheet * s , char * user_input , bool is_output_enabled) {
+    CommandStatus c={.elapsed_time=0.0, .status_message="ok"};
+
     struct input *in = create_input();
+    if(!in){
+        strcpy(c.status_message,"Memory allocation failed for input struct");
+        return c;
+    }
     remove_space(user_input);
-    //    in->raw_input=user_input;
+
     in->raw_input=my_strdup(user_input);
-    parse_input(in);
+
+    char error_message[50]={0};
+    strcpy(error_message,"ok");
+    parse_input(in,error_message);
+
+    if(strcmp(error_message,"ok")!=0){
+        free_input(in);
+        strcpy(c.status_message,error_message);
+        return c;
+    }
     
     switch(in->input_type){
             
         case NOT_DECIDED:
-            printf("Error: input type is not decided yet.\n");
+            fprintf(stderr,"Error: input type is not decided yet.\n");
             break;
             
         case CELL_VALUE_ASSIGNMENT:
             
             if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
-                printf("Error: not a valid cell refrence '%s'.\n",in->cell_reference);
+                fprintf(stderr,"Error: not a valid cell refrence '%s'.\n",in->cell_reference);
                 break;
             }
 
@@ -37,7 +54,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             }else{
                 int val = calculate_arithmetic_expression(in->arithmetic_expression);
                 if (val == INT_MAX) { // Assuming INT_MIN indicates an error in calculation
-                    printf("Error: Invalid arithmetic expression '%s'.\n", in->arithmetic_expression);
+                    fprintf(stderr,"Error: Invalid arithmetic expression '%s'.\n", in->arithmetic_expression);
                     break;
                 }
                 set_cell_value(s, in->cell_reference, val);
@@ -62,7 +79,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
         case CELL_DEPENDENT_FORMULA:
             
             if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
-                printf("Error: not a valid cell refrence.\n");
+                fprintf(stderr,"Error: not a valid cell refrence.\n");
                 break;
             }
             
@@ -70,7 +87,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             char ** dependencies=parse_formula(in->formula,&dep_count);
             
             if(dependencies==NULL || dep_count==0){
-                printf("Error , failed to parse formula : '%s.\n" , in->formula);
+                fprintf(stderr,"Error , failed to parse formula : '%s.\n" , in->formula);
                 break;
             }
            // I have to update the depndencies here as per new logic
@@ -110,7 +127,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 
                 free(dependencies);
                 free_input(in);
-                return;
+                return c;
             }
 
             update_dependencies(s, in->cell_reference, valid_dependencies, valid_dep_count);
@@ -148,7 +165,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
         case FUNCTION_CALL:
             
             if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
-                printf("Error: not a valid cell refrence.\n");
+                fprintf(stderr,"Error: not a valid cell refrence.\n");
                 break;
             }
             // ! To be edited
@@ -174,12 +191,12 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
         case QUIT_COMMAND:
             free_input(in);
             free_sheet(s);
-            printf("Exiting program. Goodbye!\n");
+            fprintf(stderr,"Exiting program. Goodbye!\n");
             exit(0);
             break;
             
         case INVALID_INPUT:
-            printf("Error: Invalid input '%s'.\n", user_input);
+            fprintf(stderr,"Error: Invalid input '%s'.\n", user_input);
             break;
             
     }
@@ -190,5 +207,5 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
     }
     
     free_input(in);
-    return;
+    return c;
 }

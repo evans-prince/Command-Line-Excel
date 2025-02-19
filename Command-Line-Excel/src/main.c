@@ -16,7 +16,12 @@ int main(int argc, char *argv[]) {
         printf("Usage: ./sheet <num1> <num2>\n");
         return 1;
     }
-    
+
+    if(!is_integer(argv[1]) || !is_integer(argv[2])){
+        printf("Error: Incorrectly running the program.\n");
+        return 1;
+    }
+
     int num1 = atoi(argv[1]);
     int num2 = atoi(argv[2]);
     
@@ -32,19 +37,24 @@ int main(int argc, char *argv[]) {
         printf("Error: Failed to create the spreadsheet.\n");
         return 1;
     }
-    
+
     display_sheet(s);
+    
+
+    CommandStatus status;
+    status.elapsed_time=0.0;
+    strcpy(status.status_message,"ok");
     
     char *input = NULL;
     size_t len = 0;
     
     while (true) {
-        printf("Enter the command (or 'q' to quit): ");
+        printf("[%0.1f] (%s) >",status.elapsed_time,status.status_message);
         getline(&input, &len, stdin);
         
         // Remove newline character
-        input[strcspn(input, "\n")] = 0;// strcspn give the index of next line charactor
-        
+        input[strcspn(input, "\n")] = 0;
+
         if(strcmp(input, "disable_output")==0){
             is_output_enabled=false;
             continue;
@@ -54,8 +64,8 @@ int main(int argc, char *argv[]) {
             is_output_enabled=true;
             continue;
         }
-
-        command_router(s, input, is_output_enabled);
+        
+        status=command_router(s, input, is_output_enabled);
         
     }
     

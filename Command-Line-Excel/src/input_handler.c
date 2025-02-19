@@ -60,7 +60,7 @@ void free_input(struct input* in){// ALL THIS FUNCTION DO IS JUST FREE THE MEMOR
 }
 
 // Function to find the type of input
-InputType find_input_type(const char * raw_input){
+InputType find_input_type(const char * raw_input, char error_message[],int msg_size){
     // please don't mess with raw_input
     
     //    NOT_DECIDED= -1,
@@ -76,6 +76,7 @@ InputType find_input_type(const char * raw_input){
     //remove_space(raw_input);
     // if input is empty or null then not decided
     if (raw_input == NULL || strlen(raw_input) == 0) {
+        snprintf(error_message,msg_size,"Invalid input");
         return INVALID_INPUT; // Empty input is invalid
     }
     
@@ -87,15 +88,18 @@ InputType find_input_type(const char * raw_input){
         // if it contains only one char and is q then quit command
         return QUIT_COMMAND;
     }
+
     if (is_cell_value_assignment(raw_input)) {
         // if it contains at most  3 upper case letter at most 3 digits then '=' then some value or value operand value
         //we can say it is cell value assignment , but we are also dealing like direct airthmatic operations here only
         return CELL_VALUE_ASSIGNMENT;
     }
+
     if (is_function_call(raw_input)) {
         // if it includes range then it is function_call or sleep
         return FUNCTION_CALL;
     }
+
     if (is_cell_dependent_formula(raw_input)) {
         // if input contains cellname = cellname or cell name operand another cell name
         // then we can say it is cell_dependent_formula
@@ -103,11 +107,13 @@ InputType find_input_type(const char * raw_input){
     }
     
     //else invalid_input
+    snprintf(error_message,msg_size,"Invalid input");
     return INVALID_INPUT;
 }
 
-void parse_input(struct input* in){ // ! To be edited
-    in->input_type=find_input_type(in->raw_input); // Finds the type of input
+void parse_input(struct input* in, char error_message[]){ // ! To be edited
+    int msg_size=100;
+    in->input_type=find_input_type(in->raw_input, error_message,msg_size); // Finds the type of input
     
     char *copy=my_strdup(in->raw_input);
     
@@ -196,7 +202,8 @@ void parse_input(struct input* in){ // ! To be edited
         case NOT_DECIDED:
         case INVALID_INPUT:
         default:
-            fprintf(stderr, "Unhandled input type or invalid input.\n");
+            // fprintf(stderr, "Unhandled input type or invalid input\n");
+            break;
     }
 
     free(copy);
@@ -207,6 +214,7 @@ void parse_input(struct input* in){ // ! To be edited
 bool is_scroll_command(const char * raw_input){
     
     if (raw_input == NULL) {
+        // fprintf(stderr,"Invalid input");
         return false; // Handle null input safely
     }
     
@@ -231,7 +239,7 @@ bool is_scroll_command(const char * raw_input){
     if(is_cell_name(cell_name)){
         return true;
     };
-    
+
     return false;
 }
 
@@ -239,12 +247,14 @@ bool is_scroll_command(const char * raw_input){
 bool is_quit_command(const char * raw_input){
     
     if (raw_input == NULL) {
+        // fprintf(stderr,"Invalid input");
         return false; // Handle null input safely
     }
     
     if(strlen(raw_input)==1 && raw_input[0]=='q'){
         return true;
     }
+    // fprintf(stderr,"Invalid input");
     return false;
 }
 
@@ -263,6 +273,16 @@ bool is_cell_value_assignment(const char * raw_input){
         char *after=f+1; // We can use this to get the expression
         
         char *before=copy;
+
+        if(!is_cell_name(before)){
+            free(copy);
+            return false;
+        }
+
+        if(!is_arithmetic_expression(after)){
+            free(copy);
+            return false;
+        }
         
         if(is_arithmetic_expression(after) && is_cell_name(before)){
             free(copy);
@@ -292,6 +312,11 @@ bool is_function_call(const char * raw_input){
         
         // Gets the cell name from the input
         char *before=copy;
+        if(!is_cell_name(before)){
+            free(copy);
+            // snprintf(error_message,msg_size,"Invalid cell reference");
+            return false;
+        }
         
         char *open=strchr(after,'('); // Gets the first occurence of '('
         if(open==NULL){ // If there is no '(' then it is not a function call
@@ -303,6 +328,11 @@ bool is_function_call(const char * raw_input){
         
         // Gets the function name from the after string
         char *func=after;
+        if(is_function_name(func)==0){
+            free(copy);
+            // snprintf(error_message,msg_size,"Invalid function name");
+            return false;
+        }
         
         char *close=strrchr(open+1,')'); // Gets the first occurence of ')'
         if(close==NULL){ // If there is no ')' then it is not a function call
@@ -323,6 +353,12 @@ bool is_function_call(const char * raw_input){
         *range='\0';
         char *cell1=open+1;
         char *cell2=range+1;
+
+        if(!is_cell_name(cell1) || !is_cell_name(cell2)){
+            free(copy);
+            // snprintf(error_message,msg_size,"Invalid cell reference");
+            return false;
+        }
         
         if(is_cell_name(before) && is_function_name(func)==1 && is_cell_name(cell1) && is_cell_name(cell2)){
             free(copy);
@@ -351,6 +387,7 @@ bool is_cell_dependent_formula(const char * raw_input){
         
         if(!is_cell_name(before)){
             free(input);
+            // snprintf(error_message,msg_size,"Invalid cell reference");
             return false;
         }
         if(is_cell_name(after) || is_cell_expression(after)){
