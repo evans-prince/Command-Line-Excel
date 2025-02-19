@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
     }
     
     sheet *s = create_sheet(num1,num2);
+    bool is_output_enabled=true;
     
     if (s == NULL) {
         printf("Error: Failed to create the spreadsheet.\n");
@@ -42,10 +43,19 @@ int main(int argc, char *argv[]) {
         getline(&input, &len, stdin);
         
         // Remove newline character
-        input[strcspn(input, "\n")] = 0;
+        input[strcspn(input, "\n")] = 0;// strcspn give the index of next line charactor
         
+        if(strcmp(input, "disable_output")==0){
+            is_output_enabled=false;
+            continue;
+        }
         
-        command_router(s, input, true);
+        if(strcmp(input, "enable_output")==0){
+            is_output_enabled=true;
+            continue;
+        }
+
+        command_router(s, input, is_output_enabled);
         
     }
     

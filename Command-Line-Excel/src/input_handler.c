@@ -116,6 +116,20 @@ void parse_input(struct input* in){ // ! To be edited
     switch(in->input_type){
             
         case SCROLL_COMMAND: // If the input is a scroll command
+            if(strlen(in->raw_input)!=1){
+                char *cell_name = (char *) malloc(7*sizeof(char));
+                if(cell_name==NULL){
+                    fprintf(stderr, "Memory allocation failed in parse_input in scroll caommand case. \n");
+                    exit(EXIT_FAILURE);
+                }
+                int i=9;
+                for(i=9;i<strlen(in->raw_input);i++){
+                    cell_name[i-9]=in->raw_input[i];
+                }
+                cell_name[i-9]='\0';
+                in->cell_reference=cell_name;
+                break;
+            }
             in->command=my_strdup(in->raw_input);
             break;
             
@@ -199,6 +213,25 @@ bool is_scroll_command(const char * raw_input){
     if(strlen(raw_input)==1 && strchr("wasd", raw_input[0]) != NULL){
         return true;
     }
+    
+    char scroll_to[9]="scroll_to";
+    
+    for(int i=0 ; i<9;i++){
+        if(raw_input[i]!=scroll_to[i]){
+            return false;
+        }
+    }
+    char cell_name[7];
+    int i=9;
+    for(i=9; i<strlen(raw_input);i++){
+        cell_name[i-9]=raw_input[i];
+    }
+    cell_name[i-9]='\0';
+    
+    if(is_cell_name(cell_name)){
+        return true;
+    };
+    
     return false;
 }
 

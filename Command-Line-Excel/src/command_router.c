@@ -156,6 +156,18 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             break;
             
         case SCROLL_COMMAND:
+            if(in->cell_reference!=NULL){
+                
+                if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
+                    printf("Error: not a valid cell refrence.\n");
+                    break;
+                }
+                
+                int row_index, col_index;
+                cell_name_to_index(in->cell_reference, &row_index, &col_index);
+                scroll_to_cell(s, row_index, col_index);
+                break;
+            }
             scroll(s, *in->command);
             break;
             
