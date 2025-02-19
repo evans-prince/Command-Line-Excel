@@ -9,9 +9,17 @@
 #include<stdbool.h>
 #include<string.h>
 #include <limits.h>
+#include<unistd.h>
+
+double get_time() {
+    unsigned int start = sleep(0); // Approximate time marker in seconds
+    return (double)start;  // Convert to floating-point for decimal accuracy
+}
 
 // insert code here...
 int main(int argc, char *argv[]) {
+    double start_time=get_time();
+
     if (argc != 3) {
         printf("Usage: ./sheet <num1> <num2>\n");
         return 1;
@@ -40,9 +48,11 @@ int main(int argc, char *argv[]) {
 
     display_sheet(s);
     
+    double end_time=get_time();
+    double elapsed_time=end_time-start_time;
 
     CommandStatus status;
-    status.elapsed_time=0.0;
+    status.elapsed_time=elapsed_time;
     strcpy(status.status_message,"ok");
     
     char *input = NULL;

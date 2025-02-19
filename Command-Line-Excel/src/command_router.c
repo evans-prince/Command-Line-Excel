@@ -14,6 +14,8 @@
 #include <errno.h>
 
 CommandStatus command_router(sheet * s , char * user_input , bool is_output_enabled) {
+    double start_time=get_time();
+
     CommandStatus c={.elapsed_time=0.0, .status_message="ok"};
 
     struct input *in = create_input();
@@ -214,6 +216,9 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
         printf("\n");
         display_sheet(s);
     }
+
+    double end_time=get_time();
+    c.elapsed_time=end_time-start_time;
     
     free_input(in);
     return c;
