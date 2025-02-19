@@ -38,13 +38,15 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
     switch(in->input_type){
             
         case NOT_DECIDED:
-            fprintf(stderr,"Error: input type is not decided yet.\n");
+            strcpy(c.status_message,"Error: input type is not decided yet");
+            // fprintf(stderr,"Error: input type is not decided yet.\n");
             break;
             
         case CELL_VALUE_ASSIGNMENT:
             
             if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
-                fprintf(stderr,"Error: not a valid cell refrence '%s'.\n",in->cell_reference);
+                strcpy(c.status_message,"Error: not a valid cell refrence");
+                // fprintf(stderr,"Error: not a valid cell refrence '%s'.\n",in->cell_reference);
                 break;
             }
 
@@ -54,7 +56,8 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             }else{
                 int val = calculate_arithmetic_expression(in->arithmetic_expression);
                 if (val == INT_MAX) { // Assuming INT_MIN indicates an error in calculation
-                    fprintf(stderr,"Error: Invalid arithmetic expression '%s'.\n", in->arithmetic_expression);
+                    strcpy(c.status_message,"Error: Invalid arithmetic expression");
+                    // fprintf(stderr,"Error: Invalid arithmetic expression '%s'.\n", in->arithmetic_expression);
                     break;
                 }
                 set_cell_value(s, in->cell_reference, val);
@@ -79,7 +82,8 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
         case CELL_DEPENDENT_FORMULA:
             
             if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
-                fprintf(stderr,"Error: not a valid cell refrence.\n");
+                strcpy(c.status_message,"Not a valid cell reference");
+                // fprintf(stderr,"Error: not a valid cell refrence.\n");
                 break;
             }
             
@@ -87,7 +91,8 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             char ** dependencies=parse_formula(in->formula,&dep_count);
             
             if(dependencies==NULL || dep_count==0){
-                fprintf(stderr,"Error , failed to parse formula : '%s.\n" , in->formula);
+                strcpy(c.status_message,"Error: failed to parse formula");
+                // fprintf(stderr,"Error , failed to parse formula : '%s.\n" , in->formula);
                 break;
             }
            // I have to update the depndencies here as per new logic
@@ -120,7 +125,8 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             child->formula=my_strdup(in->formula); // Updated the child's formula as it is dependent on the parents
 
             if(has_cycle(parent1, child)){
-                fprintf(stderr, "Circular reference detected.\n");
+                strcpy(c.status_message,"Circular reference detected");
+                // fprintf(stderr, "Circular reference detected.\n");
                 for(int i=0; i<dep_count;i++){
                     free(dependencies[i]);
                 }
@@ -165,7 +171,8 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
         case FUNCTION_CALL:
             
             if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
-                fprintf(stderr,"Error: not a valid cell refrence.\n");
+                strcpy(c.status_message,"Not a valid cell refrence");
+                // fprintf(stderr,"Error: not a valid cell refrence.\n");
                 break;
             }
             // ! To be edited
@@ -176,7 +183,8 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             if(in->cell_reference!=NULL){
                 
                 if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
-                    printf("Error: not a valid cell refrence.\n");
+                    strcpy(c.status_message,"Not a valid cell refrence");
+                    // printf("Error: not a valid cell refrence.\n");
                     break;
                 }
                 
@@ -196,7 +204,8 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             break;
             
         case INVALID_INPUT:
-            fprintf(stderr,"Error: Invalid input '%s'.\n", user_input);
+            strcpy(c.status_message,"Invalid input");
+            // fprintf(stderr,"Error: Invalid input '%s'.\n", user_input);
             break;
             
     }
