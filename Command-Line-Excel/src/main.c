@@ -11,10 +11,6 @@
 #include <limits.h>
 #include<unistd.h>
 
-double get_time() {
-    unsigned int start = sleep(0); // Approximate time marker in seconds
-    return (double)start;  // Convert to floating-point for decimal accuracy
-}
 
 // insert code here...
 int main(int argc, char *argv[]) {

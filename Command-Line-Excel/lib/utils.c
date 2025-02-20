@@ -11,6 +11,10 @@
 #include<errno.h>
 
 
+double get_time(void) {
+    unsigned int start = sleep(0); // Approximate time marker in seconds
+    return (double)start;  // Convert to floating-point for decimal accuracy
+}
 bool is_valid_cell(int num_rows, int num_cols, const char * cell){
     if(cell==NULL){
         return false;

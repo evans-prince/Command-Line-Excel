@@ -9,6 +9,7 @@
 #include<string.h>
 #include <limits.h>
 
+double get_time(void);
 char *my_strdup(const char *s);
 int max ( int a , int b ) ;
 int min ( int a , int b ) ;
