@@ -61,13 +61,13 @@ int calculate_arithmetic_expression(const char * expr){
             return value1*value2; // Multiplication
         case '/':
             if(value2==0){
-                fprintf(stderr, "Division by zero error\n"); 
+                // fprintf(stderr, "Division by zero error\n"); 
                 return INT_MIN;
             }
             return value1/value2; // Division
         
         default:
-            fprintf(stderr, "Invalid operator: %c\n", op);
+            // fprintf(stderr, "Invalid operator: %c\n", op);
             return INT_MAX;
     }
 

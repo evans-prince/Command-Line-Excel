@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
     size_t len = 0;
     
     while (true) {
-        printf("[%0.1f] (%s) >",status.elapsed_time,status.status_message);
+        printf("[%0.1f] (%s) > ",status.elapsed_time,status.status_message);
         getline(&input, &len, stdin);
         
         // Remove newline character

@@ -40,14 +40,14 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
     switch(in->input_type){
             
         case NOT_DECIDED:
-            strcpy(c.status_message,"Error: input type is not decided yet");
+            strcpy(c.status_message,"Input type is not decided yet");
             // fprintf(stderr,"Error: input type is not decided yet.\n");
             break;
             
         case CELL_VALUE_ASSIGNMENT:
             
             if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
-                strcpy(c.status_message,"Error: not a valid cell refrence");
+                strcpy(c.status_message,"Not a valid cell refrence");
                 // fprintf(stderr,"Error: not a valid cell refrence '%s'.\n",in->cell_reference);
                 break;
             }
@@ -58,8 +58,12 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             }else{
                 int val = calculate_arithmetic_expression(in->arithmetic_expression);
                 if (val == INT_MAX) { // Assuming INT_MIN indicates an error in calculation
-                    strcpy(c.status_message,"Error: Invalid arithmetic expression");
+                    strcpy(c.status_message,"Invalid expression");
                     // fprintf(stderr,"Error: Invalid arithmetic expression '%s'.\n", in->arithmetic_expression);
+                    break;
+                }
+                else if(val==INT_MIN){
+                    strcpy(c.status_message,"Division by zero error");
                     break;
                 }
                 set_cell_value(s, in->cell_reference, val);
@@ -93,7 +97,7 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             char ** dependencies=parse_formula(in->formula,&dep_count);
             
             if(dependencies==NULL || dep_count==0){
-                strcpy(c.status_message,"Error: failed to parse formula");
+                strcpy(c.status_message,"Failed to parse formula");
                 // fprintf(stderr,"Error , failed to parse formula : '%s.\n" , in->formula);
                 break;
             }
