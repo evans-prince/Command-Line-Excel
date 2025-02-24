@@ -1,7 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "input_handler.h"
+typedef struct sheet sheet;
+typedef struct Range Range;
 
 #include<stdlib.h>
 #include<stdio.h>
@@ -28,10 +29,10 @@ int calculate_arithmetic_expression(const char * expr);
 bool is_valid_cell(int num_rows, int num_cols, const char * cell);
 int give_function_type(const char* fun_name);
 
-int get_min(const Range*  range);
-int get_max(const Range*  range);
-int get_avg(const Range*  range);
-int get_sum(const Range*  range);
-int get_stdev(const Range*  range);
+int get_min(sheet *s, const Range*  range);
+int get_max(sheet *s, const Range*  range);
+int get_avg(sheet *s, const Range*  range);
+int get_sum(sheet *s, const Range*  range);
+int get_stdev(sheet *s, const Range*  range);
 
 #endif

@@ -1,4 +1,6 @@
 #include "../include/utils.h"
+#include "../include/input_handler.h"
+#include "../include/spreadsheet.h"
 
 #include<stdlib.h>
 #include<stdio.h>
@@ -10,23 +12,121 @@
 #include<unistd.h>
 #include<errno.h>
 
-int get_min(const Range*  range){
-    return -1;
-}
-int get_max(const Range*  range){
-    return -1;
-}
-int get_avg(const Range*  range){
-    return -1;
-}
-int get_sum(const Range*  range){
-    return -1;
-}
-int get_stdev(const Range*  range){
-    return -1;
+int get_min(sheet *s, const Range*  range){
+    char *start_cell=range->start_cell;
+    char *end_cell=range->end_cell;
+
+    int start_row, start_col, end_row, end_col;
+    cell_name_to_index(start_cell, &start_row, &start_col);
+    cell_name_to_index(end_cell, &end_row, &end_col);
+
+    int min_val=INT_MAX;
+    for(int i=start_row;i<=end_row;i++){
+        for(int j=start_col;j<=end_col;j++){
+            if(s->grid[i][j].val==INT_MIN){
+                continue;
+            }
+            min_val=min(min_val,s->grid[i][j].val);
+        }
+    }
+    return min_val;
 }
 
+int get_max(sheet *s, const Range*  range){
+    char *start_cell=range->start_cell;
+    char *end_cell=range->end_cell;
 
+    int start_row, start_col, end_row, end_col;
+    cell_name_to_index(start_cell, &start_row, &start_col);
+    cell_name_to_index(end_cell, &end_row, &end_col);
+
+    int max_val=INT_MIN;
+    for(int i=start_row;i<=end_row;i++){
+        for(int j=start_col;j<=end_col;j++){
+            if(s->grid[i][j].val==INT_MAX){
+                continue;
+            }
+            max_val=max(max_val,s->grid[i][j].val);
+        }
+    }
+    return max_val;
+}
+
+int get_avg(sheet *s, const Range*  range){
+    char *start_cell=range->start_cell;
+    char *end_cell=range->end_cell;
+
+    int start_row, start_col, end_row, end_col;
+    cell_name_to_index(start_cell, &start_row, &start_col);
+    cell_name_to_index(end_cell, &end_row, &end_col);
+
+    int sum=0;
+    int num=(end_col-start_col+1)*(end_row-start_row+1);
+    for(int i=start_row;i<=end_row;i++){
+        for(int j=start_col;j<=end_col;j++){
+            if(s->grid[i][j].val==INT_MIN || s->grid[i][j].val==INT_MAX){
+                continue;
+            }
+            sum+=s->grid[i][j].val;
+        }
+    }
+    return sum/num;
+}
+
+int get_sum(sheet *s, const Range*  range){
+    char *start_cell=range->start_cell;
+    char *end_cell=range->end_cell;
+
+    int start_row, start_col, end_row, end_col;
+    cell_name_to_index(start_cell, &start_row, &start_col);
+    cell_name_to_index(end_cell, &end_row, &end_col);
+
+    int sum=0;
+    for(int i=start_row;i<=end_row;i++){
+        for(int j=start_col;j<=end_col;j++){
+            if(s->grid[i][j].val==INT_MIN || s->grid[i][j].val==INT_MAX){
+                continue;
+            }
+            sum+=s->grid[i][j].val;
+        }
+    }
+    return sum;
+}
+
+int get_stdev(sheet *s, const Range*  range){
+    char *start_cell=range->start_cell;
+    char *end_cell=range->end_cell;
+
+    int start_row, start_col, end_row, end_col;
+    cell_name_to_index(start_cell, &start_row, &start_col);
+    cell_name_to_index(end_cell, &end_row, &end_col);
+
+    int sum=0, mean;
+    int num=(end_col-start_col+1)*(end_row-start_row+1);
+
+    for(int i=start_row;i<=end_row;i++){
+        for(int j=start_col;j<=end_col;j++){
+            if(s->grid[i][j].val==INT_MIN || s->grid[i][j].val==INT_MAX){
+                continue;
+            }
+            sum+=s->grid[i][j].val;
+        }
+    }
+    mean=sum/num;
+
+    double variance=0.0;
+    for(int i=start_row;i<=end_row;i++){
+        for(int j=start_col;j<=end_col;j++){
+            if(s->grid[i][j].val==INT_MIN || s->grid[i][j].val==INT_MAX){
+                continue;
+            }
+            variance+=(s->grid[i][j].val-mean)*(s->grid[i][j].val-mean);
+        }
+    }
+    variance/=num;
+
+    return (int)round(sqrt(variance));
+}
 
 int give_function_type(const char* fun_name){
     if(strcmp(fun_name, "MIN")){
