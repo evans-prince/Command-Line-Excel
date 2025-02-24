@@ -141,29 +141,28 @@ int give_function_type(const char* fun_name){
 }
 
 char *index_to_cell_name(int i, int j){
-    char *name=(char *)malloc(7*sizeof(char)); // Max "ZZZ999" (6 chars + '\0')
-    int col=j+1; // Convert 0-based index to 1-based
-    int len=0;
+    char *col_name = col_index_to_name(j);
 
-    while (col > 0) {
-        col--; // Adjust for 1-based column naming
-        name[len++]='A'+(col%26);
-        col/=26;
-    }
-
-    int row=i+1;
+    char row_str[4];
+    int row = i + 1, len = 0;
     while (row > 0) {
-        name[len++]='0'+(row%10);
-        row/=10;
+        row_str[len++] = '0' + (row % 10);
+        row /= 10;
+    }
+    row_str[len] = '\0';
+
+    for (int k = 0; k < len / 2; k++) {
+        char temp = row_str[k];
+        row_str[k] = row_str[len - k - 1];
+        row_str[len - k - 1] = temp;
     }
 
-    name[len]='\0'; // Null-terminate the string
+    char *name = (char *)malloc(strlen(col_name) + len + 1);
+    
+    strcpy(name, col_name);
+    strcat(name, row_str);
 
-    for (int k=0; k<len/2; k++) {
-        char temp=name[k];
-        name[k]=name[len-k-1];
-        name[len-k-1]=temp;
-    }
+    free(col_name);
 
     return name;
 }
