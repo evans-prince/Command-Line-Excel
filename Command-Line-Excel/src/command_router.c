@@ -183,19 +183,53 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             }
             // ! To be edited
             int function_type=give_function_type(in->function_name);
-            switch (function_type) {
-                case -1:
-                    //UNDEFINED FUNCTION HERE PROCEED Accordingly
-                    break;
-                    
-                case 0:{
-                    int min_val;
-                    min_val=get_min(in->range);
-                    set_cell_value(s, in->cell_reference, min_val);
-                    break;
-                }
-                    
+            if(function_type==-1){
+                strcpy(c.status_message,"Undefined function");
+                break;
             }
+
+            int target_row, target_col;
+            cell_name_to_index(in->cell_reference, &target_row, &target_col);
+            cell *target = &s->grid[target_row][target_col];
+            
+            if (target->num_parents!=0) {
+                remove_dependencies(target);
+            }
+            
+            
+            int result = 0;
+            switch (function_type) {
+                case 0: // MIN
+                    result = get_min(in->range);
+                    break;
+                case 1: // MAX
+                    result = get_max(in->range);
+                    break;
+                case 2: // AVG
+                    result = get_avg(in->range);
+                    break;
+                case 3: // SUM
+                    result = get_sum(in->range);
+                    break;
+                case 4: // STDEV
+                    result = get_stdev(in->range);
+                    break;
+                case 5: // SLEEP
+                    if (atoi(in->value) > 0) {
+                        sleep(atoi(in->value));
+                    }
+                    result = atoi(in->value);
+                    break;
+                default:
+                    strcpy(c.status_message, "Unknown function type");
+                    return c;
+            }
+           
+            // set the result in respective cell.
+            set_cell_value(s, in->cell_reference, result);
+            
+            mark_children_dirty(s, target);
+            trigger_recalculation(s);
             
             break;
         }
