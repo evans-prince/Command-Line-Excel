@@ -26,5 +26,12 @@ void parse_range(const char *s,Range *r); // move this function from utils may b
 // new functions to write
 int calculate_arithmetic_expression(const char * expr);
 bool is_valid_cell(int num_rows, int num_cols, const char * cell);
+int give_function_type(const char* fun_name);
+
+int get_min(const Range*  range);
+int get_max(const Range*  range);
+int get_avg(const Range*  range);
+int get_sum(const Range*  range);
+int get_stdev(const Range*  range);
 
 #endif

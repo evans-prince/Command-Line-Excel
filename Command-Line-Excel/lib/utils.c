@@ -10,6 +10,45 @@
 #include<unistd.h>
 #include<errno.h>
 
+int get_min(const Range*  range){
+    return -1;
+}
+int get_max(const Range*  range){
+    return -1;
+}
+int get_avg(const Range*  range){
+    return -1;
+}
+int get_sum(const Range*  range){
+    return -1;
+}
+int get_stdev(const Range*  range){
+    return -1;
+}
+
+
+
+int give_function_type(const char* fun_name){
+    if(strcmp(fun_name, "MIN")){
+        return 0;
+    }
+    if(strcmp(fun_name, "MAX")){
+        return 1;
+    }
+    if(strcmp(fun_name, "AVG")){
+        return 2;
+    }
+    if(strcmp(fun_name, "SUM")){
+        return 3;
+    }
+    if(strcmp(fun_name, "STDEV")){
+        return 4;
+    }
+    if(strcmp(fun_name, "SLEEP")){
+        return 5;
+    }
+    return -1;
+}
 
 double get_time(void) {
     unsigned int start = sleep(0); // Approximate time marker in seconds
