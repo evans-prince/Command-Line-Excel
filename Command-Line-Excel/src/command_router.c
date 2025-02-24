@@ -64,7 +64,7 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
                 }
                 else if(val==INT_MIN){
                     strcpy(c.status_message,"Division by zero error");
-                    break;
+                    // break;
                 }
                 set_cell_value(s, in->cell_reference, val);
                 
@@ -200,19 +200,19 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             int result = 0;
             switch (function_type) {
                 case 0: // MIN
-                    result = get_min(in->range);
+                    result = get_min(s,in->range);
                     break;
                 case 1: // MAX
-                    result = get_max(in->range);
+                    result = get_max(s,in->range);
                     break;
                 case 2: // AVG
-                    result = get_avg(in->range);
+                    result = get_avg(s,in->range);
                     break;
                 case 3: // SUM
-                    result = get_sum(in->range);
+                    result = get_sum(s,in->range);
                     break;
                 case 4: // STDEV
-                    result = get_stdev(in->range);
+                    result = get_stdev(s,in->range);
                     break;
                 case 5: // SLEEP
                     if (atoi(in->value) > 0) {

@@ -13,7 +13,7 @@ typedef enum {
     INVALID_INPUT = 5
 } InputType;
 
-typedef struct {
+typedef struct Range {
     char *start_cell;
     char *end_cell;
 } Range;

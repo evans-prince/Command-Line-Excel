@@ -101,18 +101,8 @@ int get_stdev(sheet *s, const Range*  range){
     cell_name_to_index(start_cell, &start_row, &start_col);
     cell_name_to_index(end_cell, &end_row, &end_col);
 
-    int sum=0, mean;
+    int mean=get_avg(s,range);
     int num=(end_col-start_col+1)*(end_row-start_row+1);
-
-    for(int i=start_row;i<=end_row;i++){
-        for(int j=start_col;j<=end_col;j++){
-            if(s->grid[i][j].val==INT_MIN || s->grid[i][j].val==INT_MAX){
-                continue;
-            }
-            sum+=s->grid[i][j].val;
-        }
-    }
-    mean=sum/num;
 
     double variance=0.0;
     for(int i=start_row;i<=end_row;i++){
@@ -129,22 +119,22 @@ int get_stdev(sheet *s, const Range*  range){
 }
 
 int give_function_type(const char* fun_name){
-    if(strcmp(fun_name, "MIN")){
+    if(strcmp(fun_name, "MIN")==0){
         return 0;
     }
-    if(strcmp(fun_name, "MAX")){
+    if(strcmp(fun_name, "MAX")==0){
         return 1;
     }
-    if(strcmp(fun_name, "AVG")){
+    if(strcmp(fun_name, "AVG")==0){
         return 2;
     }
-    if(strcmp(fun_name, "SUM")){
+    if(strcmp(fun_name, "SUM")==0){
         return 3;
     }
-    if(strcmp(fun_name, "STDEV")){
+    if(strcmp(fun_name, "STDEV")==0){
         return 4;
     }
-    if(strcmp(fun_name, "SLEEP")){
+    if(strcmp(fun_name, "SLEEP")==0){
         return 5;
     }
     return -1;
