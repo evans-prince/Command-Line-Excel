@@ -140,6 +140,34 @@ int give_function_type(const char* fun_name){
     return -1;
 }
 
+char *index_to_cell_name(int i, int j){
+    char *name=(char *)malloc(7*sizeof(char)); // Max "ZZZ999" (6 chars + '\0')
+    int col=j+1; // Convert 0-based index to 1-based
+    int len=0;
+
+    while (col > 0) {
+        col--; // Adjust for 1-based column naming
+        name[len++]='A'+(col%26);
+        col/=26;
+    }
+
+    int row=i+1;
+    while (row > 0) {
+        name[len++]='0'+(row%10);
+        row/=10;
+    }
+
+    name[len]='\0'; // Null-terminate the string
+
+    for (int k=0; k<len/2; k++) {
+        char temp=name[k];
+        name[k]=name[len-k-1];
+        name[len-k-1]=temp;
+    }
+
+    return name;
+}
+
 double get_time(void) {
     unsigned int start = sleep(0); // Approximate time marker in seconds
     return (double)start;  // Convert to floating-point for decimal accuracy
