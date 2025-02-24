@@ -196,6 +196,44 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
                 remove_dependencies(target);
             }
             
+            // NOW I have to add new dependencies
+            
+            char *start_cell=in->range->start_cell;
+            char *end_cell=in->range->end_cell;
+
+            int start_row, start_col, end_row, end_col;
+            cell_name_to_index(start_cell, &start_row, &start_col);
+            cell_name_to_index(end_cell, &end_row, &end_col);
+
+            
+            if (start_row > end_row || start_col > end_col) {
+                    strcpy(c.status_message, "Invalid range");
+                    break;
+                }
+
+                // Generate a list of dependencies from the range
+                int dep_count = 0;
+                char **dependencies = (char **)malloc((end_row - start_row + 1) * (end_col - start_col + 1) * sizeof(char *));
+                if (!dependencies) {
+                    fprintf(stderr, "Memory allocation failed for dependencies.\n");
+                    exit(EXIT_FAILURE);
+                }
+
+                for (int i = start_row; i <= end_row; i++) {
+                    for (int j = start_col; j <= end_col; j++) {
+                        char *cell_ref = index_to_cell_name(i, j); // Convert row and column indices to cell name
+                        dependencies[dep_count++] = cell_ref;
+                    }
+                }
+
+                // Update dependencies for the target cell
+                update_dependencies(s, in->cell_reference, dependencies, dep_count);
+
+                // Free allocated memory for dependencies
+                for (int i = 0; i < dep_count; i++) {
+                    free(dependencies[i]);
+                }
+                free(dependencies);
             
             int result = 0;
             switch (function_type) {
