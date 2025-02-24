@@ -164,6 +164,7 @@ void parse_input(struct input* in, char error_message[]){ // ! To be edited
             
             in->cell_reference=my_strdup(copy); // Sets the cell reference
             
+            in->formula=my_strdup(f+1); // Sets the formula
             char *open=strchr(f+1,'(');
             *open='\0';
             

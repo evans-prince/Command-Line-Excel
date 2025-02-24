@@ -35,5 +35,6 @@ int get_max(sheet *s, const Range*  range);
 int get_avg(sheet *s, const Range*  range);
 int get_sum(sheet *s, const Range*  range);
 int get_stdev(sheet *s, const Range*  range);
+int get_function_output(int fun_type, Range *range, sheet *s);
 
 #endif

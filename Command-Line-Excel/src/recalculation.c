@@ -2,6 +2,7 @@
 #include "../include/spreadsheet.h"
 #include "../include/utils.h"
 #include "../include/formula_parser.h"
+#include "../include/input_handler.h"
 
 #include<stdbool.h>
 #include<string.h>
@@ -73,22 +74,43 @@ void trigger_recalculation(sheet *s){
     
     sort_calculation_chain(s); // Ensure calculation chain is sorted
 
-       while (s->num_dirty_cells > 0) {
-           cell *c = s->calculation_chain[0]; // Process first dirty cell
+    while (s->num_dirty_cells > 0) {
+        cell *c = s->calculation_chain[0]; // Process first dirty cell
+        
+        char *formula=my_strdup(c->formula);
+        char *open=strchr(formula,'(');
+        if(open==NULL){
+            int dep_count;
+            char **dependencies = parse_formula(c->formula, &dep_count);
+            c->val = eval_formula(s, dependencies[0], dependencies[2], dependencies[1]);
+            for(int i=0; i<dep_count;i++){
+                free(dependencies[i]);
+            }
+            free(dependencies); // Free allocated memory
+        }
+        else{
+            *open='\0';
+            char *close=strchr(open+1,')');
+            *close='\0';
+            // char *range=open+1;
+            Range *r=(Range *)malloc(sizeof(Range));
+            char *colon=strchr(open+1,':');
+            *colon='\0';
+            r->start_cell=my_strdup(open+1);
+            r->end_cell=my_strdup(colon+1);
+            char *fun_name=formula;
+            int function_type=give_function_type(fun_name);
+            int result;
+            if(function_type!=5){
+                result=get_function_output(function_type,r,s);
+            }
+            // ! SLEEP function is not implemented yet
+            c->val=result;
+        }
 
-           if (c->formula != NULL) {
-               int dep_count;
-               char **dependencies = parse_formula(c->formula, &dep_count);
-               c->val = eval_formula(s, dependencies[0], dependencies[2], dependencies[1]);
-               for(int i=0; i<dep_count;i++){
-                   free(dependencies[i]);
-               }
-               free(dependencies); // Free allocated memory
-           }
-
-           remove_from_calculation_chain(s, c); // Remove processed cell from chain
-           c->dirty = false; // Reset dirty flag
-       }
+        remove_from_calculation_chain(s, c); // Remove processed cell from chain
+        c->dirty = false; // Reset dirty flag
+    }
 }
 
 void add_to_calculation_chain(sheet *s, cell *c){

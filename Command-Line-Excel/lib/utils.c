@@ -137,7 +137,25 @@ int give_function_type(const char* fun_name){
     if(strcmp(fun_name, "SLEEP")==0){
         return 5;
     }
+    // assert(0);
     return -1;
+}
+
+int get_function_output(int fun_type, Range *r, sheet *s){
+    switch(fun_type){
+        case 0:
+            return get_min(s,r);
+        case 1:
+            return get_max(s,r);
+        case 2:
+            return get_avg(s,r);
+        case 3:
+            return get_sum(s,r);
+        case 4:
+            return get_stdev(s,r);
+        default:
+            return INT_MIN;
+    }
 }
 
 char *index_to_cell_name(int i, int j){

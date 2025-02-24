@@ -192,9 +192,7 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             cell_name_to_index(in->cell_reference, &target_row, &target_col);
             cell *target = &s->grid[target_row][target_col];
             
-            if (target->num_parents!=0) {
-                remove_dependencies(target);
-            }
+            target->formula=my_strdup(in->formula);
             
             // NOW I have to add new dependencies
             
