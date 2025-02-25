@@ -7,6 +7,8 @@
 #include<stdbool.h>
 #include<string.h>
 #include <limits.h>
+#include <unistd.h>
+#include <errno.h>
 
 void recalculate_cells(sheet *s, cell **order, int len){ 
     for (int i=0;i<len;i++){
@@ -94,18 +96,26 @@ void trigger_recalculation(sheet *s){
             *close='\0';
             // char *range=open+1;
             Range *r=(Range *)malloc(sizeof(Range));
-            char *colon=strchr(open+1,':');
-            *colon='\0';
-            r->start_cell=my_strdup(open+1);
-            r->end_cell=my_strdup(colon+1);
+            
+            parse_range(open+1, r);
             char *fun_name=formula;
             int function_type=give_function_type(fun_name);
-            int result;
+            int result = 0;
             if(function_type!=5){
                 result=get_function_output(function_type,r,s);
+                c->val=result;
+            }else if (function_type==5){
+                int row, col;
+                cell_name_to_index(r->start_cell, &row, &col);
+                int cell_val=s->grid[row][col].val;
+                if(cell_val>0){
+                    sleep(cell_val);
+                    //c.elapsed_time +=cell_vall;
+                }
+                result=cell_val;
+                c->val=result;
             }
-            // ! SLEEP function is not implemented yet
-            c->val=result;
+           
         }
 
         remove_from_calculation_chain(s, c); // Remove processed cell from chain

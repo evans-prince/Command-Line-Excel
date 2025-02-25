@@ -187,7 +187,7 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
                 strcpy(c.status_message,"Undefined function");
                 break;
             }
-
+            
             int target_row, target_col;
             cell_name_to_index(in->cell_reference, &target_row, &target_col);
             cell *target = &s->grid[target_row][target_col];
@@ -195,20 +195,20 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             target->formula=my_strdup(in->formula);
             
             // NOW I have to add new dependencies
-            
-            char *start_cell=in->range->start_cell;
-            char *end_cell=in->range->end_cell;
-
-            int start_row, start_col, end_row, end_col;
-            cell_name_to_index(start_cell, &start_row, &start_col);
-            cell_name_to_index(end_cell, &end_row, &end_col);
-
-            
-            if (start_row > end_row || start_col > end_col) {
+            if(in->range!=NULL){
+                char *start_cell=in->range->start_cell;
+                char *end_cell=in->range->end_cell;
+                
+                int start_row, start_col, end_row, end_col;
+                cell_name_to_index(start_cell, &start_row, &start_col);
+                cell_name_to_index(end_cell, &end_row, &end_col);
+                
+                
+                if (start_row > end_row || start_col > end_col) {
                     strcpy(c.status_message, "Invalid range");
                     break;
                 }
-
+                
                 // Generate a list of dependencies from the range
                 int dep_count = 0;
                 char **dependencies = (char **)malloc((end_row - start_row + 1) * (end_col - start_col + 1) * sizeof(char *));
@@ -216,22 +216,24 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
                     fprintf(stderr, "Memory allocation failed for dependencies.\n");
                     exit(EXIT_FAILURE);
                 }
-
+                
                 for (int i = start_row; i <= end_row; i++) {
                     for (int j = start_col; j <= end_col; j++) {
                         char *cell_ref = index_to_cell_name(i, j); // Convert row and column indices to cell name
                         dependencies[dep_count++] = cell_ref;
                     }
                 }
-
+                
                 // Update dependencies for the target cell
                 update_dependencies(s, in->cell_reference, dependencies, dep_count);
-
+                
                 // Free allocated memory for dependencies
                 for (int i = 0; i < dep_count; i++) {
                     free(dependencies[i]);
                 }
                 free(dependencies);
+            }
+            
             
             int result = 0;
             switch (function_type) {
@@ -251,16 +253,29 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
                     result = get_stdev(s,in->range);
                     break;
                 case 5: // SLEEP
-                    if (atoi(in->value) > 0) {
-                        sleep(atoi(in->value));
+                    if(in->value!=NULL){
+                        if (atoi(in->value) > 0) {
+                            sleep(atoi(in->value));
+                            c.elapsed_time+=atoi(in->value);
+                        }
+                        result = atoi(in->value);
                     }
-                    result = atoi(in->value);
+                    else{
+                        int row, col;
+                        cell_name_to_index(in->range->start_cell, &row, &col);
+                        int cell_val = s->grid[row][col].val;
+                        if(cell_val>0){
+                            sleep(cell_val);
+                            c.elapsed_time+=cell_val;
+                        }
+                        result=cell_val;
+                    }
                     break;
                 default:
                     strcpy(c.status_message, "Unknown function type");
                     return c;
             }
-           
+            
             // set the result in respective cell.
             set_cell_value(s, in->cell_reference, result);
             
@@ -307,7 +322,7 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
     }
     
     double end_time=get_time();
-    c.elapsed_time=end_time-start_time;
+    c.elapsed_time+=end_time-start_time;
     
     free_input(in);
     return c;

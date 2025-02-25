@@ -68,6 +68,7 @@ int main(int argc, char *argv[]) {
         
         if(strcmp(input, "enable_output")==0){
             is_output_enabled=true;
+            display_sheet(s);
             continue;
         }
         

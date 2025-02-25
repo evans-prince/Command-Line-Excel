@@ -23,8 +23,8 @@ int get_min(sheet *s, const Range*  range){
     int min_val=INT_MAX;
     for(int i=start_row;i<=end_row;i++){
         for(int j=start_col;j<=end_col;j++){
-            if(s->grid[i][j].val==INT_MIN){
-                continue;
+            if(s->grid[i][j].val==INT_MIN || s->grid[i][j].val==INT_MAX){
+                return INT_MIN;
             }
             min_val=min(min_val,s->grid[i][j].val);
         }
@@ -43,8 +43,8 @@ int get_max(sheet *s, const Range*  range){
     int max_val=INT_MIN;
     for(int i=start_row;i<=end_row;i++){
         for(int j=start_col;j<=end_col;j++){
-            if(s->grid[i][j].val==INT_MAX){
-                continue;
+            if(s->grid[i][j].val==INT_MAX|| s->grid[i][j].val==INT_MIN){
+                return INT_MIN;
             }
             max_val=max(max_val,s->grid[i][j].val);
         }
@@ -65,7 +65,7 @@ int get_avg(sheet *s, const Range*  range){
     for(int i=start_row;i<=end_row;i++){
         for(int j=start_col;j<=end_col;j++){
             if(s->grid[i][j].val==INT_MIN || s->grid[i][j].val==INT_MAX){
-                continue;
+                return INT_MIN;
             }
             sum+=s->grid[i][j].val;
         }
@@ -85,7 +85,7 @@ int get_sum(sheet *s, const Range*  range){
     for(int i=start_row;i<=end_row;i++){
         for(int j=start_col;j<=end_col;j++){
             if(s->grid[i][j].val==INT_MIN || s->grid[i][j].val==INT_MAX){
-                continue;
+                return INT_MIN;
             }
             sum+=s->grid[i][j].val;
         }
@@ -108,7 +108,7 @@ int get_stdev(sheet *s, const Range*  range){
     for(int i=start_row;i<=end_row;i++){
         for(int j=start_col;j<=end_col;j++){
             if(s->grid[i][j].val==INT_MIN || s->grid[i][j].val==INT_MAX){
-                continue;
+                return INT_MIN;
             }
             variance+=(s->grid[i][j].val-mean)*(s->grid[i][j].val-mean);
         }
@@ -356,11 +356,20 @@ bool is_integer(char *s){
 void parse_range(const char *s,Range *r){
     char *copy=my_strdup(s);
     char *colon=strchr(copy,':');
+    
+    if(colon==NULL){
+        r->start_cell=my_strdup(copy);
+        r->end_cell=my_strdup(copy);
+        free(copy);
+        return;
+    }
+    
     *colon='\0';
     r->start_cell=my_strdup(copy);
     r->end_cell=my_strdup(colon+1);
     
     free(copy);
+    return;
 }
 
 bool is_operator(char s){

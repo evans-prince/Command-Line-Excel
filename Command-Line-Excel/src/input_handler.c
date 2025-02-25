@@ -177,9 +177,10 @@ void parse_input(struct input* in, char error_message[]){ // ! To be edited
                 if(is_integer(open+1)){
                     in->value=my_strdup(open+1);
                 }
-                // else{ // ! What to do when the input in SLEEP is a cell name
-                //     in->cell_reference=open+1;
-                // }
+                 else{
+                     in->range=(Range *)malloc(sizeof(Range));
+                     parse_range(open+1,in->range);
+                 }
             }
             else{
                 in->range=(Range *)malloc(sizeof(Range));
