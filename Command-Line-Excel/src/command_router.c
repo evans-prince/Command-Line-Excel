@@ -89,7 +89,6 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             
             if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
                 strcpy(c.status_message,"Not a valid cell reference");
-                // fprintf(stderr,"Error: not a valid cell refrence.\n");
                 break;
             }
             
@@ -98,9 +97,9 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             
             if(dependencies==NULL || dep_count==0){
                 strcpy(c.status_message,"Failed to parse formula");
-                // fprintf(stderr,"Error , failed to parse formula : '%s.\n" , in->formula);
                 break;
             }
+
             // I have to update the depndencies here as per new logic
             //  one of this may contain integer value dependencies[0] ,  dependencies[2] and dependencies[1] has op
             char * valid_dependencies[2];
@@ -113,52 +112,16 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
                 valid_dependencies[valid_dep_count++]=dependencies[2];
             }
             
-            char *parent;
-            if(is_cell_name(valid_dependencies[0]) && is_valid_cell(s->num_rows, s->num_cols, valid_dependencies[0])){
-                parent=valid_dependencies[0];
-            }
-            else if(is_cell_name(valid_dependencies[1]) && is_valid_cell(s->num_rows, s->num_cols, valid_dependencies[1])){
-                parent=valid_dependencies[1];
-            }
-            
-            int row1,col1;
-            cell_name_to_index(parent, &row1, &col1);
-            cell *parent1=&s->grid[row1][col1]; // Getting the parent cell
-            
             int row2,col2;
             cell_name_to_index(in->cell_reference, &row2, &col2);
             cell *child=&s->grid[row2][col2]; // Getting the child cell
             child->formula=my_strdup(in->formula); // Updated the child's formula as it is dependent on the parents
             
-            if(has_cycle(parent1, child)){
-                strcpy(c.status_message,"Circular reference detected");
-                // fprintf(stderr, "Circular reference detected.\n");
-                for(int i=0; i<dep_count;i++){
-                    free(dependencies[i]);
-                }
-                
-                free(dependencies);
-                free_input(in);
-                return c;
+            char message[100];
+            update_dependencies(s, in->cell_reference, valid_dependencies, valid_dep_count,message);
+            if(strcmp(message,"Cycle detected in dependencies")==0){
+                strcpy(c.status_message,message);
             }
-            
-            update_dependencies(s, in->cell_reference, valid_dependencies, valid_dep_count);
-            
-            //            int ans = eval_formula(s,dependencies[0],dependencies[2],dependencies[1]);
-            //            if (ans == INT_MAX) { // Assuming INT_MIN indicates an error in calculation
-            //                printf("Error: Invalid formula '%s'.\n", in->formula);
-            //                break;
-            //            }
-            //            // else if(ans==INT_MIN){
-            //            //     printf("Error: Division by zero error.\n");
-            //            //     break;
-            //            // }
-            //
-            //            set_cell_value(s, in->cell_reference, ans);
-            //
-            //            if(child->num_children!=0){
-            //                trigger_recalculation(s, child);
-            //            }
             
             int row, col;
             cell_name_to_index(in->cell_reference, &row, &col);
@@ -178,10 +141,9 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             
             if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
                 strcpy(c.status_message,"Not a valid cell refrence");
-                // fprintf(stderr,"Error: not a valid cell refrence.\n");
                 break;
             }
-            // ! To be edited
+            
             int function_type=give_function_type(in->function_name);
             if(function_type==-1){
                 strcpy(c.status_message,"Undefined function");
@@ -191,19 +153,18 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             int target_row, target_col;
             cell_name_to_index(in->cell_reference, &target_row, &target_col);
             cell *target = &s->grid[target_row][target_col];
-            
-            target->formula=my_strdup(in->formula);
-            
+                        
             // NOW I have to add new dependencies
+            
             if(in->range!=NULL){
                 char *start_cell=in->range->start_cell;
                 char *end_cell=in->range->end_cell;
-                
+
                 int start_row, start_col, end_row, end_col;
                 cell_name_to_index(start_cell, &start_row, &start_col);
                 cell_name_to_index(end_cell, &end_row, &end_col);
-                
-                
+
+            
                 if (start_row > end_row || start_col > end_col) {
                     strcpy(c.status_message, "Invalid range");
                     break;
@@ -225,7 +186,19 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
                 }
                 
                 // Update dependencies for the target cell
-                update_dependencies(s, in->cell_reference, dependencies, dep_count);
+                char message[100];  
+                update_dependencies(s, in->cell_reference, dependencies, dep_count,message);
+                strcpy(c.status_message,message);
+                if(strcmp(message, "Cycle detected in dependencies")==0){
+                    for(int i=0; i<dep_count;i++){
+                        free(dependencies[i]);
+                    }
+                    
+                    free(dependencies);
+                    free_input(in);
+                    return c;
+                }
+
                 
                 // Free allocated memory for dependencies
                 for (int i = 0; i < dep_count; i++) {
@@ -233,7 +206,8 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
                 }
                 free(dependencies);
             }
-            
+
+            target->formula=my_strdup(in->formula);            
             
             int result = 0;
             switch (function_type) {
@@ -281,9 +255,15 @@ CommandStatus command_router(sheet * s , char * user_input , bool is_output_enab
             
             mark_children_dirty(s, target);
             trigger_recalculation(s);
+            // ! Range validation left
+            // ! Div by 0 error to be added for cell dependent formula
+            // ! Circular reference to be added for FUNCTION case
+            // ! Elapsed time is not shows for function call trigger recalculation
+            // ! We have not validated the cell reference in function call
             
             break;
         }
+
             
         case SCROLL_COMMAND:
             if(in->cell_reference!=NULL){

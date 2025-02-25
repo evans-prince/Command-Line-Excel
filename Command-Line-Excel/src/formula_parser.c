@@ -77,7 +77,6 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
                 return a*b; // Multiplication
             case '/':
                 if(b==0){
-                    fprintf(stderr, "Division by zero error\n"); 
                     return INT_MIN;
                 }
                 return a/b; // Division

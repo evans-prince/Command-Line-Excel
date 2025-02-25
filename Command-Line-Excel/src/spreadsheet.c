@@ -96,8 +96,16 @@ void set_cell_value(sheet *s , char* cell_reference, int value){
     return;
 }
 
-void add_dependency(cell *target, cell *dependency){//dependency means parent of target cell
+void add_dependency(cell *target, cell *dependency,char message[]){//dependency means parent of target cell
     // target is child
+
+    if(has_cycle(dependency, target)){
+        strcpy(message, "Cycle detected in dependencies");
+        // fprintf(stderr, "Cycle detected in dependencies.\n");
+        // exit(EXIT_FAILURE);
+        return;
+    }
+
     int capacity=2;
     if(target->num_parents==0){
         target->parents=( cell ** )malloc(capacity*sizeof(cell*) );
@@ -149,6 +157,7 @@ void add_dependency(cell *target, cell *dependency){//dependency means parent of
     
     dependency->children[dependency->num_children++]=target;// now target->num_parents increased
     
+    strcpy(message, "ok");
 }
 
 void remove_dependencies(cell *target){// It removes for every  parents in target->parents
@@ -180,7 +189,7 @@ void remove_dependencies(cell *target){// It removes for every  parents in targe
     return;
 }
 
-void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_count){
+void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_count,char message[]){
     // this function will remove all old dependency of cell_ref and add all new dependencies from char** dependencies
     
     if(cell_ref==NULL || dependencies==NULL || dep_count<=0){
@@ -210,11 +219,14 @@ void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_
         cell *parent = &s->grid[rowIndex_of_dep][colIndex_of_dep];
         
         //target depends on these parents so add its dependencies
-        add_dependency(target, parent);
+        add_dependency(target, parent,message);
+        if(strcmp(message, "Cycle detected in dependencies")==0){
+            return;
+        }
     }
   
     update_topological_ranks(target);
-    add_to_calculation_chain(s , target);
+    // add_to_calculation_chain(s , target);
     mark_children_dirty(s , target);
     
     return;
