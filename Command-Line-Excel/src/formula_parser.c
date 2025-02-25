@@ -20,7 +20,7 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
     // Getting the value for a
     if(is_cell_name(value1)){
         if(!is_valid_cell(s->num_rows,s->num_cols,value1)){
-            fprintf(stderr, "Invalid cell reference: %s\n", value1);
+            strcpy(s->status.status_message,"Invalid cell reference");
             return INT_MAX;
         }
         int row_idx, col_idx;
@@ -37,7 +37,7 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
         a=atoi(value1); // Convert string to integer
     }
     else{
-        fprintf(stderr, "Invalid value1: %s\n", value1);
+        strcpy(s->status.status_message,"Invalid value");
         return INT_MAX;
     }
 
@@ -47,7 +47,7 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
     }
     else if(is_cell_name(value2)){
         if(!is_valid_cell(s->num_rows,s->num_cols,value2)){
-            fprintf(stderr, "Invalid cell reference: %s\n", value2);
+            strcpy(s->status.status_message,"Invalid cell reference");
             return INT_MAX;
         }
         int row_idx, col_idx;
@@ -63,7 +63,7 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
         b=atoi(value2); // Convert string to integer
     }
     else{
-        fprintf(stderr, "Invalid value1: %s\n", value2);
+        strcpy(s->status.status_message,"Invalid value");
         return INT_MAX;
     }
 
@@ -77,12 +77,13 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
                 return a*b; // Multiplication
             case '/':
                 if(b==0){
+                    strcpy(s->status.status_message,"Division by zero error");
                     return INT_MIN;
                 }
                 return a/b; // Division
             
             default:
-                fprintf(stderr, "Invalid operator: %c\n", *op);
+                strcpy(s->status.status_message,"Invalid operator");
                 return INT_MAX;
         }
     }
