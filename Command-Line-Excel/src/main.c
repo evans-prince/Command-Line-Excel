@@ -44,18 +44,19 @@ int main(int argc, char *argv[]) {
 
     display_sheet(s);
     
-    double end_time=get_time();
-    double elapsed_time=end_time-start_time;
+    // double end_time=get_time();
+    // double elapsed_time=end_time-start_time;
+    // s->status.elapsed_time+=elapsed_time;
 
-    CommandStatus status;
-    status.elapsed_time=elapsed_time;
-    strcpy(status.status_message,"ok");
+    // CommandStatus status;
+    // status.elapsed_time=elapsed_time;
+    // strcpy(status.status_message,"ok");
     
     char *input = NULL;
     size_t len = 0;
     
     while (true) {
-        printf("[%0.1f] (%s) > ",status.elapsed_time,status.status_message);
+        printf("[%0.1f] (%s) > ",s->status.elapsed_time,s->status.status_message);
         getline(&input, &len, stdin);
         
         // Remove newline character
@@ -72,7 +73,8 @@ int main(int argc, char *argv[]) {
             continue;
         }
         
-        status=command_router(s, input, is_output_enabled);
+        s->status.elapsed_time=0.0;
+        command_router(s, input, is_output_enabled);
         
     }
     

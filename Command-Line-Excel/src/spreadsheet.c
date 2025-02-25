@@ -22,6 +22,10 @@ sheet *create_sheet(int rows, int cols){
     // Initialize the bounds of the sheet
     s->bounds.first_row=0;
     s->bounds.first_col=0;
+
+    // Initialize the status of the sheet
+    s->status.elapsed_time=0.0;
+    strcpy(s->status.status_message,"ok");
     
     // Allocate memory for the grid
     s->grid=(cell **)malloc(rows*sizeof(cell *));

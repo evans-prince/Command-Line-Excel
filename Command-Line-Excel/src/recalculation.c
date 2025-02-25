@@ -110,7 +110,7 @@ void trigger_recalculation(sheet *s){
                 int cell_val=s->grid[row][col].val;
                 if(cell_val>0){
                     sleep(cell_val);
-                    //c.elapsed_time +=cell_vall;
+                    s->status.elapsed_time+=cell_val;
                 }
                 result=cell_val;
                 c->val=result;

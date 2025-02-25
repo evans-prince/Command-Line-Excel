@@ -21,11 +21,17 @@ typedef struct spreadsheet_bounds {
     int first_col;
 }spreadsheet_bounds;
 
+typedef struct{
+    char status_message[100];
+    float elapsed_time;
+}CommandStatus;
+
 typedef struct sheet {
     cell **grid; // grid[][] this is a 2d array grid
     int num_rows;
     int num_cols;
     spreadsheet_bounds bounds;
+    CommandStatus status;
     
     cell ** calculation_chain;
     int num_dirty_cells;
