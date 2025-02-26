@@ -5,16 +5,15 @@
 #include<string.h>
 #include<limits.h>
 
+// Function to create a new input struct and initialize its members
 struct input* create_input(void){
     struct input *new_input =(struct input *) malloc(sizeof(struct input));
     
     if (new_input == NULL) {
-        fprintf(stderr, "Memory allocation failed for input struct.\n");
-        return NULL;
+        return NULL; // Return NULL if memory allocation fails
     }
     
-    // now just initialising the input object
-    //like setting all values to null and input type to undecided
+    // Initialize the input object by setting all values to NULL and input type to NOT_DECIDED
     new_input->input_type=NOT_DECIDED;
     new_input->raw_input=NULL;
     new_input->value=NULL;
@@ -29,13 +28,12 @@ struct input* create_input(void){
 }
 
 // Function to free the memory allocated to the input struct
-void free_input(struct input* in){// ALL THIS FUNCTION DO IS JUST FREE THE MEMORY ALLOCATED
-    // BY THE MALLAC TO STRUCT OBJECT INPUT
-    
+void free_input(struct input* in){
     if (in == NULL) {
-        return;
+        return; // Return if the input struct is already NULL
     }
     
+    // Free all dynamically allocated members of the input struct
     free(in->raw_input);
     in->raw_input=NULL;
     free(in->cell_reference);
@@ -60,60 +58,58 @@ void free_input(struct input* in){// ALL THIS FUNCTION DO IS JUST FREE THE MEMOR
 }
 
 // Function to find the type of input
-InputType find_input_type(const char * raw_input, char error_message[],int msg_size){
-    // please don't mess with raw_input
+InputType find_input_type(const char * raw_input, char error_message[]){
+    // Note: Do not modify raw_input directly.
     
-    //    NOT_DECIDED= -1,
+    // Input types:
+    //    NOT_DECIDED = -1,
     //    CELL_VALUE_ASSIGNMENT = 0,
     //    CELL_DEPENDENT_FORMULA = 1,
     //    SCROLL_COMMAND = 2,
-    //    FUNCTION_CALL = 3, function like MIN , MAX , STDEV , SUM , AVG , SLEEP
+    //    FUNCTION_CALL = 3, // Functions like MIN, MAX, STDEV, SUM, AVG, SLEEP
     //    QUIT_COMMAND = 4,
     //    INVALID_INPUT = 5
     
-    // note: before starting remove spaces from raw_input
-    // this function recieves input which dont have any space
-    //remove_space(raw_input);
-    // if input is empty or null then not decided
+    // If the input is empty or null, return INVALID_INPUT.
     if (raw_input == NULL || strlen(raw_input) == 0) {
-        snprintf(error_message,msg_size,"Invalid input");
+        strcpy(error_message,"Invalid input");
         return INVALID_INPUT; // Empty input is invalid
     }
     
     if (is_scroll_command(raw_input)) {
-        // if it contains only one char and is one of them w ,a ,s ,d then scroll
+        // If it contains only one char and is one of them w, a, s, d then it's a scroll command
         return SCROLL_COMMAND;
     }
     if (is_quit_command(raw_input)) {
-        // if it contains only one char and is q then quit command
+        // If it contains only one char and is 'q' then it's a quit command
         return QUIT_COMMAND;
     }
 
     if (is_cell_value_assignment(raw_input)) {
-        // if it contains at most  3 upper case letter at most 3 digits then '=' then some value or value operand value
-        //we can say it is cell value assignment , but we are also dealing like direct airthmatic operations here only
+        // If it contains at most 3 uppercase letters, at most 3 digits, then '=' followed by some value or value operand value
+        // we can say it is cell value assignment, but we are also dealing with direct arithmetic operations here
         return CELL_VALUE_ASSIGNMENT;
     }
 
     if (is_function_call(raw_input)) {
-        // if it includes range then it is function_call or sleep
+        // If it includes a range then it is a function call or sleep
         return FUNCTION_CALL;
     }
 
     if (is_cell_dependent_formula(raw_input)) {
-        // if input contains cellname = cellname or cell name operand another cell name
-        // then we can say it is cell_dependent_formula
+        // If input contains cellname = cellname or cell name operand another cell name
+        // then we can say it is cell dependent formula
         return CELL_DEPENDENT_FORMULA;
     }
     
-    //else invalid_input
-    snprintf(error_message,msg_size,"Invalid input");
+    // Else, invalid input
+    strcpy(error_message,"Invalid input");
     return INVALID_INPUT;
 }
 
-void parse_input(struct input* in, char error_message[]){ // ! To be edited
-    int msg_size=100;
-    in->input_type=find_input_type(in->raw_input, error_message,msg_size); // Finds the type of input
+// Function to parse the input and set the appropriate fields in the input struct
+void parse_input(struct input* in, char error_message[]){ 
+    in->input_type=find_input_type(in->raw_input, error_message); // Finds the type of input
     
     char *copy=my_strdup(in->raw_input);
     
@@ -125,8 +121,8 @@ void parse_input(struct input* in, char error_message[]){ // ! To be edited
             if(strlen(in->raw_input)!=1){
                 char *cell_name = (char *) malloc(7*sizeof(char));
                 if(cell_name==NULL){
-                    fprintf(stderr, "Memory allocation failed in parse_input in scroll caommand case. \n");
-                    exit(EXIT_FAILURE);
+                    strcpy(error_message,"Memory allocation failed");
+                    return;
                 }
                 int i=9;
                 for(i=9;i<strlen(in->raw_input);i++){
@@ -154,8 +150,6 @@ void parse_input(struct input* in, char error_message[]){ // ! To be edited
             else{
                 in->arithmetic_expression=my_strdup(expr);
             }
-            
-//            free(copy);
             
             break;
             
@@ -186,9 +180,7 @@ void parse_input(struct input* in, char error_message[]){ // ! To be edited
                 in->range=(Range *)malloc(sizeof(Range));
                 parse_range(open+1,in->range); // Parses the range and sets the start and end cell
             }
-            
-//            free(copy);
-            
+                        
             break;
             
         case CELL_DEPENDENT_FORMULA:
@@ -197,14 +189,11 @@ void parse_input(struct input* in, char error_message[]){ // ! To be edited
             in->cell_reference=my_strdup(copy); // Sets the cell reference
             
             in->formula=my_strdup(f+1); // Sets the formula
-            
-//            free(copy);
-            
+                        
             break;
         case NOT_DECIDED:
         case INVALID_INPUT:
         default:
-            // fprintf(stderr, "Unhandled input type or invalid input\n");
             break;
     }
 
@@ -216,7 +205,6 @@ void parse_input(struct input* in, char error_message[]){ // ! To be edited
 bool is_scroll_command(const char * raw_input){
     
     if (raw_input == NULL) {
-        // fprintf(stderr,"Invalid input");
         return false; // Handle null input safely
     }
     
@@ -249,14 +237,12 @@ bool is_scroll_command(const char * raw_input){
 bool is_quit_command(const char * raw_input){
     
     if (raw_input == NULL) {
-        // fprintf(stderr,"Invalid input");
         return false; // Handle null input safely
     }
     
     if(strlen(raw_input)==1 && raw_input[0]=='q'){
         return true;
     }
-    // fprintf(stderr,"Invalid input");
     return false;
 }
 
@@ -268,7 +254,7 @@ bool is_cell_value_assignment(const char * raw_input){
     
     char *copy=my_strdup(raw_input);
     
-    char *f=strchr(copy,'='); // Gets the first occurence of '='
+    char *f=strchr(copy,'='); // Gets the first occurrence of '='
     if(f!=NULL){
         *f='\0';
         
@@ -305,7 +291,7 @@ bool is_function_call(const char * raw_input){
     
     char *copy=my_strdup(raw_input);
     
-    char *f=strchr(copy,'='); // Gets the first occurence of '='
+    char *f=strchr(copy,'='); // Gets the first occurrence of '='
     if(f!=NULL){
         *f='\0';
         
@@ -316,11 +302,10 @@ bool is_function_call(const char * raw_input){
         char *before=copy;
         if(!is_cell_name(before)){
             free(copy);
-            // snprintf(error_message,msg_size,"Invalid cell reference");
             return false;
         }
         
-        char *open=strchr(after,'('); // Gets the first occurence of '('
+        char *open=strchr(after,'('); // Gets the first occurrence of '('
         if(open==NULL){ // If there is no '(' then it is not a function call
             free(copy);
             return false;
@@ -332,11 +317,10 @@ bool is_function_call(const char * raw_input){
         char *func=after;
         if(is_function_name(func)==0){
             free(copy);
-            // snprintf(error_message,msg_size,"Invalid function name");
             return false;
         }
         
-        char *close=strrchr(open+1,')'); // Gets the first occurence of ')'
+        char *close=strrchr(open+1,')'); // Gets the first occurrence of ')'
         if(close==NULL){ // If there is no ')' then it is not a function call
             return false;
         }
@@ -358,7 +342,6 @@ bool is_function_call(const char * raw_input){
 
         if(!is_cell_name(cell1) || !is_cell_name(cell2)){
             free(copy);
-            // snprintf(error_message,msg_size,"Invalid cell reference");
             return false;
         }
         
@@ -389,7 +372,6 @@ bool is_cell_dependent_formula(const char * raw_input){
         
         if(!is_cell_name(before)){
             free(input);
-            // snprintf(error_message,msg_size,"Invalid cell reference");
             return false;
         }
         if(is_cell_name(after) || is_cell_expression(after)){

@@ -40,7 +40,7 @@ void parse_input(struct input* in,char error_message[]);// its function is : dep
 // Like if its type is scroll_command just update command field rest need not to be cahanged.
 
 // Function to find the type of input
-InputType find_input_type(const char * raw_input, char error_message[],int msg_size);
+InputType find_input_type(const char * raw_input, char error_message[]);
 
 bool is_scroll_command(const char * raw_input);
 bool is_quit_command(const char * raw_input);

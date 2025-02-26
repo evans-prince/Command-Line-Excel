@@ -77,7 +77,8 @@ int eval_formula(sheet *s, char *value1, char *value2, char *op){
                 return a*b; // Multiplication
             case '/':
                 if(b==0){
-                    strcpy(s->status.status_message,"Division by zero error");
+                    // strcpy(s->status.status_message,"Division by zero error");
+                    // We are showing 'ERR' in the cell but we are displaying 'ok' in the status message
                     return INT_MIN;
                 }
                 return a/b; // Division

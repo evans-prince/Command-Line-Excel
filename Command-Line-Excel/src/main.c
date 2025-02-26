@@ -47,10 +47,6 @@ int main(int argc, char *argv[]) {
     // double end_time=get_time();
     // double elapsed_time=end_time-start_time;
     // s->status.elapsed_time+=elapsed_time;
-
-    // CommandStatus status;
-    // status.elapsed_time=elapsed_time;
-    // strcpy(status.status_message,"ok");
     
     char *input = NULL;
     size_t len = 0;

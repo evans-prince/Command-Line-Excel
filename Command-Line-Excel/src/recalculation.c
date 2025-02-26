@@ -25,7 +25,7 @@ void recalculate_cells(sheet *s, cell **order, int len){
 
             int ans=eval_formula(s, dependencies[0], dependencies[2], dependencies[1]);
             if (ans==INT_MAX) { // Assuming INT_MAX indicates an error in calculation
-                fprintf(stderr, "Error: Invalid formula '%s'.\n", order[i]->formula);
+                strcpy(s->status.status_message,"Invalid formula");
                 continue;
             }
 
@@ -50,30 +50,6 @@ void mark_children_dirty(sheet *s ,cell * target){
 }
 
 void trigger_recalculation(sheet *s){
-    
-//    // you will be given only sheet pointer s ,
-//    //from this you have to recalculate every cell available in calculation chain
-//    
-//    // so update this function accordingly
-//    
-//    if(current==NULL){
-//        return;
-//    }
-//
-//    current->dirty=true;
-//    mark_children_dirty(current); // ! To be made by PRINCE
-//
-//    int len=0;
-//    cell **order=topological_sort(current, &len); // ! To be made by PRINCE
-//    // ! Don't include current cell in the topo sort order as we have already evaluated its value
-//
-//    // order is a pointer to an array of cells
-//
-//    recalculate_cells(s, order, len);
-//    
-//    free(order);
-//    return;
-    
     sort_calculation_chain(s); // Ensure calculation chain is sorted
 
     while (s->num_dirty_cells > 0) {
@@ -134,7 +110,7 @@ void add_to_calculation_chain(sheet *s, cell *c){
         
         s->calculation_chain=(cell **) realloc(s->calculation_chain, s->chain_capacity*sizeof(cell *));
         if(!s->calculation_chain){
-            fprintf(stderr, "Memory reallocation failed in add_to_calculation_chain function. \n");
+            strcpy(s->status.status_message, "Memory reallocation failed in add_to_calculation_chain function. \n");
             exit(EXIT_FAILURE);
         }
     }

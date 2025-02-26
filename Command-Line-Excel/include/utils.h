@@ -24,12 +24,10 @@ bool is_cell_expression(char *s);
 bool is_cell_name(char *s);
 int is_function_name(char *s);
 void parse_range(const char *s,Range *r); // move this function from utils may be to formula parser
-// new functions to write
 int calculate_arithmetic_expression(const char * expr);
 bool is_valid_cell(int num_rows, int num_cols, const char * cell);
 int give_function_type(const char* fun_name);
 char *index_to_cell_name(int i, int j);
-
 int get_min(sheet *s, const Range*  range);
 int get_max(sheet *s, const Range*  range);
 int get_avg(sheet *s, const Range*  range);

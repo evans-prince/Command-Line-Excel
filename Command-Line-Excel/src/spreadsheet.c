@@ -105,8 +105,6 @@ void add_dependency(cell *target, cell *dependency,char message[]){//dependency 
 
     if(has_cycle(dependency, target)){
         strcpy(message, "Cycle detected in dependencies");
-        // fprintf(stderr, "Cycle detected in dependencies.\n");
-        // exit(EXIT_FAILURE);
         return;
     }
 
@@ -114,15 +112,15 @@ void add_dependency(cell *target, cell *dependency,char message[]){//dependency 
     if(target->num_parents==0){
         target->parents=( cell ** )malloc(10000*sizeof(cell*) );
         if(!target->parents){
-            fprintf(stderr, "Memory allocation failed for parents in add_dependency function.\n");
-            exit(EXIT_FAILURE);
+            strcpy(message, "Memory allocation failed for parents in add_dependency function.");
+            return;
         }
     } else if (target->num_parents % 10000 == 0){
 //        capacity*=2;
         target->parents=( cell **) realloc(target->parents,(2*target->num_parents)* sizeof(cell*));
         if(!target->parents){
-            fprintf(stderr, "Memory reallocation failed for parents in add_dependency function.\n");
-            exit(EXIT_FAILURE);
+            strcpy(message, "Memory reallocation failed for parents in add_dependency function.");
+            return;
         }
     }
     
@@ -141,15 +139,15 @@ void add_dependency(cell *target, cell *dependency,char message[]){//dependency 
     if(dependency->num_children==0){
         dependency->children=( cell ** )malloc(10000*sizeof(cell*) );
         if(!dependency->children){
-            fprintf(stderr, "Memory allocation failed for children in add_dependency function.\n");
-            exit(EXIT_FAILURE);
+            strcpy(message, "Memory allocation failed for children in add_dependency function.");
+            return;
         }
     } else if (dependency->num_children%10000 == 0){
 //        size*=2;
         dependency->children=( cell **) realloc(dependency->children,(2*dependency->num_children)* sizeof(cell*));
         if(!dependency->children){
-            fprintf(stderr, "Memory reallocation failed for children in add_dependency function.\n");
-            exit(EXIT_FAILURE);
+            strcpy(message, "Memory allocation failed for children in add_dependency function.");
+            return;
         }
     }
     
@@ -197,7 +195,7 @@ void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_
     // this function will remove all old dependency of cell_ref and add all new dependencies from char** dependencies
     
     if(cell_ref==NULL || dependencies==NULL || dep_count<=0){
-        fprintf(stderr, "Wrong input to update_dependcies\n");
+        strcpy(message, "Wrong input to update_dependcies");
         return;
     }
     
@@ -214,7 +212,7 @@ void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_
         int rowIndex_of_dep , colIndex_of_dep;
         
         if(!is_valid_cell(s->num_rows,s->num_cols,dependencies[i])){
-            fprintf(stderr, "Incorrect cell refrence : '%s' in dependencies in update_dependencies.\n", dependencies[i]);
+            strcpy(message, "Invalid cell reference");
             continue;
         }
         

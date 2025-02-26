@@ -15,9 +15,7 @@
 
 void command_router(sheet * s , char * user_input , bool is_output_enabled) {
     double start_time=get_time();
-    
-    // CommandStatus c={.elapsed_time=0.0, .status_message="ok"};
-    
+        
     struct input *in = create_input();
     if(!in){
         strcpy(s->status.status_message,"Memory allocation failed for input struct");
@@ -36,19 +34,19 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
         strcpy(s->status.status_message,error_message);
         return;
     }
+
+    strcpy(s->status.status_message,"ok");
     
     switch(in->input_type){
             
         case NOT_DECIDED:
             strcpy(s->status.status_message,"Input type is not decided yet");
-            // fprintf(stderr,"Error: input type is not decided yet.\n");
             break;
             
         case CELL_VALUE_ASSIGNMENT:
             
             if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
                 strcpy(s->status.status_message,"Not a valid cell refrence");
-                // fprintf(stderr,"Error: not a valid cell refrence '%s'.\n",in->cell_reference);
                 break;
             }
             
@@ -59,12 +57,10 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 int val = calculate_arithmetic_expression(in->arithmetic_expression);
                 if (val == INT_MAX) { // Assuming INT_MIN indicates an error in calculation
                     strcpy(s->status.status_message,"Invalid expression");
-                    // fprintf(stderr,"Error: Invalid arithmetic expression '%s'.\n", in->arithmetic_expression);
                     break;
                 }
                 else if(val==INT_MIN){
                     strcpy(s->status.status_message,"Division by zero error");
-                    // break;
                 }
                 set_cell_value(s, in->cell_reference, val);
                 
@@ -101,7 +97,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             }
 
             // I have to update the depndencies here as per new logic
-            //  one of this may contain integer value dependencies[0] ,  dependencies[2] and dependencies[1] has op
+            //  one of this may contain integer value dependencies[0], dependencies[2] and dependencies[1] has op
             char * valid_dependencies[2];
             int valid_dep_count=0;
             if(is_cell_name(dependencies[0])){
@@ -174,7 +170,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 int dep_count = 0;
                 char **dependencies = (char **)malloc((end_row - start_row + 1) * (end_col - start_col + 1) * sizeof(char *));
                 if (!dependencies) {
-                    fprintf(stderr, "Memory allocation failed for dependencies.\n");
+                    strcpy(s->status.status_message, "Memory allocation failed for dependencies");
                     exit(EXIT_FAILURE);
                 }
                 
@@ -282,13 +278,12 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
         case QUIT_COMMAND:
             free_input(in);
             free_sheet(s);
-            fprintf(stderr,"Exiting program. Goodbye!\n");
+            // fprintf(stderr,"Exiting program. Goodbye!\n");
             exit(0);
             break;
             
         case INVALID_INPUT:
             strcpy(s->status.status_message,"Invalid input");
-            // fprintf(stderr,"Error: Invalid input '%s'.\n", user_input);
             break;
             
     }
