@@ -112,12 +112,12 @@ void add_dependency(cell *target, cell *dependency,char message[]){//dependency 
 
 //    int capacity=1000;
     if(target->num_parents==0){
-        target->parents=( cell ** )malloc(1000*sizeof(cell*) );
+        target->parents=( cell ** )malloc(1000000*sizeof(cell*) );
         if(!target->parents){
             fprintf(stderr, "Memory allocation failed for parents in add_dependency function.\n");
             exit(EXIT_FAILURE);
         }
-    } else{//} if (target->num_parents ==capacity){
+    } else if (target->num_parents % 1000000 == 0){
 //        capacity*=2;
         target->parents=( cell **) realloc(target->parents,(2*target->num_parents)* sizeof(cell*));
         if(!target->parents){
@@ -139,12 +139,12 @@ void add_dependency(cell *target, cell *dependency,char message[]){//dependency 
     // that is we have to add target as a child of dependency cell
 //    int size=1000;
     if(dependency->num_children==0){
-        dependency->children=( cell ** )malloc(1000*sizeof(cell*) );
+        dependency->children=( cell ** )malloc(1000000*sizeof(cell*) );
         if(!dependency->children){
             fprintf(stderr, "Memory allocation failed for children in add_dependency function.\n");
             exit(EXIT_FAILURE);
         }
-    } else{//} if (dependency->num_children==size){
+    } else if (dependency->num_children%1000000 == 0){
 //        size*=2;
         dependency->children=( cell **) realloc(dependency->children,(2*dependency->num_children)* sizeof(cell*));
         if(!dependency->children){
