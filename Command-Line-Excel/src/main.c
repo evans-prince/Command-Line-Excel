@@ -64,16 +64,19 @@ int main(int argc, char *argv[]) {
 
         if(strcmp(input, "disable_output")==0){
             is_output_enabled=false;
+            strcpy(s->status.status_message, "ok");
             continue;
         }
         
         if(strcmp(input, "enable_output")==0){
             is_output_enabled=true;
+            strcpy(s->status.status_message, "ok");
             display_sheet(s);
             continue;
         }
         
         s->status.elapsed_time=0.0;
+        strcpy(s->status.status_message, "ok");
         command_router(s, input, is_output_enabled);
         
     }
