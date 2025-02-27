@@ -38,14 +38,21 @@ target/release/lib/%.o: lib/%.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# Run all test cases properly
+#test: $(TARGET)
+
+# Generate report.pdf from LaTeX source
+report: report.tex
+	pdflatex report.tex
+	pdflatex report.tex  # Run twice for references
+
 # Clean up compiled files
 clean:
-	rm -rf target/release
-
-# Run the program (Optional)
+	rm -rf target/release $(TARGET) test_exec *.aux *.log *.pdf
+	rm -rf tests/*.dSYM tests/test*_output.txt
+	find tests -type f \( -name "test[0-9]*" -perm +111 \) -delete
+	
+# Run the program interactively with default dimensions (10x10)
 run: all
-	./$(TARGET)
+	./$(TARGET) 10 10
 
-# Run Valgrind to check for memory leaks
-valgrind: all
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(TARGET) $(ARGS)

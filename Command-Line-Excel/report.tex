@@ -1,0 +1,75 @@
+\documentclass{article}
+\usepackage{graphicx}
+
+\title{Command-Line Excel: Spreadsheet Project Report}
+\author{Prince and Team}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+This document describes the design, implementation, and testing of our command-line spreadsheet program, developed in C. The program allows users to input data, perform calculations using formulas, and navigate efficiently using keyboard commands.
+
+\section{Design Overview}
+The project follows a modular approach:
+\begin{itemize}
+    \item \textbf{main.c:} Handles the input loop and dispatches user commands to the relevant modules.
+    \item \textbf{input\_handler.c:} Processes user input and routes commands appropriately.
+    \item \textbf{spreadsheet.c:} Manages the core spreadsheet operations, including cell updates and formula execution.
+    \item \textbf{utils.c:} Contains helper functions for parsing and validation.
+\end{itemize}
+
+\section{Spreadsheet Structure}
+The program defines a structured approach to manage the spreadsheet efficiently:
+\begin{itemize}
+    \item Each cell contains a value and a dependency flag to track whether it holds a direct value or depends on another cell.
+    \item The sheet structure maintains a 2D grid, row and column counts, and visible bounds for terminal display.
+    \item To optimize memory, cell values and dependencies are stored as normal variables rather than dynamically allocated pointers, reducing memory overhead from approximately 280MB to 140MB in extreme cases.
+    \item The bounds of the spreadsheet are managed using static variables to avoid unnecessary dynamic allocation and improve performance.
+\end{itemize}
+
+\section{Input Handling}
+Input parsing is handled modularly for better scalability and debugging:
+\begin{itemize}
+    \item Instead of directly processing inputs, an \texttt{input} struct is initialized, categorizing input types before execution.
+    \item Enumeration is used for readability when defining input types.
+    \item Functions like \texttt{is\_cell\_value\_assignment} validate expressions by splitting input strings at the first `=` and checking syntax.
+    \item The \texttt{is\_cell\_name} function ensures valid naming by enforcing alphanumeric patterns (e.g., A1, B12, Z999) with specific length constraints.
+    \item The \texttt{is\_expression} function ensures that numerical expressions are valid before they are processed.
+\end{itemize}
+
+\section{Challenges Faced}
+\begin{itemize}
+    \item Implementing a robust formula parser that supports arithmetic operations and dependencies.
+    \item Efficiently recalculating cell values while handling circular references.
+    \item Ensuring smooth scrolling and navigation within the command-line interface.
+\end{itemize}
+
+\section{Testing and Validation}
+Automated test cases were created to verify:
+\begin{itemize}
+    \item Basic cell value updates.
+    \item Formula calculations and dependency management.
+    \item Error handling for invalid inputs and circular references.
+\end{itemize}
+
+\section{Code Structure}
+The project consists of:
+\begin{itemize}
+    \item \textbf{src/main.c:} Manages user input and execution flow.
+    \item \textbf{src/spreadsheet.c:} Handles spreadsheet logic and cell dependencies.
+    \item \textbf{src/input\_handler.c:} Parses and categorizes input commands.
+    \item \textbf{lib/utils.c:} Implements helper functions for parsing and validation.
+\end{itemize}
+
+\section{Project Links}
+\begin{itemize}
+    \item \textbf{GitHub Repository:} [Add link here]
+    \item \textbf{Demo Video:} [Add link here]
+\end{itemize}
+
+\end{document}
+
+
