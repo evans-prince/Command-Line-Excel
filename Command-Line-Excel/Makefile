@@ -46,6 +46,13 @@ test : $(OBJ)
 		$(CC) $(CFLAGS) -o $$test_exec $$test_file $(filter-out target/release/src/main.o, $(OBJ)) $(LDFLAGS); \
 		./$$test_exec; \
 	done
+	
+# Rule for testing a specific test file
+tests/%: tests/%.c $(OBJ)
+	@echo "Running test: $<..."
+	$(CC) $(CFLAGS) -o $@ $< $(filter-out target/release/src/main.o, $(OBJ)) $(LDFLAGS)
+	./$@
+	
 # creates report.pdf from LaTeX src.
 report: report.tex
 	@echo "Creating Latex report using mpdflatex..."
