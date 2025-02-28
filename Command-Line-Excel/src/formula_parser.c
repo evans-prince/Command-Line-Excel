@@ -97,7 +97,7 @@ char **parse_formula(const char *original_formula , int *dep_count){ // char** a
     // along with opetator or any integer value
     // it just returns Value1 operator Value2 seprately from a single string
     
-    if(original_formula==NULL || dep_count==NULL){
+    if(original_formula==NULL || dep_count==NULL || strlen(original_formula)==0){
         return NULL;
     }
     
