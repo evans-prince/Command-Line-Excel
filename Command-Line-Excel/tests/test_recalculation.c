@@ -140,7 +140,7 @@ void test_sort_calculation_chain_large(void){
 }
 
 int main(void){
-    printf("Running stress tests...\n");
+    printf("Running stress tests\n");
 
     test_large_dependency_chain();
     test_circular_dependency();

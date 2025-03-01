@@ -4,33 +4,31 @@
 #include "../include/input_handler.h"
 
 void test_my_strdup(void){
-
-    char *orig="Hello, Spreadsheet!";
+    char *orig="Hello, Spreadsheet";
     char *dup=my_strdup(orig);
 
-    // asserting whether the duplicate string is equal to original string
+    // check whether the duplicate string is equal to original string
     assert(dup!=NULL);
     assert(strcmp(orig, dup)==0);
 
     free(dup);  // free allocated memory
-    printf("PASS: my_strdup\n");
+    printf("PASS\n");
 }
 void test_max_min(void){
-
-    assert(max(5, 10)==10);
-    assert(max(-1, -10)==-1);
-    assert(min(5, 10)==5);
-    assert(min(-1, -10)==-10);
-    printf("PASS: max & min\n");
+    assert(max(5,10)==10);
+    assert(max(-1,-10)==-1);
+    assert(min(5,10)==5);
+    assert(min(-1,-10)==-10);
+    printf("PASS\n");
 }
 
 void test_remove_space(void){
     char str1[]="  He llo W orl d  ";
     remove_space(str1);
     // checking if the string is equal to "HelloWorld"
-    assert(strcmp(str1, "HelloWorld")==0);
+    assert(strcmp(str1,"HelloWorld")==0);
     
-    printf("PASS: remove_space\n");
+    printf("PASS\n");
 }
 
 void test_is_integer(void){
@@ -39,7 +37,7 @@ void test_is_integer(void){
     assert(is_integer("-45114as6")==false);
     assert(is_integer("12.0133")==false);
     assert(is_integer("fgkjabk")==false);
-    printf("PASS: is_integer\n");
+    printf("PASS\n");
 }
 void test_is_operator(void){
 
@@ -50,7 +48,7 @@ void test_is_operator(void){
     assert(is_operator('a')==false);
     assert(is_operator('/')==true);
 
-    printf("PASS: is_operator\n");
+    printf("PASS\n");
 }
 
 void test_is_cell_name(void){
@@ -62,7 +60,7 @@ void test_is_cell_name(void){
     assert(is_cell_name("Z")==false);
     assert(is_cell_name("349")==false);
 
-    printf("PASS: is_cell_name\n");
+    printf("PASS\n");
 }
 void test_is_function_name(void){
 
@@ -76,7 +74,7 @@ void test_is_function_name(void){
     assert(is_function_name("SLEEP")==2);
     assert(is_function_name("STDEV")==1);
 
-    printf("PASS: is_function_name\n");
+    printf("PASS\n");
 }
 
 void test_cell_name_to_index(void){
@@ -90,13 +88,13 @@ void test_cell_name_to_index(void){
     // ZZZ999 is 1,1
     assert(row==998 && col==18277);
 
-    printf("PASS: cell_name_to_index\n");
+    printf("PASS\n");
 }
 void test_col_index_to_name(void) {
     char *col_name=col_index_to_name(1);
     assert(strcmp(col_name, "B")==0);
     free(col_name);
-    printf("PASS: col_index_to_name\n");
+    printf("PASS\n");
 
 }
 
@@ -136,12 +134,12 @@ void test_parse_range(void) {
     free(r.start_cell);
     free(r.end_cell);
     
-    printf("PASS: parse_range\n");  
+    printf("PASS\n");  
 }
 void test_is_valid_cell(void){
     assert(is_valid_cell(10, 10, "A1")==true);
     assert(is_valid_cell(10, 10, "Z10")==false);
-    printf("PASS: is_valid_cell\n");
+    printf("PASS\n");
 }
 
 void test_index_to_cell_name(void) { 
@@ -155,26 +153,26 @@ void test_index_to_cell_name(void) {
     
     free(cell2);
 
-    printf("PASS: index_to_cell_name\n");  
+    printf("PASS\n");  
 }
 
 
 void test_calculate_arithmetic_expression(void){
     assert(calculate_arithmetic_expression("5+5")==10);
     assert(calculate_arithmetic_expression("-10*-3")==30);
-    printf("PASS: calculate_arithmetic_expression\n");
+    printf("PASS\n");
 }
 
 int main(void){
-    printf("Running tests for utils module...\n");
+    printf("Running tests for utils module\n");
 
     test_my_strdup();
     test_max_min();
     test_remove_space();
     test_is_integer();
     test_is_operator();
-//    test_is_arithmetic_expression();
-//    test_is_cell_expression();
+    test_is_arithmetic_expression();
+    test_is_cell_expression();
     test_is_cell_name();
     test_is_function_name();
     test_cell_name_to_index();
@@ -184,6 +182,6 @@ int main(void){
     test_index_to_cell_name();
     test_calculate_arithmetic_expression();
 
-    printf("All tests passed for utils module!\n");
+    printf("All tests passed for utils module\n");
     return 0;
 }

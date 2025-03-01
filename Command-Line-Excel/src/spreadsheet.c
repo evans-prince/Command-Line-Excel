@@ -228,7 +228,6 @@ void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_
     }
   
     update_topological_ranks(target);
-    // add_to_calculation_chain(s , target);
     mark_children_dirty(s , target);
     
     return;
@@ -270,7 +269,6 @@ bool dfs(cell *current, cell *child, cell ***modified_cells, int *num_modified_c
         }
     }
     
-    // No cycle detected
     return false;
 }
 

@@ -379,9 +379,14 @@ bool is_arithmetic_expression(char *s){ //!This function need to be changed char
     if(s==NULL || strlen(s)==0){
         return false; // Handle null input safely
     }
-    
+
+    // If first character is a '+' or '-', move forward
     if(*s=='+' || *s=='-'){
         s++;
+    }
+
+    if(is_operator(*s)){
+        return false; // this handles inputs like ++3, -*2 etc
     }
     
     if(is_integer(s)){
@@ -396,10 +401,7 @@ bool is_arithmetic_expression(char *s){ //!This function need to be changed char
     *op='\0';
     char *value1=s;
     char *value2=(op+1);
-    if(*value2=='+' || *value2=='-'){
-        value2++;
-    }
-    
+
     if(is_integer(value1) && is_integer(value2)){
         return true;
     }
@@ -464,6 +466,10 @@ bool is_cell_expression(char *s){ // !This function needs to be changed
     if(*s == '+' || *s == '-'){
         s++;
     }
+
+    if(is_operator(*s)){
+        return false; // this handles inputs like +-B1, --A1 etc
+    }
     
     char *op = strpbrk(s, "+-*/");
     if (!op || op == s) return false;
@@ -473,9 +479,6 @@ bool is_cell_expression(char *s){ // !This function needs to be changed
     *op = '\0';
     value1 = s;
     value2 = (op + 1);
-    if(*value2=='+' || *value2=='-'){
-        value2++;
-    }
     
     if(is_cell_name(value1) && is_integer(value2)){
         return true;

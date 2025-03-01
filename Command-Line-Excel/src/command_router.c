@@ -254,8 +254,6 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             
             mark_children_dirty(s, target);
             trigger_recalculation(s);
-            // ! Range validation left
-            // ! We have not validated the cell reference in function call
             
             break;
         }
