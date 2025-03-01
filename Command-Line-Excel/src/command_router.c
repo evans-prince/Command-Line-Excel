@@ -155,6 +155,9 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             if(in->range!=NULL){
                 char *start_cell=in->range->start_cell;
                 char *end_cell=in->range->end_cell;
+                
+                is_valid_cell(s->num_rows, s->num_cols, start_cell);
+                is_valid_cell(s->num_rows, s->num_cols, end_cell);
 
                 int start_row, start_col, end_row, end_col;
                 cell_name_to_index(start_cell, &start_row, &start_col);
