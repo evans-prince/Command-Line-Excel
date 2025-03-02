@@ -70,193 +70,183 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
             // Only when the cell_reference's formula field is not NULL
             int row_idx, col_idx;
             cell_name_to_index(in->cell_reference, &row_idx, &col_idx);
-            cell *target=&s->grid[row_idx][col_idx];
-            if(target->formula!=NULL){
-                remove_dependencies(target);
+            cell *target = &s->grid[row_idx][col_idx];
+            
+            // Remove old dependencies using range logic
+            if (target->formula != NULL) {
+                remove_range_dependencies(s, target);
                 free(target->formula);
-                target->formula=NULL;
+                target->formula = NULL;
             }
             
             mark_children_dirty(s, target);
             trigger_recalculation(s);
             break;
             
-        case CELL_DEPENDENT_FORMULA:
+        case CELL_DEPENDENT_FORMULA: {
+                    if (!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)) {
+                        strcpy(s->status.status_message, "Not a valid cell reference");
+                        break;
+                    }
+
+                    int dep_count = 0;
+                    char **dependencies = parse_formula(in->formula, &dep_count);
+
+                    if (dependencies == NULL || dep_count == 0) {
+                        strcpy(s->status.status_message, "Failed to parse formula");
+                        break;
+                    }
+
+                    int row2, col2;
+                    cell_name_to_index(in->cell_reference, &row2, &col2);
+                    cell *child = &s->grid[row2][col2];
+                    child->formula = my_strdup(in->formula);
+
+                    // Convert dependencies into ranges
+                    CellRange ranges[dep_count];
+                    int range_count = 0;
+
+                    for (int i = 0; i < dep_count; i++) {
+                        if (is_cell_name(dependencies[i])) {
+                            int dep_row, dep_col;
+                            cell_name_to_index(dependencies[i], &dep_row, &dep_col);
+                            ranges[range_count++] = (CellRange){.start_row = dep_row,
+                                                                .start_col = dep_col,
+                                                                .end_row = dep_row,
+                                                                .end_col = dep_col};
+                        }
+                    }
+
+                    char message[100];
+                    update_dependencies(s, in->cell_reference, ranges, range_count, message);
+                    if (strcmp(message, "Cycle detected in dependencies") == 0) {
+                        strcpy(s->status.status_message, message);
+                    }
+
+                    add_to_calculation_chain(s, child);
+
+                    trigger_recalculation(s);
+
+                    for (int i = 0; i < dep_count; i++) {
+                        free(dependencies[i]);
+                    }
+                    
+                    free(dependencies);
+
+                    break;
+                }
             
-            if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
-                strcpy(s->status.status_message,"Not a valid cell reference");
-                break;
-            }
-            
-            int dep_count=0;
-            char ** dependencies=parse_formula(in->formula,&dep_count);
-            
-            if(dependencies==NULL || dep_count==0){
-                strcpy(s->status.status_message,"Failed to parse formula");
+        case FUNCTION_CALL: {
+            if (!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)) {
+                strcpy(s->status.status_message, "Not a valid cell reference");
                 break;
             }
 
-            // I have to update the depndencies here as per new logic
-            //  one of this may contain integer value dependencies[0], dependencies[2] and dependencies[1] has op
-            char * valid_dependencies[2];
-            int valid_dep_count=0;
-            if(is_cell_name(dependencies[0])){
-                valid_dependencies[valid_dep_count++]=dependencies[0];
-            }
-            
-            if(is_cell_name(dependencies[2])){
-                valid_dependencies[valid_dep_count++]=dependencies[2];
-            }
-            
-            int row2,col2;
-            cell_name_to_index(in->cell_reference, &row2, &col2);
-            cell *child=&s->grid[row2][col2]; // Getting the child cell
-            child->formula=my_strdup(in->formula); // Updated the child's formula as it is dependent on the parents
-            
-            char message[100];
-            update_dependencies(s, in->cell_reference, valid_dependencies, valid_dep_count,message);
-            if(strcmp(message,"Cycle detected in dependencies")==0){
-                strcpy(s->status.status_message,message);
-            }
-            
-            int row, col;
-            cell_name_to_index(in->cell_reference, &row, &col);
-            add_to_calculation_chain(s, &s->grid[row][col]);
-            
-            trigger_recalculation(s);
-            
-            for(int i=0; i<dep_count;i++){
-                free(dependencies[i]);
-            }
-            
-            free(dependencies);
-            
-            break;
-            
-        case FUNCTION_CALL:{
-            
-            if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
-                strcpy(s->status.status_message,"Not a valid cell refrence");
+            int function_type = give_function_type(in->function_name);
+            if (function_type == -1) {
+                strcpy(s->status.status_message, "Undefined function");
                 break;
             }
-            
-            int function_type=give_function_type(in->function_name);
-            if(function_type==-1){
-                strcpy(s->status.status_message,"Undefined function");
-                break;
-            }
-            
+
             int target_row, target_col;
             cell_name_to_index(in->cell_reference, &target_row, &target_col);
             cell *target = &s->grid[target_row][target_col];
-                        
-            // NOW I have to add new dependencies
-            
-            if(in->range!=NULL){
-                char *start_cell=in->range->start_cell;
-                char *end_cell=in->range->end_cell;
-                
-                is_valid_cell(s->num_rows, s->num_cols, start_cell);
-                is_valid_cell(s->num_rows, s->num_cols, end_cell);
+
+            // Assign formula to the target cell
+            target->formula = my_strdup(in->formula);
+
+            // Handle range-based dependencies
+            if (in->range != NULL) {
+                char *start_cell = in->range->start_cell;
+                char *end_cell = in->range->end_cell;
+
+                if (!is_valid_cell(s->num_rows, s->num_cols, start_cell) ||
+                    !is_valid_cell(s->num_rows, s->num_cols, end_cell)) {
+                    strcpy(s->status.status_message, "Invalid range");
+                    break;
+                }
 
                 int start_row, start_col, end_row, end_col;
                 cell_name_to_index(start_cell, &start_row, &start_col);
                 cell_name_to_index(end_cell, &end_row, &end_col);
 
-            
                 if (start_row > end_row || start_col > end_col) {
                     strcpy(s->status.status_message, "Invalid range");
                     break;
                 }
-                
-                // Generate a list of dependencies from the range
-                int dep_count = 0;
-                char **dependencies = (char **)malloc((end_row - start_row + 1) * (end_col - start_col + 1) * sizeof(char *));
-                if (!dependencies) {
-                    strcpy(s->status.status_message, "Memory allocation failed for dependencies");
-                    exit(EXIT_FAILURE);
-                }
-                
-                for (int i = start_row; i <= end_row; i++) {
-                    for (int j = start_col; j <= end_col; j++) {
-                        char *cell_ref = index_to_cell_name(i, j); // Convert row and column indices to cell name
-                        dependencies[dep_count++] = cell_ref;
-                    }
-                }
-                
-                // Update dependencies for the target cell
-                char message[100];  
-                update_dependencies(s, in->cell_reference, dependencies, dep_count,message);
-                strcpy(s->status.status_message,message);
-                if(strcmp(message, "Cycle detected in dependencies")==0){
-                    for(int i=0; i<dep_count;i++){
-                        free(dependencies[i]);
-                    }
-                    
-                    free(dependencies);
+
+                // Create a CellRange object for the range
+                CellRange range = {
+                    .start_row = start_row,
+                    .start_col = start_col,
+                    .end_row = end_row,
+                    .end_col = end_col
+                };
+
+                // Update dependencies using the range
+                char message[100];
+                update_dependencies(s, in->cell_reference, &range, 1, message);
+                strcpy(s->status.status_message, message);
+
+                if (strcmp(message, "Cycle detected in dependencies") == 0) {
+                    free(target->formula);
+                    target->formula = NULL;
                     free_input(in);
                     return;
                 }
-
-                
-                // Free allocated memory for dependencies
-                for (int i = 0; i < dep_count; i++) {
-                    free(dependencies[i]);
-                }
-                free(dependencies);
             }
 
-            target->formula=my_strdup(in->formula);            
-            
+            // Perform the specified function on the range
             int result = 0;
             switch (function_type) {
                 case 0: // MIN
-                    result = get_min(s,in->range);
+                    result = get_min(s, in->range);
                     break;
                 case 1: // MAX
-                    result = get_max(s,in->range);
+                    result = get_max(s, in->range);
                     break;
                 case 2: // AVG
-                    result = get_avg(s,in->range);
+                    result = get_avg(s, in->range);
                     break;
                 case 3: // SUM
-                    result = get_sum(s,in->range);
+                    result = get_sum(s, in->range);
                     break;
                 case 4: // STDEV
-                    result = get_stdev(s,in->range);
+                    result = get_stdev(s, in->range);
                     break;
                 case 5: // SLEEP
-                    if(in->value!=NULL){
+                    if (in->value != NULL) {
                         if (atoi(in->value) > 0) {
                             sleep(atoi(in->value));
-                            s->status.elapsed_time+=atoi(in->value);
+                            s->status.elapsed_time += atoi(in->value);
                         }
                         result = atoi(in->value);
-                    }
-                    else{
+                    } else {
                         int row, col;
                         cell_name_to_index(in->range->start_cell, &row, &col);
                         int cell_val = s->grid[row][col].val;
-                        if(cell_val>0){
+                        if (cell_val > 0) {
                             sleep(cell_val);
-                            s->status.elapsed_time+=cell_val;
+                            s->status.elapsed_time += cell_val;
                         }
-                        result=cell_val;
+                        result = cell_val;
                     }
                     break;
                 default:
                     strcpy(s->status.status_message, "Unknown function type");
                     return;
             }
-            
-            // set the result in respective cell.
+
+            // Set the result in the respective cell
             set_cell_value(s, in->cell_reference, result);
-            
+
+            // Mark children dirty and trigger recalculation
             mark_children_dirty(s, target);
             trigger_recalculation(s);
-            
+
             break;
         }
+
 
             
         case SCROLL_COMMAND:

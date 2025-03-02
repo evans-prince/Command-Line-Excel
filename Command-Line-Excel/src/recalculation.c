@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-void recalculate_cells(sheet *s, cell **order, int len){ 
+void recalculate_cells(sheet *s, cell **order, int len){
     for (int i=0;i<len;i++){
         if(order[i]->dirty){
             order[i]->dirty=false;
@@ -41,12 +41,24 @@ void recalculate_cells(sheet *s, cell **order, int len){
 
     return;
 }
-void mark_children_dirty(sheet *s ,cell * target){
-    for(int i=0;i<target->num_children;i++){
-        add_to_calculation_chain(s, target->children[i]);
-        mark_children_dirty(s,target->children[i]);
+void mark_children_dirty(sheet *s, cell *target) {
+    // Iterate over all child ranges
+    for (int i = 0; i < target->num_child_ranges; i++) {
+        CellRange range = target->child_ranges[i];
+
+        // Iterate over all cells in the range
+        for (int row = range.start_row; row <= range.end_row; row++) {
+            for (int col = range.start_col; col <= range.end_col; col++) {
+                cell *child = &s->grid[row][col];
+
+                // Add the child to the calculation chain if not already dirty
+                add_to_calculation_chain(s, child);
+
+                // Recursively mark its children as dirty
+                mark_children_dirty(s, child);
+            }
+        }
     }
-    return;
 }
 
 void trigger_recalculation(sheet *s){
@@ -138,25 +150,45 @@ void remove_from_calculation_chain(sheet *s, cell *c){
     return;
 }
 
-void update_topological_ranks(cell *target){
-    if (target->num_parents == 0){
+void update_topological_ranks(cell *target, sheet *s) {
+    if (target->num_parent_ranges == 0) {
         target->topological_rank = 0;
-    }else{
+    } else {
         int max_rank = -1;
-        for (int i=0; i < target->num_parents; i++){
-            if(target->parents[i]->topological_rank > max_rank){
-                max_rank = target->parents[i]->topological_rank;
+
+        // Iterate over all parent ranges
+        for (int i = 0; i < target->num_parent_ranges; i++) {
+            CellRange range = target->parent_ranges[i];
+
+            // Iterate over all cells in the parent range
+            for (int row = range.start_row; row <= range.end_row; row++) {
+                for (int col = range.start_col; col <= range.end_col; col++) {
+                    cell *parent = &s->grid[row][col];
+                    if (parent->topological_rank > max_rank) {
+                        max_rank = parent->topological_rank;
+                    }
+                }
             }
         }
-        target->topological_rank = max_rank+1;
+
+        // Update the topological rank of the target cell
+        target->topological_rank = max_rank + 1;
     }
 
-    for(int i=0; i < target->num_children; i++){
-        update_topological_ranks(target->children[i]);
+    // Propagate rank updates to children
+    for (int i = 0; i < target->num_child_ranges; i++) {
+        CellRange range = target->child_ranges[i];
+
+        // Iterate over all cells in the child range
+        for (int row = range.start_row; row <= range.end_row; row++) {
+            for (int col = range.start_col; col <= range.end_col; col++) {
+                cell *child = &s->grid[row][col];
+                update_topological_ranks(child, s);
+            }
+        }
     }
-    
-    return;
 }
+
 
 int compare_cells(const void *a , const void *b){ // negative means cellA < cellB
                         // zero means equal and positive means cellB < cellA

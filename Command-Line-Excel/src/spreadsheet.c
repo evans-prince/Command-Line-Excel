@@ -37,10 +37,10 @@ sheet *create_sheet(int rows, int cols){
             s->grid[i][j].val=0;
             s->grid[i][j].dirty=false;
             s->grid[i][j].formula=NULL;
-            s->grid[i][j].parents=NULL;
-            s->grid[i][j].children=NULL;
-            s->grid[i][j].num_parents=0;
-            s->grid[i][j].num_children=0;
+            s->grid[i][j].parent_ranges=NULL;
+            s->grid[i][j].child_ranges=NULL;
+            s->grid[i][j].num_parent_ranges=0;
+            s->grid[i][j].num_child_ranges=0;
             s->grid[i][j].visited=false;
         }
     }
@@ -56,40 +56,36 @@ sheet *create_sheet(int rows, int cols){
     return s;
 }
 
-void free_sheet (sheet * s ){
-    if(!s){
+void free_sheet(sheet *s) {
+    if (!s) {
         return;
     }
-    
-    for(int i=0;i<s->num_rows;i++){
-        for(int j=0;j<s->num_cols;j++){
-            
-            free( s->grid[i][j].formula);
-            
-            s->grid[i][j].formula=NULL;
-            
-            // for(int k=0;k < s->grid[i][j].num_parents ; k++){
-            //     free(s->grid[i][j].parents[k]);
-            //     s->grid[i][j].parents[k]=NULL;
-            // }
-            
-            free( s->grid[i][j].parents);
-            s->grid[i][j].parents=NULL;
-            
-            // for(int m=0;m < s->grid[i][j].num_children ; m++){
-            //     free(s->grid[i][j].children[m]);
-            //     s->grid[i][j].children[m]=NULL;
-            // }
-            
-            free( s->grid[i][j].children);
-            s->grid[i][j].children=NULL;
+
+    // Free each cell's resources
+    for (int i = 0; i < s->num_rows; i++) {
+        for (int j = 0; j < s->num_cols; j++) {
+            cell *current = &s->grid[i][j];
+
+            // Free formula
+            free(current->formula);
+
+            // Free parent ranges
+            free(current->parent_ranges);
+
+            // Free child ranges
+            free(current->child_ranges);
         }
-        free( s->grid[i]);
+        free(s->grid[i]); // Free each row
     }
+
+    // Free the grid and calculation chain
     free(s->grid);
+    free(s->calculation_chain);
+
+    // Free the sheet structure itself
     free(s);
-    return;
 }
+
 
 void set_cell_value(sheet *s , char* cell_reference, int value){
     
@@ -100,191 +96,232 @@ void set_cell_value(sheet *s , char* cell_reference, int value){
     return;
 }
 
-void add_dependency(cell *target, cell *dependency,char message[]){//dependency means parent of target cell
-    // target is child
+void add_range_dependency(sheet *sheet, int row_idx, int col_idx, CellRange *range, char message[]) {
+    // Check for cycles using the first cell in the range (optimization)
+    int start_row = range->start_row;
+    int start_col = range->start_col;
 
-    if(has_cycle(dependency, target)){
+    // Assuming you have access to the sheet structure
+    cell *start_cell = &sheet->grid[start_row][start_col];
+
+    cell *target = &sheet->grid[row_idx][col_idx];
+
+    if (has_cycle(start_cell, target,sheet)) {
         strcpy(message, "Cycle detected in dependencies");
         return;
     }
 
-//    int capacity=1000;
-    if(target->num_parents==0){
-        target->parents=( cell ** )malloc(10000*sizeof(cell*) );
-        if(!target->parents){
-            strcpy(message, "Memory allocation failed for parents in add_dependency function.");
+    // Add the range to the target's parent_ranges
+    if (target->num_parent_ranges == 0) {
+        target->parent_ranges = (CellRange *)malloc(2 * sizeof(CellRange));
+        if (!target->parent_ranges) {
+            strcpy(message, "Memory allocation failed for parent ranges");
             return;
         }
-    } else if (target->num_parents % 10000 == 0){
-//        capacity*=2;
-        target->parents=( cell **) realloc(target->parents,(2*target->num_parents)* sizeof(cell*));
-        if(!target->parents){
-            strcpy(message, "Memory reallocation failed for parents in add_dependency function.");
-            return;
-        }
-    }
-    
-    for(int i=0; i < target->num_parents;i++ ){
-        if(target->parents[i] == dependency){
+    } else if (target->num_parent_ranges % 2 == 0) {
+        target->parent_ranges = (CellRange *)realloc(target->parent_ranges,
+                                (target->num_parent_ranges + 10) * sizeof(CellRange));
+        if (!target->parent_ranges) {
+            strcpy(message, "Memory reallocation failed for parent ranges");
             return;
         }
     }
-    
-    target->parents[target->num_parents++]=dependency;// now target->num_parents increased
-    // and dependency is parent of target cell
-    
-    // Same thing above should also be done for children
-    // that is we have to add target as a child of dependency cell
-//    int size=1000;
-    if(dependency->num_children==0){
-        dependency->children=( cell ** )malloc(10000*sizeof(cell*) );
-        if(!dependency->children){
-            strcpy(message, "Memory allocation failed for children in add_dependency function.");
-            return;
-        }
-    } else if (dependency->num_children%10000 == 0){
-//        size*=2;
-        dependency->children=( cell **) realloc(dependency->children,(2*dependency->num_children)* sizeof(cell*));
-        if(!dependency->children){
-            strcpy(message, "Memory allocation failed for children in add_dependency function.");
-            return;
+
+    target->parent_ranges[target->num_parent_ranges++] = *range;
+
+    // Similarly, add the target as a child to all cells in the range
+    for (int i = range->start_row; i <= range->end_row; i++) {
+        for (int j = range->start_col; j <= range->end_col; j++) {
+            cell *parent_cell = &sheet->grid[i][j];
+
+            if (parent_cell->num_child_ranges == 0) {
+                parent_cell->child_ranges = (CellRange *)malloc(10 * sizeof(CellRange));
+                if (!parent_cell->child_ranges) {
+                    strcpy(message, "Memory allocation failed for child ranges");
+                    return;
+                }
+            } else if (parent_cell->num_child_ranges % 10 == 0) {
+                parent_cell->child_ranges = (CellRange *)realloc(parent_cell->child_ranges,
+                                        (parent_cell->num_child_ranges + 10) * sizeof(CellRange));
+                if (!parent_cell->child_ranges) {
+                    strcpy(message, "Memory reallocation failed for child ranges");
+                    return;
+                }
+            }
+            
+            // int target_row = (target - sheet->grid[0]) / sheet->num_cols;
+            // int target_col = (target - sheet->grid[0]) % sheet->num_cols;
+            CellRange target_range = { .start_row = row_idx,
+                                       .start_col = col_idx,
+                                       .end_row = row_idx,
+                                       .end_col = col_idx };
+
+            parent_cell->child_ranges[parent_cell->num_child_ranges++] = target_range;
         }
     }
-    
-    for(int i=0; i < dependency->num_children ;i++ ){
-        if(dependency->children[i] == target){
-            return;
-        }
-    }
-    
-    dependency->children[dependency->num_children++]=target;// now target->num_parents increased
-    
+
     strcpy(message, "ok");
 }
 
-void remove_dependencies(cell *target){// It removes for every  parents in target->parents
-    // remove its children target cell
-    // Then free the memory for target->parents
-    
-    if(target->num_parents==0){
+
+void remove_range_dependencies(sheet *sheet, cell *target) {
+    // If there are no parent ranges, nothing to remove
+    if (target->num_parent_ranges == 0) {
         return;
     }
-    
-    for(int i=0;i<target->num_parents;i++){
-        cell * parent = target->parents[i];
-        
-        for(int j=0;j<parent->num_children; j++) {
-            if(parent->children[j] == target ){
-                
-                for(int k=j;k<parent->num_children-1;k++) {
-                    parent->children[k]=parent->children[k+1];
+
+    // Iterate through all parent ranges
+    for (int i = 0; i < target->num_parent_ranges; i++) {
+        // Get the ith parent range
+        CellRange range = target->parent_ranges[i];
+
+        // Now each ith range consists of a start row, start col, end row and end col
+        for (int row = range.start_row; row <= range.end_row; row++) {
+            for (int col = range.start_col; col <= range.end_col; col++) {
+                // We extract the parent cell from the indices
+                cell *parent_cell = &sheet->grid[row][col];
+
+                // Remove the target from the parent's child ranges
+                for (int j = 0; j < parent_cell->num_child_ranges; j++) {
+                    // Now we go to the child range of each parent cell
+                    CellRange child_range = parent_cell->child_ranges[j];
+
+                    // each child range consists of a start row, start col, end row and end col
+                    // where start_row=end_row and start_col=end_col
+                    // If the target is found in the child ranges, we remove
+
+                    // We compare the memory location of the target cell with the memory location of the child range, if it matches we remove target
+                    if (target == &sheet->grid[child_range.start_row][child_range.start_col]) {
+                        parent_cell->child_ranges[j] = parent_cell->child_ranges[parent_cell->num_child_ranges-1];
+
+                        // Decrement the number of child ranges
+                        parent_cell->num_child_ranges--;
+                        continue;
+                    }
                 }
-                parent->num_children--;
-                break;
             }
         }
     }
-    
-    free(target->parents);
-    target->parents=NULL;
-    target->num_parents=0;
-    return;
+
+    // Free memory for the parent's ranges and reset count
+    free(target->parent_ranges);
+    target->parent_ranges = NULL;
+    target->num_parent_ranges = 0;
 }
 
-void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_count,char message[]){
-    // this function will remove all old dependency of cell_ref and add all new dependencies from char** dependencies
-    
-    if(cell_ref==NULL || dependencies==NULL || dep_count<=0){
-        strcpy(message, "Wrong input to update_dependcies");
+
+void update_dependencies(sheet *s, char *cell_ref, CellRange *ranges, int range_count, char message[]) {
+    // Validate input
+    if (!cell_ref || !ranges || range_count <= 0) {
+        strcpy(message, "Invalid input to update_dependencies");
         return;
     }
-    
-    int rowIndex , colIndex;
+
+    // Get the target cell's row and column indices
+    int rowIndex, colIndex;
     cell_name_to_index(cell_ref, &rowIndex, &colIndex);
-    
-    // target cell is the cell of cell_ref
+
+    // Get the target cell
     cell *target = &s->grid[rowIndex][colIndex];
-    
-    // remove old parents of target cell and from their children list remove target
-    remove_dependencies(target);
-    
-    for(int i=0;i<dep_count;i++){
-        int rowIndex_of_dep , colIndex_of_dep;
-        
-        if(!is_valid_cell(s->num_rows,s->num_cols,dependencies[i])){
-            strcpy(message, "Invalid cell reference");
-            continue;
-        }
-        
-        cell_name_to_index(dependencies[i], &rowIndex_of_dep, &colIndex_of_dep);
-        // parent is cell correspoding to ith cell in dependencies
-        cell *parent = &s->grid[rowIndex_of_dep][colIndex_of_dep];
-        
-        //target depends on these parents so add its dependencies
-        add_dependency(target, parent,message);
-        if(strcmp(message, "Cycle detected in dependencies")==0){
+
+    // Step 1: Remove old dependencies
+    remove_range_dependencies(s, target);
+
+    // Step 2: Add new dependencies
+    for (int i = 0; i < range_count; i++) {
+        add_range_dependency(s, rowIndex, colIndex, &ranges[i], message);
+
+        // If a cycle is detected, stop further processing
+        if (strcmp(message, "Cycle detected in dependencies") == 0) {
             return;
         }
     }
-  
-    update_topological_ranks(target);
-    mark_children_dirty(s , target);
-    
-    return;
+
+    // Step 3: Mark children as dirty for recalculation
+    mark_children_dirty(s, target);
+
+    // Set success message
+    strcpy(message, "ok");
 }
 
-bool dfs(cell *current, cell *child, cell ***modified_cells, int *num_modified_cells, int *size){
-    if(current==NULL){
+
+
+bool dfs(cell *current, cell *child, cell ***modified_cells, int *num_modified_cells, int *size, sheet *s) {
+    if (current == NULL) {
         return false;
     }
 
-    // If the current cell is the root, a cycle is detected
-    if(current==child){
+    // If the current cell is the root (child), a cycle is detected
+    if (current == child) {
         return true;
     }
-    
-    // If the cell is already visited or has no children, no cycle is there
-    if(current->visited || current->num_parents==0){
+
+    // If the cell is already visited or has no parent ranges, no cycle is there
+    if (current->visited || current->num_parent_ranges == 0) {
         return false;
     }
-    
-    // Mark the cell as visited (dirty)
-    current->visited=true;
 
-    // If the array of modified cells is full, we double its size using realloc
-    if(*num_modified_cells==*size){
-        *size*=2;
+    // Mark the cell as visited
+    current->visited = true;
+
+    // If the array of modified cells is full, double its size using realloc
+    if (*num_modified_cells == *size) {
+        *size *= 2;
         *modified_cells = (cell **)realloc(*modified_cells, *size * sizeof(cell *));
-        // *modified_cells gives us the actual array of pointers
+        if (!*modified_cells) {
+            fprintf(stderr, "Memory reallocation failed in dfs.\n");
+            exit(EXIT_FAILURE);
+        }
     }
 
     // Add the current cell to the array of modified cells
-    (*modified_cells)[*num_modified_cells]=current;
+    (*modified_cells)[*num_modified_cells] = current;
     (*num_modified_cells)++;
 
-    // Recursively checking all children of the current cell for cycles
-    for(int i=0; i<current->num_parents; i++){
-        if(dfs(current->parents[i], child, modified_cells, num_modified_cells, size)){
-            return true;
+    // Recursively check all parent ranges of the current cell for cycles
+    for (int i = 0; i < current->num_parent_ranges; i++) {
+        CellRange range = current->parent_ranges[i];
+
+        // Iterate over all cells in the range
+        for (int row = range.start_row; row <= range.end_row; row++) {
+            for (int col = range.start_col; col <= range.end_col; col++) {
+                cell *parent_cell = &s->grid[row][col];
+
+                // Perform DFS on each parent cell in the range
+                if (dfs(parent_cell, child, modified_cells, num_modified_cells, size, s)) {
+                    return true;
+                }
+            }
         }
     }
-    
+
     return false;
 }
 
-bool has_cycle(cell *parent, cell *child){
-    int size=1000;
-    cell **modified_cells=(cell **)malloc(size*sizeof(cell *)); // pointer to an array of cells
-    int num_modified_cells=0;
 
-    bool cycle_found=dfs(parent, child, &modified_cells, &num_modified_cells, &size);
 
-    // Resetting the visited flag for all modified cells
-    for(int i=0; i<num_modified_cells; i++){
-        modified_cells[i]->visited=false;
+bool has_cycle(cell *parent, cell *child, sheet *s) {
+    int size = 1000;
+    cell **modified_cells = (cell **)malloc(size * sizeof(cell *)); // Pointer to an array of cells
+    if (!modified_cells) {
+        fprintf(stderr, "Memory allocation failed in has_cycle.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    int num_modified_cells = 0;
+
+    // Perform DFS to detect cycles
+    bool cycle_found = dfs(parent, child, &modified_cells, &num_modified_cells, &size, s);
+
+    // Reset the visited flag for all modified cells
+    for (int i = 0; i < num_modified_cells; i++) {
+        modified_cells[i]->visited = false;
     }
 
     // Free the allocated memory for modified cells
     free(modified_cells);
+
     return cycle_found;
 }
+
+

@@ -4,14 +4,21 @@
 #include<stdbool.h>
 #include "recalculation.h"
 
+typedef struct {
+    int start_row;
+    int start_col;
+    int end_row;
+    int end_col;
+} CellRange;
+
 typedef struct cell {
     int val;
     bool dirty;
     char *formula;
-    struct cell **parents; // * parents[] pointer to parents array
-    struct cell **children;
-    int num_parents;
-    int num_children;
+    CellRange *parent_ranges; // * parents[] pointer to parents array
+    CellRange *child_ranges;
+    int num_parent_ranges;
+    int num_child_ranges;
     bool visited;
     int topological_rank;
 }cell;
@@ -41,9 +48,9 @@ typedef struct sheet {
 sheet *create_sheet(int rows, int cols);
 void free_sheet (sheet * s );
 void set_cell_value(sheet *s ,char* cell_reference, int value);
-void add_dependency(cell *target, cell *dependency,char message[]);
-void remove_dependencies(cell *target);
-void update_dependencies(sheet *s, char *cell_ref, char **dependencies, int dep_count,char message[]);
-bool has_cycle(cell *parent, cell *child);
+void add_range_dependency(sheet *sheet, int row_idx, int col_idx, CellRange *range, char message[]);
+void remove_range_dependencies(sheet *sheet, cell *target);
+void update_dependencies(sheet *s, char *cell_ref, CellRange *ranges, int range_count, char message[]);
+bool has_cycle(cell *parent, cell *child, sheet *sheet);
 
 #endif
