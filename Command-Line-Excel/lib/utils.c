@@ -11,6 +11,7 @@
 #include<math.h>
 #include<unistd.h>
 #include<errno.h>
+#include <sys/time.h>
 
 int get_min(sheet *s, const Range*  range){
     char *start_cell=range->start_cell;
@@ -185,10 +186,17 @@ char *index_to_cell_name(int i, int j){
     return name;
 }
 
+// double get_time(void) {
+//     unsigned int start = sleep(0); // Approximate time marker in seconds
+//     return (double)start;  // Convert to floating-point for decimal accuracy
+// }
+
 double get_time(void) {
-    unsigned int start = sleep(0); // Approximate time marker in seconds
-    return (double)start;  // Convert to floating-point for decimal accuracy
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec + tv.tv_usec / 1e6;  // Convert microseconds to seconds
 }
+
 bool is_valid_cell(int num_rows, int num_cols, const char * cell){
     if(cell==NULL){
         return false;

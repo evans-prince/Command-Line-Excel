@@ -44,9 +44,9 @@ int main(int argc, char *argv[]) {
 
     display_sheet(s);
     
-    // double end_time=get_time();
-    // double elapsed_time=end_time-start_time;
-    // s->status.elapsed_time+=elapsed_time;
+    double end_time=get_time();
+    double elapsed_time=end_time-start_time;
+    s->status.elapsed_time=elapsed_time;
     
     char *input = NULL;
     size_t len = 0;

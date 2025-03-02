@@ -14,7 +14,7 @@
 #include <errno.h>
 
 void command_router(sheet * s , char * user_input , bool is_output_enabled) {
-    double start_time=get_time();
+    // double start_time=get_time();
         
     struct input *in = create_input();
     if(!in){
@@ -254,7 +254,6 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                 
                 if(!is_valid_cell(s->num_rows, s->num_cols, in->cell_reference)){
                     strcpy(s->status.status_message,"Not a valid cell refrence");
-                    // printf("Error: not a valid cell refrence.\n");
                     break;
                 }
                 
@@ -269,7 +268,6 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
         case QUIT_COMMAND:
             free_input(in);
             free_sheet(s);
-            // fprintf(stderr,"Exiting program. Goodbye!\n");
             exit(0);
             break;
             
@@ -284,8 +282,9 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
         display_sheet(s);
     }
     
-    double end_time=get_time();
-    s->status.elapsed_time+=end_time-start_time;
+    // double end_time=get_time();
+    // double elapsed_time=end_time-start_time;
+    // s->status.elapsed_time+=elapsed_time;
     
     free_input(in);
     return;
