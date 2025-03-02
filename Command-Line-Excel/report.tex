@@ -2,74 +2,312 @@
 \usepackage{graphicx}
 
 \title{Command-Line Excel: Spreadsheet Project Report}
-\author{Prince, Aditya and Namaritha}
-\date{\01-Feb-2025}
+\author{Prince, Aditya and Namrata}
+\date{01-Feb-2025}
 
 \begin{document}
 
 \maketitle
 
 \section{Introduction}
-This document describes the design, implementation, and testing of our command-line spreadsheet program, developed in C. The program allows users to input data, perform calculations using formulas, and navigate efficiently using keyboard commands.
+This report describes the design, implementation, and testing of our command-line spreadsheet program, developed in C. The program supports integer-only cells, user interactions, formula evaluation, error handling, and automatic recalculations. Key design decisions, challenges faced, and testing strategies are discussed.
 
 \section{Design Overview}
-The project follows a modular approach:
+% The project follows a modular approach:
+The following design decisions were made to ensure efficiency and usability:
 \begin{itemize}
-    \item \textbf{main.c:} Handles the input loop and dispatches user commands to the relevant modules.
-    \item \textbf{input\_handler.c:} Processes user input and routes commands appropriately.
-    \item \textbf{spreadsheet.c:} Manages the core spreadsheet operations, including cell updates and formula execution.
-    \item \textbf{utils.c:} Contains helper functions for parsing and validation.
+    \item \textbf{Spreadsheet Representation:} The spreadsheet is implemented as a 2D array of cell structs, where each cell stores its value, formula, dependencies, dependents, topological rank etc.
+    \item \textbf{Dependency Management:} A Directed Acyclic Graph (DAG) is used to track dependencies between cells for efficient recalculation.
+    \item \textbf{Input Parsing:} Input are tokenized and are used to populate the input struct, and then processed accordingly using the command router.
+    \item \textbf{Error Handling:} Error-checking and suitable error message display is integrated to handle invalid inputs, circular dependencies, undefined operations etc.
+    \item \textbf{Modular Design:} The codebase is divided into logical modules (e.g., input handling, formula evaluation, dependency tracking) to enhance maintainability and add new features in the future.
 \end{itemize}
 
 \section{Spreadsheet Structure}
-The program defines a structured approach to manage the spreadsheet efficiently:
+The program defines a structured approach to managing the spreadsheet efficiently:
+
 \begin{itemize}
-    \item Each cell contains a value and a dependency flag to track whether it holds a direct value or depends on another cell.
-    \item The sheet structure maintains a 2D grid, row and column counts, and visible bounds for terminal display.
-    \item To optimize memory, cell values and dependencies are stored as normal variables rather than dynamically allocated pointers, reducing memory overhead from approximately 280MB to 140MB in extreme cases.
-    \item The bounds of the spreadsheet are managed using static variables to avoid unnecessary dynamic allocation and improve performance.
+    \item The overall spreadsheet is represented by the \texttt{sheet} struct, which includes:
+    \begin{enumerate}
+        \item \textbf{cell** grid}: A 2D array of cells, forming the main grid of the spreadsheet.
+        \item \textbf{int num\_rows} and \textbf{int num\_cols}: The dimensions of the spreadsheet.
+        \item \textbf{spreadsheet\_bounds bounds}: Stores the first visible row and column, likely used for scrolling large sheets.
+        \item \textbf{CommandStatus status}: Keeps track of the last command's status and execution time.
+        \item \textbf{cell** calculation\_chain}: An array of cells that need recalculation.
+        \item \textbf{int num\_dirty\_cells} and \textbf{int chain\_capacity}: Manage the recalculation chain.
+    \end{enumerate}
+    
+    \item The program supports spreadsheet sizes ranging from \textbf{1x1 to 999x18278} (A1 to ZZZ999). Initially, all cells are set to 0.
+
+    \item The \texttt{CellRange} struct is used to represent a range of cells:
+    \begin{itemize}
+        \item \textbf{int start\_row}, \textbf{int start\_col}: The starting cell of the range.
+        \item \textbf{int end\_row}, \textbf{int end\_col}: The ending cell of the range.
+    \end{itemize}
+    This allows for efficient representation of cell dependencies and formula ranges.
+
+    \item \textbf{Key Features}
+    \begin{itemize}
+        \item \textbf{Dependency Tracking}: Each cell can track its dependencies (\texttt{parent\_ranges}) and dependents (\texttt{child\_ranges}), enabling efficient recalculation of only affected cells.
+        \item \textbf{Cycle Detection}: The \texttt{visited} and \texttt{topological\_rank} fields are used in cycle detection algorithms, preventing circular references.
+        \item \textbf{Efficient Recalculation}: The \texttt{calculation\_chain} in the \texttt{sheet} struct allows for optimized recalculation of only the necessary cells.
+        \item \textbf{Status Reporting}: The \texttt{CommandStatus} struct provides a mechanism for reporting the status and performance of operations.
+    \end{itemize}
 \end{itemize}
+
 
 \section{Input Handling}
 Input parsing is handled modularly for better scalability and debugging:
+
 \begin{itemize}
-    \item Instead of directly processing inputs, an \texttt{input} struct is initialized, categorizing input types before execution.
-    \item Enumeration is used for readability when defining input types.
-    \item Functions like \texttt{is\_cell\_value\_assignment} validate expressions by splitting input strings at the first `=` and checking syntax.
-    \item The \texttt{is\_cell\_name} function ensures valid naming by enforcing alphanumeric patterns (e.g., A1, B12, Z999) with specific length constraints.
-    \item The \texttt{is\_expression} function ensures that numerical expressions are valid before they are processed.
+    \item \textbf{Input Struct Initialization:}
+    \begin{itemize}
+        \item A dedicated \texttt{input} struct is used to categorize and store parsed input before execution.
+        \item This approach allows for better organization and easier validation of different input types.
+    \end{itemize}
+
+    \item \textbf{Input Type Enumeration:}
+    \begin{itemize}
+        \item An enumeration is used to define different input types (e.g., \texttt{CELL\_ASSIGNMENT}, \texttt{FORMULA\_INPUT}, \texttt{SCROLL\_COMMAND}).
+        \item This enhances code readability and makes it easier to add new input types in the future.
+    \end{itemize}
+
+    \item \textbf{Modular Parsing Functions:}
+    \begin{itemize}
+        \item \texttt{find\_input\_type()}:
+        \begin{itemize}
+            \item Determines the type of input based on the raw string.
+            \item Updates the \texttt{input\_type} field in the \texttt{input} struct.
+            \item Returns an error message if the input is invalid.
+        \end{itemize}
+        
+        \item \textbf{Validation Functions:}
+        \begin{itemize}
+            \item \texttt{is\_cell\_value\_assignment()}: Validates inputs like \texttt{A1=5}. Ensures proper syntax by splitting at `=` and checking both sides.
+            \item \texttt{is\_cell\_dependent\_formula()}: Validates formulas involving cell references and arithmetic operations (e.g., \texttt{B1=A1+10}).
+            \item \texttt{is\_function\_call()}: Ensures valid function calls like \texttt{SUM(A1:A10)} or \texttt{SLEEP(2)}.
+        \end{itemize}
+
+        \item \textbf{Range Parsing:}
+        \begin{itemize}
+            \item The program uses the \texttt{Range} struct to parse and validate cell ranges (e.g., \texttt{A1:A10} or \texttt{A1:D5}).
+            \item Ensures ranges are valid and properly formatted.
+        \end{itemize}
+
+        \item \textbf{Arithmetic Expression Parsing:}
+        \begin{itemize}
+            \item Validates numerical expressions like \texttt{"2+3"} or \texttt{"A1+B2"}.
+            \item Ensures balanced parentheses and correct operator usage.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Workflow for Handling User Inputs:}
+    \begin{enumerate}
+        \item The raw input string is passed to the \texttt{parse\_input()} function.
+        \item The function identifies the input type using \texttt{find\_input\_type()}.
+        \item Depending on the type:
+        \begin{itemize}
+            \item Relevant fields in the \texttt{input} struct (e.g., \texttt{cell\_reference}, \texttt{value}, or \texttt{formula}) are updated.
+            \item Invalid inputs are flagged with appropriate error messages.
+            \item For valid inputs, further processing is delegated to other modules (e.g., formula evaluation or scrolling).
+        \end{itemize}
+    \end{enumerate}
 \end{itemize}
+
+\section{Recalculation Logic}
+The recalculation logic in the spreadsheet program ensures efficient updates to dependent cells when a cell's value or formula changes. This mechanism is designed to minimize unnecessary computations while maintaining data consistency.
+
+\begin{itemize}
+    \item \textbf{Dirty Flag Mechanism:}
+    
+    \begin{itemize}
+        \item A dirty flag is used to mark cells that require recalculation.
+        \item When a cell's value or formula changes, its dependents are marked as dirty.
+    \end{itemize}
+    
+    \item \textbf{Calculation Chain:}
+    
+    \begin{itemize}
+        \item The program uses a dynamic \texttt{calculation\_chain} to store cells marked for recalculation.
+        \item This chain ensures that only necessary cells are recalculated, improving performance.
+    \end{itemize}
+    
+    \item \textbf{Topological Sorting:}
+    
+    \begin{itemize}
+        \item Cells are assigned a \texttt{topological\_rank} based on their dependency order.
+        \item Before recalculation, the \texttt{calculation\_chain} is sorted to ensure that cells are updated in the correct order, following dependencies.
+    \end{itemize}
+    
+    \item \textbf{Recalculation Process:}
+    
+    \begin{itemize}
+        \item The process begins with \texttt{trigger\_recalculation}, which identifies dirty cells and adds them to the calculation chain.
+        \item The chain is sorted using \texttt{sort\_calculation\_chain}, and cells are recalculated iteratively using \texttt{recalculate\_cells}.
+    \end{itemize}
+    
+    \item \textbf{Selective Updates:}
+    
+    \begin{itemize}
+        \item Only affected cells are recalculated, skipping unrelated formulas or commands.
+        \item For example, if cell A1 changes, only its dependents (e.g., B1 = A1 + 10) are updated, while independent cells remain unaffected.
+    \end{itemize}
+\end{itemize}
+
+\section{Error Handling}
+The spreadsheet program is designed to handle a wide range of error scenarios to ensure robustness and provide clear feedback to users.
+
+\begin{itemize}
+    \item \textbf{Circular Dependency Detection}
+    \begin{itemize}
+        \item The \texttt{has\_cycle} function prevents circular references that could cause infinite loops.
+        \item When detected, these are reported as errors to the user.
+    \end{itemize}
+    
+    \item \textbf{Formula Parsing Errors}
+    \begin{itemize}
+        \item The recalculation system must handle cases where formulas are invalid or cannot be evaluated.
+        \item Cells with erroneous formulas are marked with an error state.
+    \end{itemize}
+
+    \item \textbf{Invalid Input}
+    \begin{itemize}
+        \item \textbf{Scenario:} Users enter unrecognized commands or malformed inputs.
+        \item \textbf{Example:} \texttt{hello} or \texttt{A1=.}
+    \end{itemize}
+
+    \item \textbf{Out-of-Bounds Cell References}
+    \begin{itemize}
+        \item \textbf{Scenario:} Users reference cells outside the spreadsheet's defined range.
+        \item \textbf{Example:} For a 10x10 grid, referencing \texttt{A11} or \texttt{ZZZ1000}.
+    \end{itemize}
+
+    \item \textbf{Undefined Calculations}
+    \begin{itemize}
+        \item \textbf{Scenario:} Operations involve undefined values or invalid arithmetic.
+        \item \textbf{Example:} Division by zero (\texttt{A1=10/0}) or referencing uninitialized cells in formulas.
+        \item In such cases, the status is represented as \texttt{ok}, and \texttt{ERR} is displayed in the spreadsheet.
+    \end{itemize}
+
+    \item \textbf{Recalculation Errors}
+    \begin{itemize}
+        \item \textbf{Scenario:} Errors occur during recalculation due to invalid formulas or dependencies.
+        \item \textbf{Example:} A cell with an invalid formula affects dependent cells during recalculation.
+    \end{itemize}
+\end{itemize}
+
+
 
 \section{Challenges Faced}
 \begin{itemize}
-    \item Implementing a robust formula parser that supports arithmetic operations and dependencies.
-    \item Efficiently recalculating cell values while handling circular references.
-    \item Ensuring smooth scrolling and navigation within the command-line interface.
-\end{itemize}
+    \item \textbf{Syntax Validation}
+    \begin{itemize}
+        \item \textbf{Challenge:} Ensuring that user inputs adhere to strict syntax rules, such as:
+        \begin{itemize}
+            \item Valid cell references (e.g., \texttt{A1}, \texttt{ZZZ999}).
+            \item Properly formatted formulas without missing operators or parentheses.
+            \item Valid ranges for functions like \texttt{SUM} or \texttt{MAX}.
+        \end{itemize}
+        \item \textbf{Solution:}
+        Functions like \texttt{is\_cell\_value\_assignment}, \texttt{is\_function\_call}, and \texttt{is\_cell\_dependent\_formula} were implemented to validate syntax.
+    \end{itemize}
 
-\section{Testing and Validation}
-Automated test cases were created to verify:
-\begin{itemize}
-    \item Basic cell value updates.
-    \item Formula calculations and dependency management.
-    \item Error handling for invalid inputs and circular references.
+    \item \textbf{Efficient Recalculation Logic}
+    \begin{itemize}
+        \item \textbf{Challenge:} Ensuring that only necessary cells are recalculated after a change in value or formula, without affecting unrelated cells.
+        \item \textbf{Solution:}
+        Implemented a dependency graph using parent and child ranges for each cell.
+        \begin{itemize}
+            \item \textbf{Memory Efficiency:} Instead of storing multiple pointers for each dependent cell, a single \texttt{CellRange} can represent an entire range of cells, significantly reducing memory usage for large spreadsheets.
+            \item \textbf{Faster Range Operations:} Functions like \texttt{SUM}, \texttt{AVG}, or \texttt{MAX} can quickly iterate over a range without dereferencing multiple pointers, improving performance for operations on large ranges of cells.
+            \item \textbf{Simplified Dependency Updates:} When updating dependencies, the program can efficiently add or remove entire ranges rather than individual cells, streamlining the process of managing complex formulas.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Error Propagation Across Dependencies}
+    \begin{itemize}
+        \item \textbf{Challenge:} Errors in one cell (e.g., invalid formulas) could propagate across dependent cells, leading to cascading issues.
+        \item \textbf{Solution:}
+        \begin{itemize}
+            \item Mark cells with errors explicitly and skip their recalculation during updates.
+            \item Provide detailed error messages to users, indicating the source of the problem.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Circular Dependency Detection}
+    \begin{itemize}
+        \item \textbf{Challenge:} Preventing infinite loops caused by circular references.
+        \item \textbf{Solution:}
+        \begin{itemize}
+            \item \textbf{Incremental Cycle Detection:}
+            Implemented an approach that checks for cycles only in affected areas when a cell is modified, rather than re-evaluating the entire spreadsheet.
+            \item \textbf{Selective Recalculation:}
+            Only dirty cells and their dependents are recalculated, skipping unrelated cells to improve performance.
+        \end{itemize}
+    \end{itemize}
+
 \end{itemize}
 
 \section{Code Structure}
-The project consists of:
+The project consists of the following directories and files:
+
 \begin{itemize}
-    \item \textbf{src/main.c:} Manages user input and execution flow.
-    \item \textbf{src/spreadsheet.c:} Handles spreadsheet logic and cell dependencies.
-    \item \textbf{src/input\_handler.c:} Parses and categorizes input commands.
-    \item \textbf{lib/utils.c:} Implements helper functions for parsing and validation.
+    \item \textbf{Root Directory}
+    \begin{itemize}
+        \item Contains the \texttt{Makefile} for building the project and automating tasks.
+        \item Includes the LaTeX report (\texttt{report.tex}) and its generated files (e.g., \texttt{report.pdf}).
+        \item \texttt{script.sh} serves as a utility script for running or testing the program.
+    \end{itemize}
+
+    \item \textbf{include} (Header Files)
+    \begin{itemize}
+        \item Contains header files (\texttt{.h}) defining the interfaces for various modules, such as:
+        \begin{itemize}
+            \item \texttt{spreadsheet.h}: Core spreadsheet logic.
+            \item \texttt{recalculation.h}: Recalculation algorithms.
+            \item \texttt{input\_handler.h}: Input parsing and validation.
+            \item \texttt{formula\_parser.h}: Formula processing.
+            \item Other headers for utilities, display, scrolling, and command routing.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{src} (Source Files)
+    \begin{itemize}
+        \item Implementation files (\texttt{.c}) corresponding to the headers in \texttt{include}. Key files include:
+        \begin{itemize}
+            \item \texttt{spreadsheet.c}: Core spreadsheet functionality.
+            \item \texttt{recalculation.c}: Handles dependency tracking and recalculation.
+            \item \texttt{input\_handler.c}: Processes user inputs.
+            \item \texttt{formula\_parser.c}: Parses and evaluates formulas.
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{lib} (Utility Functions)
+    \begin{itemize}
+        \item Contains utility functions (\texttt{utils.c}) used across multiple modules.
+    \end{itemize}
+
+    \item \textbf{tests} (Unit Testing)
+    \begin{itemize}
+        \item Unit test files (\texttt{test\_*.c}) for validating individual components, including:
+        \begin{itemize}
+            \item Formula parsing
+            \item Input handling
+            \item Recalculation
+            \item Spreadsheet logic etc..
+        \end{itemize}
+    \end{itemize}
+
 \end{itemize}
+
 
 \section{Project Links}
 \begin{itemize}
-    \item \textbf{GitHub Repository:} [Add link here]
+    \item \textbf{GitHub Repository:} [https://github.com/Cyanide-03/Command-Line-Excel]
     \item \textbf{Demo Video:} [Add link here]
 \end{itemize}
 
 \end{document}
 
-
+%  quitting time bhot jada
+%  status time update
