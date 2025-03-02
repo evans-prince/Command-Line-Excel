@@ -41,14 +41,14 @@ void recalculate_cells(sheet *s, cell **order, int len){
 
     return;
 }
-void mark_children_dirty(sheet *s, cell *target) {
+void mark_children_dirty(sheet *s, cell *target){
     // Iterate over all child ranges
-    for (int i = 0; i < target->num_child_ranges; i++) {
+    for (int i = 0; i < target->num_child_ranges; i++){
         CellRange range = target->child_ranges[i];
 
         // Iterate over all cells in the range
-        for (int row = range.start_row; row <= range.end_row; row++) {
-            for (int col = range.start_col; col <= range.end_col; col++) {
+        for (int row = range.start_row; row <= range.end_row; row++){
+            for (int col = range.start_col; col <= range.end_col; col++){
                 cell *child = &s->grid[row][col];
 
                 // Add the child to the calculation chain if not already dirty
@@ -134,11 +134,11 @@ void add_to_calculation_chain(sheet *s, cell *c){
 
 void remove_from_calculation_chain(sheet *s, cell *c){
     
-    for (int i = 0; i < s->num_dirty_cells; i++) {
+    for (int i = 0; i < s->num_dirty_cells; i++){
         
         if (s->calculation_chain[i] == c){
             
-            for(int j=i; j< s->num_dirty_cells-1; j++) {
+            for(int j=i; j< s->num_dirty_cells-1; j++){
                 s->calculation_chain[j] = s->calculation_chain[j+1];
             }
             s->num_dirty_cells--;
@@ -150,21 +150,21 @@ void remove_from_calculation_chain(sheet *s, cell *c){
     return;
 }
 
-void update_topological_ranks(cell *target, sheet *s) {
-    if (target->num_parent_ranges == 0) {
+void update_topological_ranks(cell *target, sheet *s){
+    if (target->num_parent_ranges == 0){
         target->topological_rank = 0;
     } else {
         int max_rank = -1;
 
         // Iterate over all parent ranges
-        for (int i = 0; i < target->num_parent_ranges; i++) {
+        for (int i = 0; i < target->num_parent_ranges; i++){
             CellRange range = target->parent_ranges[i];
 
             // Iterate over all cells in the parent range
-            for (int row = range.start_row; row <= range.end_row; row++) {
-                for (int col = range.start_col; col <= range.end_col; col++) {
+            for (int row = range.start_row; row <= range.end_row; row++){
+                for (int col = range.start_col; col <= range.end_col; col++){
                     cell *parent = &s->grid[row][col];
-                    if (parent->topological_rank > max_rank) {
+                    if (parent->topological_rank > max_rank){
                         max_rank = parent->topological_rank;
                     }
                 }
@@ -176,12 +176,12 @@ void update_topological_ranks(cell *target, sheet *s) {
     }
 
     // Propagate rank updates to children
-    for (int i = 0; i < target->num_child_ranges; i++) {
+    for (int i = 0; i < target->num_child_ranges; i++){
         CellRange range = target->child_ranges[i];
 
         // Iterate over all cells in the child range
-        for (int row = range.start_row; row <= range.end_row; row++) {
-            for (int col = range.start_col; col <= range.end_col; col++) {
+        for (int row = range.start_row; row <= range.end_row; row++){
+            for (int col = range.start_col; col <= range.end_col; col++){
                 cell *child = &s->grid[row][col];
                 update_topological_ranks(child, s);
             }
@@ -202,11 +202,27 @@ int compare_cells(const void *a , const void *b){ // negative means cellA < cell
 }
 
 void sort_calculation_chain(sheet *s){
-    qsort(s->calculation_chain, s->num_dirty_cells, sizeof(cell *), compare_cells);
-    // the sorting algo can be made by ouselves for improving efficiency of our program
-    // likely we  will use binary search to find the position of new incoming elem
-    // and place it in already sorted chain.
-    // we have to shift the entire chain then
-    // we may have to remove some elem from chain , the function is already made use them
-    // if needed
+    if (s->num_dirty_cells <= 1) return; // Already sorted
+
+    for (int i = 1; i < s->num_dirty_cells; i++){
+        cell *key = s->calculation_chain[i];
+        int left = 0, right = i - 1;
+
+        // Binary search for insertion point
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+            if (compare_cells(&s->calculation_chain[mid], &key) > 0)
+                right = mid - 1;
+            else
+                left = mid + 1;
+        }
+
+        // Shift elements to make space
+        for (int j = i; j > left; j--){
+            s->calculation_chain[j] = s->calculation_chain[j - 1];
+        }
+
+        // Insert the key at found position
+        s->calculation_chain[left] = key;
+    }
 }

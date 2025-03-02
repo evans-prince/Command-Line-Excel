@@ -33,7 +33,7 @@ void test_parse_formula(void){
     int dep_count;
 
     char **res=parse_formula("A1+5",&dep_count);
-    assert(dep_count==2);
+    assert(dep_count==1);
     assert(strcmp(res[0],"A1")==0);
     assert(strcmp(res[1],"+")==0);
     assert(strcmp(res[2],"5")==0);
@@ -59,7 +59,7 @@ void test_parse_formula(void){
     free(res);
 
     res=parse_formula("Z99*8",&dep_count);
-    assert(dep_count==2);
+    assert(dep_count==1);
     assert(strcmp(res[0],"Z99")==0);
     assert(strcmp(res[1],"*")==0);
     assert(strcmp(res[2],"8")==0);

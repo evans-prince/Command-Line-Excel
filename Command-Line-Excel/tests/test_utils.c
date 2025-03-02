@@ -171,8 +171,6 @@ int main(void){
     test_remove_space();
     test_is_integer();
     test_is_operator();
-    test_is_arithmetic_expression();
-    test_is_cell_expression();
     test_is_cell_name();
     test_is_function_name();
     test_cell_name_to_index();

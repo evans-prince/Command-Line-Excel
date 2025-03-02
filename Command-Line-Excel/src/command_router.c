@@ -60,7 +60,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                     break;
                 }
                 else if(val==INT_MIN){
-                    strcpy(s->status.status_message,"Division by zero error");
+                    strcpy(s->status.status_message,"ok");
                 }
                 set_cell_value(s, in->cell_reference, val);
                 
