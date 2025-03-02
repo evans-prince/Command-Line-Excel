@@ -186,15 +186,10 @@ char *index_to_cell_name(int i, int j){
     return name;
 }
 
-// double get_time(void) {
-//     unsigned int start = sleep(0); // Approximate time marker in seconds
-//     return (double)start;  // Convert to floating-point for decimal accuracy
-// }
-
 double get_time(void) {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    return tv.tv_sec + tv.tv_usec / 1e6;  // Convert microseconds to seconds
+    return tv.tv_sec + tv.tv_usec / 1e6; 
 }
 
 bool is_valid_cell(int num_rows, int num_cols, const char * cell){
