@@ -73,6 +73,8 @@ int main(int argc, char *argv[]) {
         
         s->status.elapsed_time=0.0;
         strcpy(s->status.status_message, "ok");
+
+
         command_router(s, input, is_output_enabled);
         
     }

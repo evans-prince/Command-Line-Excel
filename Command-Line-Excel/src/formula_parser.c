@@ -169,8 +169,13 @@ char **parse_formula(const char *original_formula , int *dep_count){ // char** a
         free(formula);
         return NULL;
     }
- 
-    *dep_count=2;
+    
+    if(is_cell_name(dependencies[0]) && is_cell_name(dependencies[2])){
+        *dep_count=2;
+    }
+    else{
+        *dep_count=1;
+    }
     free(formula);
     
     return dependencies;

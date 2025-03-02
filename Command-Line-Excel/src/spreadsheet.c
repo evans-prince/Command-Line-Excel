@@ -148,9 +148,7 @@ void add_range_dependency(sheet *sheet, int row_idx, int col_idx, CellRange *ran
                     return;
                 }
             }
-            
-            // int target_row = (target - sheet->grid[0]) / sheet->num_cols;
-            // int target_col = (target - sheet->grid[0]) % sheet->num_cols;
+
             CellRange target_range = { .start_row = row_idx,
                                        .start_col = col_idx,
                                        .end_row = row_idx,
@@ -235,7 +233,9 @@ void update_dependencies(sheet *s, char *cell_ref, CellRange *ranges, int range_
         if (strcmp(message, "Cycle detected in dependencies") == 0) {
             return;
         }
-    }
+    }   
+
+    update_topological_ranks(target, s);
 
     // Step 3: Mark children as dirty for recalculation
     mark_children_dirty(s, target);

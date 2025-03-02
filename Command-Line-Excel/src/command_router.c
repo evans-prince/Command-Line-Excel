@@ -106,7 +106,7 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                     CellRange ranges[dep_count];
                     int range_count = 0;
 
-                    for (int i = 0; i < dep_count; i++) {
+                    for (int i = 0; i < 3; i++) {
                         if (is_cell_name(dependencies[i])) {
                             int dep_row, dep_col;
                             cell_name_to_index(dependencies[i], &dep_row, &dep_col);
