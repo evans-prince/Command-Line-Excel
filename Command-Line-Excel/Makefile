@@ -1,6 +1,6 @@
 # compiler and flags
 CC = gcc -std=c11
-CFLAGS = -Wall -Wextra -g -Iinclude  # Wall and Wextra for Warnings and g for gdb -Iinclude to include header files
+CFLAGS = -w -Iinclude  # Wall and Wextra for Warnings and g for gdb -Iinclude to include header files
 LDFLAGS = -lm # lm for linker flags to include func like pow() , etc from math.h library.
 
 # executable output object
@@ -18,11 +18,11 @@ all: target/release $(TARGET)
 
 # rule for creating target/release directories
 target/release:
-	mkdir -p target/release
+	@mkdir -p target/release
 
 # Linking the final executable
 $(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJ) $(LDFLAGS)
+	@$(CC) $(CFLAGS) -o $(TARGET) $(OBJ) $(LDFLAGS)
 
 ## Rule for compiling .c files to .o (Fixing source path issues)
 #target/release/%.o: %.c
@@ -31,11 +31,11 @@ $(TARGET): $(OBJ)
 
 # rule for compiling files inside src and lib
 target/release/src/%.o: src/%.c
-	mkdir -p $(dir $@)
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 target/release/lib/%.o: lib/%.c
-	mkdir -p $(dir $@)
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # for test rule , @ commands in front of line supresses the command from being printed in terminal

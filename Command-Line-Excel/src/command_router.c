@@ -121,6 +121,12 @@ void command_router(sheet * s , char * user_input , bool is_output_enabled) {
                     update_dependencies(s, in->cell_reference, ranges, range_count, message);
                     if (strcmp(message, "Cycle detected in dependencies") == 0) {
                         strcpy(s->status.status_message, message);
+                        for (int i = 0; i < dep_count; i++) {
+                            free(dependencies[i]);
+                        }
+                        free(dependencies);
+
+                        break;
                     }
 
                     add_to_calculation_chain(s, child);

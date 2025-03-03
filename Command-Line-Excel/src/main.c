@@ -34,6 +34,10 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
+    if (num1 >= 999 || num2 >= 18278) {
+        printf("Error: Number of rows and columns must be smaller then 999 and 18278 respectively.\n");
+        return 1;
+    }
     sheet *s = create_sheet(num1,num2);
     bool is_output_enabled=true;
     
