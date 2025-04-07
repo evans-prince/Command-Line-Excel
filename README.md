@@ -1,40 +1,139 @@
-This is our Spreadsheet program in C.
+# Command-Line Excel: Spreadsheet Project
 
-• main.c (input loop) → input_handler.c (command router) → specialized modules (formulas, scrolling, etc.)
+**Authors:** Prince\
+**Start Date:** 01-Feb-2025
 
-# *THIS SECTION DISCUSSES ABOUT THE 'spreadsheet.h' FILE*
-• This file defines the core structures and functions for the Command-Line-Excel program. 
+---
 
-• The 'cell' structure includes a value and dependency boolean which tracks whether the current cell is explicitly containing a value or is dependent on some other cell.
+## 📌 Overview
 
-• The 'sheet' structure includes the 2D grid, the number of rows, the number of columns, and the sheet's bounds. The bounds specify the indices of the first row and first column that are visible in the terminal.
+This project is a command-line spreadsheet program developed in C, supporting integer-only cell values, formulas, and efficient recalculation using a Directed Acyclic Graph (DAG). It mimics core functionalities of Excel such as cell assignment, formula evaluation, and dependency tracking, all within a terminal interface.
 
-• The 'val' and 'dependency' are kept as normal variables due to simplicity and also to reduce the memory overhead of dynamic allocation.
-The int val takes 4 bytes and bool dependency takes 1 byte but due to structure padding it also takes 4 bytes so in total 8 bytes.
-And int *val will take 8 bytes so there the total would be 16 bytes.
-Considering the extreme case when we have 999 rows and 18,278 columns, the memory required to store the spreadsheet in normal variables case would be around 140 MB and in dynamic case it would be around 280 MB.
-Also, dereferencing a pointer takes time which can be minimized if we use normal variables instead of pointers.
+---
 
-Thus, using normal variables significantly reduces the memory and time constraints of our program.
+## ✨ Features
 
-• In spreadsheet_bounds- As there is only one instance of spreadsheet_bounds, normal variables are simpler and sufficient. Normal variables also avoid the overhead of dynamic allocation and pointer dereferencing.
+- 📊 **Spreadsheet Grid**: Supports sizes from 1x1 up to 999x18278 (A1 to ZZZ999).
+- 🔗 **Formula Evaluation**: Supports arithmetic operations and range-based functions (e.g., `SUM(A1:A5)`).
+- 🔄 **Efficient Recalculation**: Uses topological sorting and a calculation chain for updating only necessary cells.
+- ♻️ **Dependency Management**: Tracks dependencies and dependents for each cell using CellRange structs.
+- 🚫 **Error Handling**: Detects circular references, invalid inputs, and handles edge cases like division by zero.
+- 🧪 **Testing Suite**: Modular unit tests for formula parsing, input handling, and recalculation.
+- 🧱 **Modular Design**: Divided into reusable modules for better maintainability and scalability.
 
+---
 
-# *THIS SECTION DISCUSSES INPUT_HANDLER FILE*
+## 🛠️ Design Structure
 
-* As input is evaluated one input at a time we didn't do memory analysis in that deep as while defining spreadsheet.h  that object would take memory for each cell and memory management is crucial there , however here few extra bytes won't affect for all practical purposes.
+### Spreadsheet Core
 
-* Hence we have decided for the sake of modularity of code instead of direct parsing the input and calling functions when necessarily we first initialised the object input containing several fields includeing input_type ; default set to NULL and NOT_DECIDED respectively then parse it proceed. This decision convinced us that if needed we can add further functionality to it without much effort (compared to if we have parsed directly without any input struct), debugging is also esay as well as testing and understanding of code. Also, by doing this we have realised the importance of OOPS.
+- `cell** grid`: 2D array for cells.
+- `calculation_chain[]`: Optimized recalculation order.
+- `CommandStatus`: Stores status and execution time of last command.
 
-* For the ease of readability we have used enumeration when defining input_type.
+### Input Handling
 
- **'is_cell_value_assignment'** function- This checks if the input is an expression assignment in numerical values for a cell.
-Here, we splitted the input string into two parts using the 1st '=' in the input string as the delimiter. Then we extracted the two parts of the string and check whether those are valid. The string before '=' should be a cell name and the string after '=' should be a numerical expression assignment. We built separate function for checking these conditions.
+- Tokenizes and classifies inputs using enums.
+- Validates syntax for cell assignments, formulas, function calls, and scroll commands.
 
-Now coming to *is_cell_name* function, it checks whether there is a continuous stream of alphabets and then a continuous stream of digits and that alphabets only occur before digits.
-The primary condition should be that the cell name string passed to this function should have length greater than 2 and less than 6. We also added a count for alphabets and digits to ensure that they are atleast 1 and atmost 3 each.
+### Recalculation Engine
 
-Now coming to the *is_expression* function, 
+- Dirty flag mechanism for tracking updates.
+- Topological sorting to determine update order.
+- Selective recalculation based on dependencies.
 
+### Error Handling
 
-** --------------------MORE TO BE ADDED : WIP -------------------------------- 
+- Invalid syntax detection.
+- Circular reference prevention.
+- Graceful handling of undefined operations (e.g., `A1=10/0`).
+
+---
+
+## 🧩 Directory Structure
+
+```plaintext
+.
+├── include/               # Header files
+│   ├── spreadsheet.h
+│   ├── recalculation.h
+│   ├── input_handler.h
+│   └── ...
+├── src/                   # Source files
+│   ├── spreadsheet.c
+│   ├── recalculation.c
+│   ├── input_handler.c
+│   └── ...
+├── lib/                   # Utility functions
+│   └── utils.c
+├── tests/                 # Unit tests
+│   ├── test_input.c
+│   ├── test_formula.c
+│   └── ...
+├── Makefile               # Build automation
+├── script.sh              # Script to run and test the program
+└── report/                # LaTeX report files
+    └── report.pdf
+```
+
+---
+## How to Run 🚀
+
+### Prerequisites
+
+A Linux or macOS system
+
+GCC (GNU Compiler Collection)
+
+Steps to Build & Run
+```
+# Clone the repository
+$ git clone https://github.com/Cyanide-03/Command-Line-Excel.git
+$ cd Command-Line-Excel
+
+# Build the project
+$ make
+
+# Run the program
+$ ./target/release/spreadsheet 999 18278
+
+# NOTE : You can also run the program using 
+$ ./script.sh
+# If the permission is not given for script.sh use 
+$ chomod +x script.sh
+```
+
+Optional
+```
+# Run provided tests
+$ make test
+
+# Clean 
+$ make clean
+
+# Use script for custom commands
+
+./script.sh
+```
+---
+
+## 🔗 Project Links
+
+- 📁 **GitHub Repository**: [Command-Line Excel](https://github.com/Cyanide-03/Command-Line-Excel)
+- 📽️ **Demo Video**: [Watch Demo](https://csciitd-my.sharepoint.com/\:f:/r/personal/ph1221248iitdacin/Documents/cop290−demo−video?csf=1\&web=1\&e=5IphAe)
+
+---
+
+## 📣 Contributions
+
+This project was collaboratively developed by:
+
+- 👨‍🔬 Prince (BTech Engineering Physics, IIT Delhi)
+- 👨‍💻 Aditya
+
+---
+
+## 📞 Contact
+
+If you'd like to know more or contribute, feel free to open an issue or contact us via GitHub!
+
