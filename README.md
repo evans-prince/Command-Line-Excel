@@ -77,50 +77,61 @@ This project is a command-line spreadsheet program developed in C, supporting in
 ```
 
 ---
+
 ## How to Run 🚀
 
 ### Prerequisites
 
-A Linux or macOS system
+A Linux or macOS system with:
+- GCC (GNU Compiler Collection)
+- `make` utility
+- `pdflatex` for LaTeX report generation (optional)
 
-GCC (GNU Compiler Collection)
+### Installation Guide
 
-Steps to Build & Run
+#### Install GCC, Make, and LaTeX:
+
+**Ubuntu/Debian-based:**
+```bash
+sudo apt update
+sudo apt install build-essential texlive-full
 ```
+
+**macOS (using Homebrew):**
+```bash
+brew install gcc
+brew install make
+brew install --cask mactex
+```
+
+### Steps to Build & Run
+```bash
 # Clone the repository
 git clone https://github.com/Cyanide-03/Command-Line-Excel.git
-cd Command-Line-Excel
+cd Command-Line-Excel/Command-Line-Excel
 
 # Build the project
 make
 
 # Run the program
 ./target/release/spreadsheet 999 18278
-
-# NOTE : You can also run the program using 
-./script.sh
-# If the permission is not given for script.sh use 
-chomod +x script.sh
 ```
 
-Optional
-```
+### Optional Commands
+```bash
 # Run provided tests
 make test
 
-# Clean 
+# Clean build files
 make clean
-
-# Use script for custom commands
-
-./script.sh
 ```
+
 ---
 
 ## 🔗 Project Links
 
 - 📁 **GitHub Repository**: [Command-Line Excel](https://github.com/Cyanide-03/Command-Line-Excel)
-- 📽️ **Demo Video**: [Watch Demo](https://csciitd-my.sharepoint.com/\:f:/r/personal/ph1221248iitdacin/Documents/cop290−demo−video?csf=1\&web=1\&e=5IphAe)
+- 📽️ **Demo Video**: [Watch Demo](https://csciitd-my.sharepoint.com/:f:/r/personal/ph1221248iitdacin/Documents/cop290−demo−video?csf=1&web=1&e=5IphAe)
 
 ---
 
@@ -129,7 +140,6 @@ make clean
 This project was collaboratively developed by:
 
 - 👨‍💻 Prince
-- 👨‍💻 Aditya
 
 ---
 
