@@ -104,17 +104,17 @@ make
 
 #### Windows:
 ```bash
-:: Open Command Prompt (cmd) or Git Bash
+# Open Command Prompt (cmd) or Git Bash
 
-:: Clone the repository
+# Clone the repository
 git clone https://github.com/evans-prince/Command-Line-Excel.git
 cd Command-Line-Excel\Command-Line-Excel
 
-:: Build the project
+# Build the project
 mingw32-make
 
-:: Run the program
-target\release\spreadsheet.exe 999 18278
+# Run the program
+.target/release/spreadsheet.exe 999 18278
 ```
 
 ### 📉 Optional Commands
