@@ -88,28 +88,28 @@ GCC (GNU Compiler Collection)
 Steps to Build & Run
 ```
 # Clone the repository
-$ git clone https://github.com/Cyanide-03/Command-Line-Excel.git
-$ cd Command-Line-Excel
+git clone https://github.com/Cyanide-03/Command-Line-Excel.git
+cd Command-Line-Excel
 
 # Build the project
-$ make
+make
 
 # Run the program
-$ ./target/release/spreadsheet 999 18278
+./target/release/spreadsheet 999 18278
 
 # NOTE : You can also run the program using 
-$ ./script.sh
+./script.sh
 # If the permission is not given for script.sh use 
-$ chomod +x script.sh
+chomod +x script.sh
 ```
 
 Optional
 ```
 # Run provided tests
-$ make test
+make test
 
 # Clean 
-$ make clean
+make clean
 
 # Use script for custom commands
 
