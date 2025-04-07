@@ -17,7 +17,7 @@ This project is a command-line spreadsheet program developed in C, supporting in
 - 🔗 **Formula Evaluation**: Supports arithmetic operations and range-based functions (e.g., `SUM(A1:A5)`).
 - 🔄 **Efficient Recalculation**: Uses topological sorting and a calculation chain for updating only necessary cells.
 - ♻️ **Dependency Management**: Tracks dependencies and dependents for each cell using CellRange structs.
-- 🚫 **Error Handling**: Detects circular references, invalid inputs, and handles edge cases like division by zero.
+- ⛔ **Error Handling**: Detects circular references, invalid inputs, and handles edge cases like division by zero.
 - 🧪 **Testing Suite**: Modular unit tests for formula parsing, input handling, and recalculation.
 - 🧱 **Modular Design**: Divided into reusable modules for better maintainability and scalability.
 
@@ -50,7 +50,7 @@ This project is a command-line spreadsheet program developed in C, supporting in
 
 ---
 
-## 🧩 Directory Structure
+## 🤩 Directory Structure
 
 ```plaintext
 .
@@ -71,7 +71,6 @@ This project is a command-line spreadsheet program developed in C, supporting in
 │   ├── test_formula.c
 │   └── ...
 ├── Makefile               # Build automation
-├── script.sh              # Script to run and test the program
 └── report/                # LaTeX report files
     └── report.pdf
 ```
@@ -82,9 +81,9 @@ This project is a command-line spreadsheet program developed in C, supporting in
 
 ### Prerequisites
 
-A Linux or macOS system with:
+A Linux, macOS, or Windows system with:
 - GCC (GNU Compiler Collection)
-- `make` utility
+- `make` or `mingw32-make`
 - `pdflatex` for LaTeX report generation (optional)
 
 ### Installation Guide
@@ -104,7 +103,19 @@ brew install make
 brew install --cask mactex
 ```
 
-### Steps to Build & Run
+**Windows (MinGW):**
+1. Download and install MinGW from: https://sourceforge.net/projects/mingw/
+2. During installation, select:
+   - `mingw32-gcc-g++`
+   - `mingw32-gcc`
+   - `msys-base`
+3. Add `C:\MinGW\bin` to your **System Environment Variables → Path**
+
+---
+
+### 🔢 Build & Run Commands
+
+#### Linux/macOS:
 ```bash
 # Clone the repository
 git clone https://github.com/Cyanide-03/Command-Line-Excel.git
@@ -117,13 +128,32 @@ make
 ./target/release/spreadsheet 999 18278
 ```
 
-### Optional Commands
+#### Windows:
 ```bash
-# Run provided tests
+:: Open Command Prompt (cmd) or Git Bash
+
+:: Clone the repository
+git clone https://github.com/Cyanide-03/Command-Line-Excel.git
+cd Command-Line-Excel\Command-Line-Excel
+
+:: Build the project
+mingw32-make
+
+:: Run the program
+target\release\spreadsheet.exe 999 18278
+```
+
+### 📉 Optional Commands
+```bash
+# Run provided tests (Linux/macOS)
 make test
 
+# Run tests on Windows
+mingw32-make test
+
 # Clean build files
-make clean
+make clean         # Linux/macOS
+mingw32-make clean # Windows
 ```
 
 ---
@@ -140,7 +170,6 @@ make clean
 This project was collaboratively developed by:
 
 - 👨‍💻 Prince
-- 👨‍💻 Aditya
 
 ---
 
