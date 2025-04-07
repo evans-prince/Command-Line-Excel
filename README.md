@@ -86,32 +86,6 @@ A Linux, macOS, or Windows system with:
 - `make` or `mingw32-make`
 - `pdflatex` for LaTeX report generation (optional)
 
-### Installation Guide
-
-#### Install GCC, Make, and LaTeX:
-
-**Ubuntu/Debian-based:**
-```bash
-sudo apt update
-sudo apt install build-essential texlive-full
-```
-
-**macOS (using Homebrew):**
-```bash
-brew install gcc
-brew install make
-brew install --cask mactex
-```
-
-**Windows (MinGW):**
-1. Download and install MinGW from: https://sourceforge.net/projects/mingw/
-2. During installation, select:
-   - `mingw32-gcc-g++`
-   - `mingw32-gcc`
-   - `msys-base`
-3. Add `C:\MinGW\bin` to your **System Environment Variables → Path**
-
----
 
 ### 🔢 Build & Run Commands
 
