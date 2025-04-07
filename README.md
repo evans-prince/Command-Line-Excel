@@ -144,6 +144,7 @@ mingw32-make clean # Windows
 This project was collaboratively developed by:
 
 - 👨‍💻 Prince
+- 👨‍💻 Aditya
 
 ---
 
