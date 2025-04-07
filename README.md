@@ -131,7 +131,7 @@ make clean
 ## 🔗 Project Links
 
 - 📁 **GitHub Repository**: [Command-Line Excel](https://github.com/Cyanide-03/Command-Line-Excel)
-- 📽️ **Demo Video**: [Watch Demo](https://csciitd-my.sharepoint.com/:f:/r/personal/ph1221248iitdacin/Documents/cop290−demo−video?csf=1&web=1&e=5IphAe)
+- 📽️ **Demo Video**: [Watch Demo](https://csciitd-my.sharepoint.com/:v:/g/personal/ph1221248_iitd_ac_in/EYGqIFa5qNRIl2LBnGHC8h8BVRATkNtxBRx4TYOI_3kHiQ?e=2s2BGr)
 
 ---
 
@@ -140,6 +140,7 @@ make clean
 This project was collaboratively developed by:
 
 - 👨‍💻 Prince
+- 👨‍💻 Aditya
 
 ---
 
