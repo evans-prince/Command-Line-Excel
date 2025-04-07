@@ -1,6 +1,6 @@
 # Command-Line Excel: Spreadsheet Project
 
-**Authors:** Prince\
+**Author:** Prince\
 **Start Date:** 01-Feb-2025
 
 ---
@@ -128,7 +128,7 @@ $ make clean
 
 This project was collaboratively developed by:
 
-- 👨‍🔬 Prince (BTech Engineering Physics, IIT Delhi)
+- 👨‍💻 Prince
 - 👨‍💻 Aditya
 
 ---
