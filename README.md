@@ -92,7 +92,7 @@ A Linux, macOS, or Windows system with:
 #### Linux/macOS:
 ```bash
 # Clone the repository
-git clone https://github.com/Cyanide-03/Command-Line-Excel.git
+git clone https://github.com/evans-prince/Command-Line-Excel.git
 cd Command-Line-Excel/Command-Line-Excel
 
 # Build the project
@@ -107,7 +107,7 @@ make
 :: Open Command Prompt (cmd) or Git Bash
 
 :: Clone the repository
-git clone https://github.com/Cyanide-03/Command-Line-Excel.git
+git clone https://github.com/evans-prince/Command-Line-Excel.git
 cd Command-Line-Excel\Command-Line-Excel
 
 :: Build the project
@@ -134,7 +134,7 @@ mingw32-make clean # Windows
 
 ## 🔗 Project Links
 
-- 📁 **GitHub Repository**: [Command-Line Excel](https://github.com/Cyanide-03/Command-Line-Excel)
+- 📁 **GitHub Repository**: [Command-Line Excel](https://github.com/evans-prince/Command-Line-Excel)
 - 📽️ **Demo Video**: [Watch Demo](https://csciitd-my.sharepoint.com/:v:/g/personal/ph1221248_iitd_ac_in/EYGqIFa5qNRIl2LBnGHC8h8BVRATkNtxBRx4TYOI_3kHiQ?e=2s2BGr)
 
 ---
