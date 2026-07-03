@@ -24,7 +24,7 @@ From the repo root:
 
 ```bash
 mkdir -p docs/pkg
-emcc -O2 -std=c11 -Iinclude \
+emcc -O2 -std=c11 -D_POSIX_C_SOURCE=200809L -Iinclude \
   src/main.c src/display.c src/formula_parser.c src/input_handler.c \
   src/recalculation.c src/scrolling.c src/spreadsheet.c src/command_router.c \
   lib/utils.c \
@@ -39,6 +39,13 @@ emcc -O2 -std=c11 -Iinclude \
   -s INVOKE_RUN=0 \
   -lm
 ```
+
+`-D_POSIX_C_SOURCE=200809L` is needed because `main.c` calls the POSIX
+function `getline()`. Native glibc/macOS's libc expose it under `-std=c11`
+regardless, but Emscripten's musl-based libc follows strict ISO C conformance
+under `-std=c11` and hides POSIX extensions unless a feature-test macro asks
+for them — without this flag you'd hit `call to undeclared function
+'getline'`.
 
 What each flag does:
 
@@ -79,6 +86,8 @@ server root is already `docs/`).
 
 - **`emcc: command not found`** — you forgot to `source ./emsdk_env.sh` in
   this terminal.
+- **`call to undeclared function 'getline'`** — missing
+  `-D_POSIX_C_SOURCE=200809L` (see above).
 - **`specified output file (docs/pkg/spreadsheet.js) is in a directory that
   does not exist`** — run `mkdir -p docs/pkg` first.
 - **`SyntaxError: The requested module './pkg/spreadsheet.js' does not
