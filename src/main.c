@@ -205,6 +205,24 @@ void wasm_execute(char *input) {
     }
 }
 
+// Temporary diagnostics for tracking down the cycle-detection quirk -- not
+// part of the permanent API, safe to remove once the underlying issue is
+// understood. wasm_build_marker() lets us confirm the browser is actually
+// running this exact build (rules out stale caching); wasm_debug_cycle_check
+// calls the same prediction helper wasm_execute() uses, but returns the
+// result directly instead of only using it to patch a status message, so it
+// can be probed in isolation from the browser console.
+EMSCRIPTEN_KEEPALIVE
+const char *wasm_build_marker(void) {
+    return "cycle-fix-debug-build-1";
+}
+
+EMSCRIPTEN_KEEPALIVE
+int wasm_debug_cycle_check(char *input) {
+    if (!wasm_sheet || !input) return -1;
+    return wasm_formula_would_cycle(wasm_sheet, input) ? 1 : 0;
+}
+
 EMSCRIPTEN_KEEPALIVE
 int wasm_get_cell(int row, int col) {
     if (!wasm_sheet || row < 0 || row >= wasm_sheet->num_rows || col < 0 || col >= wasm_sheet->num_cols) {
