@@ -107,6 +107,21 @@ demo's `app.js` clamps the viewport offset to `[0, dimension-1]` defensively
 so it never renders a negative row/column, but the underlying quirk in
 `scroll()` is unchanged — worth a look if you want to fix it upstream.
 
+## 4b. Known quirk: cycle-detection status message (WASM build only)
+
+Creating a circular dependency (e.g. `B6=B7` then `B7=B6`) correctly leaves
+the target cell's value untouched — no corruption, the dependency simply
+isn't added. But the status bar shows `ok` instead of `Cycle detected in
+dependencies` when compiled with `emcc`. The identical scenario compiled
+natively with plain `gcc` (both `-O0` and `-O2`) correctly reports the cycle
+message, so this looks like an Emscripten/clang-specific quirk in the
+unmodified upstream cycle-detection code (`spreadsheet.c`'s `has_cycle`/`dfs`,
+or the `message[]` propagation chain through `update_dependencies` →
+`add_range_dependency` → `command_router`) rather than anything the WASM
+wrapper introduced. If you want to chase it further, try rebuilding with
+`-O0` instead of `-O2` and see if the message comes back — that would
+confirm it's an optimizer interaction rather than a target-architecture one.
+
 ## 5. Deploying to GitHub Pages
 
 Settings → Pages → Build and deployment → Source: "Deploy from a branch" →
