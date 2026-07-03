@@ -32,10 +32,10 @@ emcc -O2 -std=c11 -D_POSIX_C_SOURCE=200809L -Iinclude \
   -s MODULARIZE=1 \
   -s EXPORT_ES6=1 \
   -s EXPORT_NAME=createSpreadsheetModule \
-  -s EXPORTED_FUNCTIONS=_wasm_create_sheet,_wasm_execute,_wasm_get_cell,_wasm_get_formula,_wasm_get_status,_wasm_get_elapsed,_wasm_num_rows,_wasm_num_cols,_wasm_first_row,_wasm_first_col,_wasm_build_marker,_wasm_debug_cycle_check \
+  -s EXPORTED_FUNCTIONS=_wasm_create_sheet,_wasm_execute,_wasm_get_cell,_wasm_get_formula,_wasm_get_status,_wasm_get_elapsed,_wasm_num_rows,_wasm_num_cols,_wasm_first_row,_wasm_first_col \
   -s EXPORTED_RUNTIME_METHODS=ccall,cwrap \
   -s ENVIRONMENT=web \
-  -s ALLOW_MEMORY_GROWTH=1 \
+  -s INITIAL_MEMORY=134217728 \
   -s INVOKE_RUN=0 \
   -lm
 ```
@@ -63,9 +63,13 @@ What each flag does:
 - `EXPORTED_RUNTIME_METHODS=ccall,cwrap` — exposes the helpers `app.js` uses
   to call into those functions with automatic JS↔C string/number marshalling.
 - `ENVIRONMENT=web` — skip generating Node.js/worker fallback code paths.
-- `ALLOW_MEMORY_GROWTH=1` — the sheet's grid is `rows*cols` cell structs;
-  spinning up a large custom sheet from the "New Sheet" control can need more
-  memory than Emscripten's default fixed heap.
+- `INITIAL_MEMORY=134217728` (128MB) — a *fixed* heap, not growable. See
+  section 4b below for why growth is deliberately avoided here; 128MB
+  comfortably covers the default 100x100 sheet and reasonably large custom
+  sizes from the "New Sheet" control, but an extreme custom size approaching
+  the native CLI's 999x18278 cap could exhaust it (`create_sheet`'s `malloc`
+  calls aren't null-checked, so that would crash rather than error cleanly —
+  a pre-existing gap, not new here).
 - `INVOKE_RUN=0` — **required**. Without it, Emscripten calls the compiled
   `main()` automatically on load. This project's `main()` expects two CLI
   args and then loops forever on `getline(stdin)` — in a browser there's no
@@ -95,6 +99,10 @@ server root is already `docs/`).
 - **Page loads but nothing renders / console shows a wasm fetch 404** —
   the browser is loading over `file://` instead of `http://`; use the
   `python3 -m http.server` step above.
+- **Console shows `TextDecoder: The provided ArrayBuffer value must not be
+  resizable`, or the status bar seems stuck** — this means `-s
+  ALLOW_MEMORY_GROWTH=1` crept back into the build command; see section 4b.
+  Use the fixed `INITIAL_MEMORY` flag instead.
 
 ## 4. Known pre-existing quirk (not introduced by this port)
 
@@ -107,20 +115,32 @@ demo's `app.js` clamps the viewport offset to `[0, dimension-1]` defensively
 so it never renders a negative row/column, but the underlying quirk in
 `scroll()` is unchanged — worth a look if you want to fix it upstream.
 
-## 4b. Known quirk: cycle-detection status message (WASM build only)
+## 4b. Fixed: cycle-detection status message appeared stuck on "ok"
 
-Creating a circular dependency (e.g. `B6=B7` then `B7=B6`) correctly leaves
-the target cell's value untouched — no corruption, the dependency simply
-isn't added. But the status bar shows `ok` instead of `Cycle detected in
-dependencies` when compiled with `emcc`. The identical scenario compiled
-natively with plain `gcc` (both `-O0` and `-O2`) correctly reports the cycle
-message, so this looks like an Emscripten/clang-specific quirk in the
-unmodified upstream cycle-detection code (`spreadsheet.c`'s `has_cycle`/`dfs`,
-or the `message[]` propagation chain through `update_dependencies` →
-`add_range_dependency` → `command_router`) rather than anything the WASM
-wrapper introduced. If you want to chase it further, try rebuilding with
-`-O0` instead of `-O2` and see if the message comes back — that would
-confirm it's an optimizer interaction rather than a target-architecture one.
+Creating a circular dependency (e.g. `B6=B7` then `B7=B6`) always correctly
+left the target cell's value untouched (verified: no corruption, the
+dependency simply wasn't added) — but the status bar kept showing `ok`
+instead of `Cycle detected in dependencies`. This looked at first like the
+cycle-detection logic itself was broken under `emcc`, but it wasn't:
+
+The real cause was `-s ALLOW_MEMORY_GROWTH=1`. Once the WASM heap needed to
+grow past its initial size, Chrome's `TextDecoder.decode()` started throwing
+`The provided ArrayBuffer value must not be resizable` for *any*
+string-returning wasm call (`wasm_get_status`, `wasm_get_formula`) — because
+Emscripten's growable memory backs `HEAPU8` with a resizable `ArrayBuffer`,
+which newer Chrome's `TextDecoder` rejects outright. `app.js`'s `renderAll()`
+calls `wasmGetStatus()` without a try/catch, so once that started throwing,
+the exception silently aborted the rest of that render pass, freezing the
+status text at whatever it last successfully showed — which happened to be
+"ok" from earlier in the session. The actual C-side `has_cycle()` check was
+correct the entire time (confirmed directly from the browser console via
+`ccall`, independent of the status display).
+
+Fix: switched to a *fixed* `INITIAL_MEMORY` instead of
+`ALLOW_MEMORY_GROWTH=1` (see the flag list above), which avoids the growable
+memory path — and therefore the resizable-`ArrayBuffer` `TextDecoder`
+incompatibility — entirely. No C code needed to change; the cycle-detection
+logic was never the problem.
 
 ## 5. Deploying to GitHub Pages
 
