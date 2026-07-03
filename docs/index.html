@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Command-Line-Excel — WASM Demo</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --panel: #171a23;
+    --border: #2a2f3d;
+    --text: #e6e8ee;
+    --muted: #8b93a7;
+    --accent: #4f8cff;
+    --accent-dim: #274a86;
+    --err: #ff6464;
+    --ok: #4caf7d;
+    --mono: "SF Mono", "Fira Code", Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 { margin: 0 0 4px 0; font-size: 18px; }
+  header p { margin: 0; color: var(--muted); font-size: 13px; }
+  header a { color: var(--accent); }
+
+  .layout {
+    display: flex;
+    gap: 16px;
+    padding: 16px 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .main { flex: 1 1 640px; min-width: 320px; }
+  .sidebar {
+    flex: 0 0 280px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .sidebar h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 0 0 10px 0; }
+  .sidebar h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 16px 0 8px 0; }
+  .example {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: #1d2130;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12.5px;
+    padding: 7px 9px;
+    margin-bottom: 6px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .example:hover { border-color: var(--accent); background: #232842; }
+  .help-text { color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 10px; }
+
+  .row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+  input, button {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: #1d2130;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 5px;
+    padding: 7px 10px;
+  }
+  button {
+    cursor: pointer;
+    background: var(--accent-dim);
+    border-color: var(--accent);
+  }
+  button:hover { background: var(--accent); }
+  button.secondary { background: #1d2130; border-color: var(--border); }
+  button.secondary:hover { background: #262b3d; }
+  #cellLabel {
+    width: 60px;
+    text-align: center;
+    background: #1d2130;
+    border-color: var(--border);
+    color: var(--muted);
+  }
+  #formulaBar { flex: 1 1 200px; min-width: 160px; }
+  #commandBar { flex: 1 1 200px; min-width: 160px; }
+  .status-bar {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    font-family: var(--mono);
+  }
+  .status-bar .ok { color: var(--ok); }
+  .status-bar .err { color: var(--err); }
+
+  .grid-wrap {
+    overflow: auto;
+    max-height: 480px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  table { border-collapse: collapse; width: 100%; }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 0;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    min-width: 72px;
+    height: 26px;
+  }
+  th {
+    background: #1a1e2a;
+    color: var(--muted);
+    font-weight: 500;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    text-align: center;
+  }
+  th:first-child { left: 0; z-index: 3; min-width: 44px; }
+  td.rowhead {
+    background: #1a1e2a;
+    color: var(--muted);
+    text-align: center;
+    position: sticky;
+    left: 0;
+    z-index: 1;
+  }
+  td.cell {
+    text-align: right;
+    padding: 0 8px;
+    cursor: cell;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  td.cell:hover { background: #1d2233; }
+  td.cell.selected { outline: 2px solid var(--accent); outline-offset: -2px; background: #1c2540; }
+  td.cell.err { color: var(--err); }
+
+  .scroll-pad {
+    display: inline-grid;
+    grid-template-columns: repeat(3, 34px);
+    grid-template-rows: repeat(2, 30px);
+    gap: 4px;
+    margin-left: 4px;
+  }
+  .scroll-pad button { padding: 0; }
+  .scroll-pad .up { grid-column: 2; grid-row: 1; }
+  .scroll-pad .left { grid-column: 1; grid-row: 2; }
+  .scroll-pad .down { grid-column: 2; grid-row: 2; }
+  .scroll-pad .right { grid-column: 3; grid-row: 2; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Command-Line-Excel — running natively in your browser via WebAssembly</h1>
+  <p>C spreadsheet engine (dependency graph, formulas, SUM/AVG/MIN/MAX/STDEV, scrolling) compiled with Emscripten — no server involved. <a href="https://github.com/evans-prince/Command-Line-Excel" target="_blank">Source</a></p>
+</header>
+
+<div class="layout">
+  <div class="main">
+    <div class="row">
+      <input id="cellLabel" disabled value="A1" />
+      <input id="formulaBar" placeholder="value or formula, e.g. 5, B1, or B1+3" />
+      <button id="commitBtn">Set</button>
+      <button id="clearBtn" class="secondary">Clear cell</button>
+    </div>
+
+    <div class="row">
+      <input id="commandBar" placeholder="raw command, e.g. D1=SUM(A1:A5)" />
+      <button id="runCommandBtn">Run</button>
+      <div class="scroll-pad">
+        <button class="up" title="scroll up (w)">▲</button>
+        <button class="left" title="scroll left (a)">◀</button>
+        <button class="down" title="scroll down (s)">▼</button>
+        <button class="right" title="scroll right (d)">▶</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <span style="color: var(--muted); font-size: 12px;">New sheet:</span>
+      <input id="newRowsInput" type="number" min="1" max="999" value="100" style="width: 70px;" />
+      <span style="color: var(--muted); font-size: 12px;">rows ×</span>
+      <input id="newColsInput" type="number" min="1" max="18278" value="100" style="width: 70px;" />
+      <span style="color: var(--muted); font-size: 12px;">cols</span>
+      <button id="newSheetBtn" class="secondary">New Sheet</button>
+    </div>
+
+    <div class="status-bar" id="statusBar">loading wasm module…</div>
+
+    <div class="grid-wrap">
+      <table id="grid"></table>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <h2>Try it</h2>
+    <h3>Formulas</h3>
+    <button class="example" data-formula="A1=10">A1 = 10</button>
+    <button class="example" data-formula="B1=A1">B1 = A1 (dependent)</button>
+    <button class="example" data-formula="C1=A1+B1">C1 = A1+B1</button>
+
+    <h3>Commands (raw)</h3>
+    <button class="example" data-command="D1=SUM(A1:A5)">D1=SUM(A1:A5)</button>
+    <button class="example" data-command="D2=AVG(A1:A5)">D2=AVG(A1:A5)</button>
+    <button class="example" data-command="D3=MAX(A1:A5)">D3=MAX(A1:A5)</button>
+    <button class="example" data-command="D4=MIN(A1:A5)">D4=MIN(A1:A5)</button>
+    <button class="example" data-command="D5=STDEV(A1:A5)">D5=STDEV(A1:A5)</button>
+    <button class="example" data-command="scroll_toA1">scroll_toA1 (jump viewport)</button>
+
+    <div class="help-text">
+      Click a cell to select it, then use the top field to set its value or formula
+      (arithmetic like <code>3+4</code> or a reference like <code>B1</code> also works).
+      The second field sends a raw command straight to the C engine, exactly like the
+      native CLI's stdin — try function calls, ranges, or <code>scroll_to&lt;cell&gt;</code>.
+      Only ten rows/columns are visible at a time, matching the original terminal UI;
+      scroll with the ▲▼◀▶ buttons or w/a/s/d in the command field. A div-by-zero
+      shows as <b>ERR</b>, same as the terminal version. Quitting is disabled here so the
+      sheet stays alive in your tab.
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./app.js?v=1"></script>
+</body>
+</html>
