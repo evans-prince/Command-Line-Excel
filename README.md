@@ -11,6 +11,14 @@ This project is a command-line spreadsheet program developed in C, supporting in
 
 ---
 
+## 🎬 Live Demo
+
+Compiled to WebAssembly with Emscripten and running entirely in the browser, no server involved -- **[Try it live](https://evans-prince.github.io/Command-Line-Excel/)**
+
+![Command-Line-Excel live demo](command-line-excel-demo.gif)
+
+---
+
 ## ✨ Features
 
 - 📊 **Spreadsheet Grid**: Supports sizes from 1x1 up to 999x18278 (A1 to ZZZ999).
