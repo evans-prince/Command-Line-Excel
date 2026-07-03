@@ -32,7 +32,7 @@ emcc -O2 -std=c11 -D_POSIX_C_SOURCE=200809L -Iinclude \
   -s MODULARIZE=1 \
   -s EXPORT_ES6=1 \
   -s EXPORT_NAME=createSpreadsheetModule \
-  -s EXPORTED_FUNCTIONS=_wasm_create_sheet,_wasm_execute,_wasm_get_cell,_wasm_get_formula,_wasm_get_status,_wasm_get_elapsed,_wasm_num_rows,_wasm_num_cols,_wasm_first_row,_wasm_first_col \
+  -s EXPORTED_FUNCTIONS=_wasm_create_sheet,_wasm_execute,_wasm_get_cell,_wasm_get_formula,_wasm_get_status,_wasm_get_elapsed,_wasm_num_rows,_wasm_num_cols,_wasm_first_row,_wasm_first_col,_wasm_build_marker,_wasm_debug_cycle_check \
   -s EXPORTED_RUNTIME_METHODS=ccall,cwrap \
   -s ENVIRONMENT=web \
   -s ALLOW_MEMORY_GROWTH=1 \
