@@ -1,8 +1,12 @@
 // The ?v=N query string busts GitHub Pages' / browsers' asset cache — bump
-// it on every change to app.js or index.html. Static import specifiers must
-// be string literals (no template literals), so bump it by hand here and in
-// index.html's <script src> together.
-import createSpreadsheetModule from "./pkg/spreadsheet.js?v=2";
+// it on every change to app.js, index.html, OR a rebuilt docs/pkg/*
+// (the wasm/js output changes bytes without app.js's own code changing,
+// so it needs a bump too or the browser can keep serving the old build).
+// Static import specifiers must be string literals (no template literals),
+// so bump it by hand here, in index.html's <script src>, AND in
+// ASSET_VERSION below (used for the wasm binary's own cache-busting).
+const ASSET_VERSION = 3;
+import createSpreadsheetModule from "./pkg/spreadsheet.js?v=3";
 
 const INT_MIN = -2147483648; // matches C's INT_MIN, used by the engine for div-by-zero / errors
 
@@ -212,6 +216,13 @@ async function main() {
   Module = await createSpreadsheetModule({
     print: () => {},
     printErr: () => {},
+    // spreadsheet.js's own internal fetch of spreadsheet.wasm uses a fixed,
+    // unversioned relative path baked in at build time -- bumping the ?v=
+    // on the import above doesn't touch it, so a rebuilt .wasm with the
+    // same filename could keep getting served stale from cache. locateFile
+    // is Emscripten's hook for redirecting that internal fetch; appending
+    // ASSET_VERSION here cache-busts the wasm binary too.
+    locateFile: (path, prefix) => `${prefix}${path}?v=${ASSET_VERSION}`,
   });
 
   wasmCreateSheet = Module.cwrap("wasm_create_sheet", null, ["number", "number"]);
