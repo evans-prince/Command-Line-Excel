@@ -1,12 +1,8 @@
-// Bump this on every change to bust GitHub Pages' / browsers' asset cache.
-// Static import specifiers must be string literals, so this can't be
-// interpolated into the import line below — only into the wasm binary path.
-const ASSET_VERSION = 1;
-
-// Static import specifiers can't use template literals, so this has to be
-// a plain string. EXPORT_ES6=1 (set at build time) is what makes this a
-// real ES module with a `export default` factory function.
-import createSpreadsheetModule from "./pkg/spreadsheet.js?v=1";
+// The ?v=N query string busts GitHub Pages' / browsers' asset cache — bump
+// it on every change to app.js or index.html. Static import specifiers must
+// be string literals (no template literals), so bump it by hand here and in
+// index.html's <script src> together.
+import createSpreadsheetModule from "./pkg/spreadsheet.js?v=2";
 
 const INT_MIN = -2147483648; // matches C's INT_MIN, used by the engine for div-by-zero / errors
 
@@ -165,9 +161,9 @@ function newSheet() {
   ROWS = rows;
   COLS = cols;
   wasmCreateSheet(rows, cols);
-  selectedRow = 0;
-  selectedCol = 0;
-  renderAll();
+  // selectCell (not a manual reset + renderAll) so the formula bar picks up
+  // the fresh sheet's A1 instead of showing whatever was last typed there.
+  selectCell(0, 0);
 }
 
 function wireEvents() {
